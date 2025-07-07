@@ -23,7 +23,14 @@
 #
 #---------------------------------------------------------
 
-echo "enter core directory, or leave blank for default </home/EPICS>"
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script requires sudo privileges to work properly. Please run as sudo."
+    #sudo "$0" "$@"  # Re-run the script with sudo
+    exit 0  # Exit the original script after re-running with sudo
+fi
+
+
+echo "Enter an installation directory, or leave blank for default </home/EPICS>"
 read coreDir
 
 if [ -z "$coreDir" ]; then
@@ -36,8 +43,14 @@ fi
 debDirName='debFiles'
 githubDirName='gitRepos'
 
-debDirPath="$mainDirPath/$debDirName"
-gitDirPath="$mainDirPath/$githubDirName"
+#debDirPath="$mainDirPath/$debDirName"
+#gitDirPath="$mainDirPath/$githubDirName"
+
+#******************************************NOTE! This is a workaround. These files should be bundled in a .tar file alongside the .sh****************
+debDirPath="/home/triumfHolotype/debFiles"
+gitDirPath="/home/triumfHolotype/gitRepos"
+sudo cp -r /home/triumfHolotype/gitRepos/epics-base /opt/epics
+sudo cp -r /home/triumfHolotype/gitRepos/edm /opt/epics/extensions/src
 
 mkdir -p /home/EPICS/
 mkdir -p /opt/epics/extensions/src
@@ -55,7 +68,7 @@ apt --fix-broken install
 
 linesForBashrc=(
   'export PATH="$PATH:$mainDirPath"'
-  'export PATH="$PATH:$debFolderPath"'
+  'export PATH="$PATH:$debDirPath"'
   'export PATH="$PATH:$githubFilesPath"'
 
   'export PATH="/opt/epics/epics-base/bin/linux-x86_64:$PATH"'
@@ -73,9 +86,15 @@ linesForBashrc=(
 )
 
 for line in "${linesForBashrc[@]}"; do
-	echo "$line" >> ~/.bashrc
+  # Check if the line already exists in ~/.bashrc
+  if ! grep -Fxq "$line" ~/.bashrc; then
+    # If the line doesn't exist, append it to ~/.bashrc
+    echo "$line" >> ~/.bashrc
+  else
+    echo "Line already exists in ~/.bashrc: $line"
+  fi
 done
-	
+
 #---------------------------------------------------------
 #
 #		Installs software
@@ -90,7 +109,7 @@ done
 #
 #---------------------------------------------------------
 
-dpkg -i "$debFolderPath"/*.deb
+dpkg -i "$debDirPath"/*.deb
 ##git repositories are saved in the gitRepos folder -- these don't need to be installed, just copied into their intended directories
 
 
