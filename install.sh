@@ -125,8 +125,11 @@ source ~/.bashrc
 #
 #=--------------------------------------------------------
 
+#dev note -- look into /home/epicsRelics for .deb files removed from installation process
+#if the code works, ignore the above comment lol
+
 dpkg -i "$debDirPath"/*.deb
-##git repositories are saved in the gitRepos folder -- these don't need to be installed, just copied into their intended directories
+#git repositories are saved in the gitRepos folder -- these don't need to be installed, just copied into their intended directories
 
 
 #extensionsTop_[] is included in debFolderPath
@@ -164,12 +167,12 @@ sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_6
 sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' 						/opt/epics/extensions/src/edm/giflib/Makefile
 sed -i -e 's| ungif||g' 									/opt/epics/extensions/src/edm/giflib/Makefile*
 
-sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflibvideowidget' /opt/epics/extensions/src/setup/edm/setup.sh
-sed -i -e '79d' 											/opt/epics/extensions/src/setup/edm/setup.sh
-sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' 	/opt/epics/extensions/src/setup/edm/setup.sh
-sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' 				/opt/epics/extensions/src/setup/edm/setup.sh
-sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' 	/opt/epics/extensions/src/setup/edm/setup.sh
-sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' 			/opt/epics/extensions/src/setup/edm/setup.sh
+sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflibvideowidget' /opt/epics/extensions/src/edm/setup/setup.sh
+sed -i -e '79d' 											/opt/epics/extensions/src/edm/setup/setup.sh
+sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' 	/opt/epics/extensions/src/edm/setup/setup.sh
+sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' 				/opt/epics/extensions/src/edm/setup/setup.sh
+sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' 	/opt/epics/extensions/src/edm/setup/setup.sh
+sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' 			/opt/epics/extensions/src/edm/setup/setup.sh
 
 
 #---------------------------------------------------------
