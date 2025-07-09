@@ -16,7 +16,7 @@
 #
 #		Housekeeping
 #
-#---------------------------------------------------------
+#=--------------------------------------------------------
 
 #apt-get update 
 #apt --fix-broken install
@@ -28,7 +28,7 @@
 # - Verify sudo access
 # - Prompt for directories
 #
-#---------------------------------------------------------
+#=--------------------------------------------------------
 
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script requires sudo privileges to work properly. Please run as sudo."
@@ -41,7 +41,7 @@ fi
 #read coreDir <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<debug
 
 if [ -z "$coreDir" ]; then
-	installationTargetPath="/home/EPICS"
+	installationTargetPath="/home/epics"
 else
     installationTargetPath="$coreDir"
 fi
@@ -54,9 +54,11 @@ fi
 # - Only core installation directories lol
 # - Program paths build off of here
 #
-#---------------------------------------------------------
+#=---------------------------------------------------------
 
 sourcePath="/home/triumfHolotype/" #this should be updated to unzip directory
+
+echo copying from: $sourcePath to $installationTargetPath
 
 debDirName='debFiles'
 githubDirName='gitRepos'
@@ -67,15 +69,15 @@ gitDirPath="$installationTargetPath/$githubDirName"
 mkdir -p $installationTargetPath
 mkdir -p /opt/epics/extensions/src
 
-sudo cp -r $sourcePath/ /home/EPICS
-sudo cp -r $installationTargetPath/gitRepos/epics-base /opt/epics 
-sudo cp -r $installationTargetPath/edm /opt/epics/extensions/src
+sudo cp -r $sourcePath/. $installationTargetPath 
+sudo mv $installationTargetPath/gitRepos/epics-base /opt/epics/
+sudo mv $installationTargetPath/gitRepos/edm /opt/epics/extensions/src/
 
 #---------------------------------------------------------
 #
 #		Appends lines to bashrc
 #
-#---------------------------------------------------------
+#=--------------------------------------------------------
 
 #single quotes are better for outer wrappings
 
@@ -102,8 +104,8 @@ for line in "${linesForBashrc[@]}"; do
   if ! grep -Fxq "$line" ~/.bashrc; then
     # If the line doesn't exist, append it to ~/.bashrc
     echo "$line" >> ~/.bashrc
-  else
-    echo "Line already exists in ~/.bashrc: $line"
+#   else
+#     echo "Line already exists in ~/.bashrc: $line"
   fi
 done
 
@@ -121,7 +123,7 @@ source ~/.bashrc
 #	sudo git clone --branch 3.15 https://github.com/epics-base/epics-base.git
 #	sudo git clone https://github.com/epicsdeb/edm.git
 #
-#---------------------------------------------------------
+#=--------------------------------------------------------
 
 dpkg -i "$debDirPath"/*.deb
 ##git repositories are saved in the gitRepos folder -- these don't need to be installed, just copied into their intended directories
@@ -137,7 +139,7 @@ tar xzvf $installationTargetPath/extensionsTop_20120904.tar.gz -C /opt/epics
 #
 #		Edits config files
 #
-#---------------------------------------------------------
+#=--------------------------------------------------------
 
 #Sed operations edit the files indicated. 
 
@@ -174,7 +176,7 @@ sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonit
 #
 #		Builds EPICS
 #
-#---------------------------------------------------------
+#=--------------------------------------------------------
 
 /opt/epics/epics-base/make
 /opt/epics/extensions/src/edm/make clean
