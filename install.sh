@@ -12,6 +12,39 @@
 #Moving forwards, the contents of git repositories (e.g. https://github.com/epicsdeb/edm.git) should also be frozen for isolated reproducibility
 
 
+#---------------------------------------------------------
+#
+#		Housekeeping
+#
+#---------------------------------------------------------
+
+#apt-get update 
+#apt --fix-broken install
+
+#---------------------------------------------------------
+#
+#		UI
+#
+# - Verify sudo access
+# - Prompt for directories
+#
+#---------------------------------------------------------
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script requires sudo privileges to work properly. Please run as sudo."
+    #sudo "$0" "$@"  # Re-run the script with sudo
+    exit 0  # Exit the original script after re-running with sudo
+fi
+
+
+#echo "Enter an installation directory, or leave blank for default </home/EPICS>"
+#read coreDir <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<debug
+
+if [ -z "$coreDir" ]; then
+	installationTargetPath="/home/EPICS"
+else
+    installationTargetPath="$coreDir"
+fi
 
 #---------------------------------------------------------
 #
@@ -23,40 +56,20 @@
 #
 #---------------------------------------------------------
 
-if [ "$(id -u)" -ne 0 ]; then
-    echo "This script requires sudo privileges to work properly. Please run as sudo."
-    #sudo "$0" "$@"  # Re-run the script with sudo
-    exit 0  # Exit the original script after re-running with sudo
-fi
-
-
-echo "Enter an installation directory, or leave blank for default </home/EPICS>"
-read coreDir
-
-if [ -z "$coreDir" ]; then
-    mainDirPath="/home/EPICS"
-else
-    mainDirPath="$coreDir"
-fi
-
+sourcePath="/home/triumfHolotype/" #this should be updated to unzip directory
 
 debDirName='debFiles'
 githubDirName='gitRepos'
 
-#debDirPath="$mainDirPath/$debDirName"
-#gitDirPath="$mainDirPath/$githubDirName"
+debDirPath="$installationTargetPath/$debDirName"
+gitDirPath="$installationTargetPath/$githubDirName"
 
-#******************************************NOTE! This is a workaround. These files should be bundled in a .tar file alongside the .sh****************
-debDirPath="/home/triumfHolotype/debFiles"
-gitDirPath="/home/triumfHolotype/gitRepos"
-sudo cp -r /home/triumfHolotype/gitRepos/epics-base /opt/epics
-sudo cp -r /home/triumfHolotype/gitRepos/edm /opt/epics/extensions/src
-
-mkdir -p /home/EPICS/
+mkdir -p $installationTargetPath
 mkdir -p /opt/epics/extensions/src
 
-apt-get update
-apt --fix-broken install
+sudo cp -r $sourcePath/ /home/EPICS
+sudo cp -r $installationTargetPath/gitRepos/epics-base /opt/epics 
+sudo cp -r $installationTargetPath/edm /opt/epics/extensions/src
 
 #---------------------------------------------------------
 #
@@ -67,8 +80,7 @@ apt --fix-broken install
 #single quotes are better for outer wrappings
 
 linesForBashrc=(
-  'export PATH="$PATH:$mainDirPath"'
-  'export PATH="$PATH:$debDirPath"'
+  'export PATH="$PATH:$installationTargetPath"'
   'export PATH="$PATH:$githubFilesPath"'
 
   'export PATH="/opt/epics/epics-base/bin/linux-x86_64:$PATH"'
@@ -95,6 +107,8 @@ for line in "${linesForBashrc[@]}"; do
   fi
 done
 
+source ~/.bashrc
+
 #---------------------------------------------------------
 #
 #		Installs software
@@ -115,25 +129,22 @@ dpkg -i "$debDirPath"/*.deb
 
 #extensionsTop_[] is included in debFolderPath
 #it needs to be unpacked; this occurs here
-tar xzvf extensionsTop_20120904.tar.gz -C /opt/epics
+tar xzvf $installationTargetPath/extensionsTop_20120904.tar.gz -C /opt/epics
 
-sudo apt --fix-broken install -y
+#sudo apt --fix-broken install -y 
 
 #---------------------------------------------------------
 #
 #		Edits config files
 #
 #---------------------------------------------------------
-#
-#
-#Be careful with the sed operations -- these edit the files indicated. Validate!
-#typical format is: sed 's/oldWord/newWord/' fileName
-#appending arguments: how many elements to replace within a line? Default: First only
 
+#Sed operations edit the files indicated. 
+
+#typical format is: sed 's/oldWord/newWord/' fileName
 
 #-i <-- edit in place
-#-e <-- Allow multiple commands
-#The script is formatted with -e because there are several edits necessary for each file
+#-e <-- Allow multiple commands on the given file
 #General sed format:
 #        - sed -i -e '<lineNumber><operator><argument> <targetFile>
 #                OPERATORS:
@@ -168,4 +179,7 @@ sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonit
 /opt/epics/epics-base/make
 /opt/epics/extensions/src/edm/make clean
 /opt/epics/extensions/src/edm/make
+
+
+
 
