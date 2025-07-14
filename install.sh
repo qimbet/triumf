@@ -58,8 +58,6 @@ fi
 
 sourcePath="/home/triumfHolotype/" #this should be updated to unzip directory
 
-echo copying from: $sourcePath to $installationTargetPath
-
 debDirName='debFiles'
 githubDirName='gitRepos'
 
@@ -67,10 +65,14 @@ debDirPath="$installationTargetPath/$debDirName"
 gitDirPath="$installationTargetPath/$githubDirName"
 
 mkdir -p $installationTargetPath
-mkdir -p /opt/epics/extensions/src
+sudo mkdir -p /opt/epics/
 
 sudo cp -r $sourcePath/. $installationTargetPath 
+
 sudo mv $installationTargetPath/gitRepos/epics-base /opt/epics/
+tar xzvf $installationTargetPath/extensionsTop_20120904.tar.gz -C /opt/epics
+sudo rm $installationTagetPath/extensionsTop_20120904.tar.gz
+
 sudo mv $installationTargetPath/gitRepos/edm /opt/epics/extensions/src/
 
 #---------------------------------------------------------
@@ -132,9 +134,6 @@ dpkg -i "$debDirPath"/*.deb
 #git repositories are saved in the gitRepos folder -- these don't need to be installed, just copied into their intended directories
 
 
-#extensionsTop_[] is included in debFolderPath
-#it needs to be unpacked; this occurs here
-tar xzvf $installationTargetPath/extensionsTop_20120904.tar.gz -C /opt/epics
 
 #sudo apt --fix-broken install -y 
 
@@ -181,10 +180,10 @@ sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonit
 #
 #=--------------------------------------------------------
 
-/opt/epics/epics-base/make
-/opt/epics/extensions/src/edm/make clean
-/opt/epics/extensions/src/edm/make
-
-
-
+#cd /opt/epics/epics-base 
+#make
+#
+#cd /opt/epics/extensions/src/edm
+#make clean
+#make
 
