@@ -1,61 +1,8 @@
-Preparing to unpack .../libreadline-dev_9.1-1_amd64.deb ...
-Unpacking libreadline-dev:amd64 (8.1-1) over (8.1-1) ...
-dpkg: regarding .../libreadline-gplv2-dev_5.2+dfsg-3build3_amd64.deb containing libreadline-gplv2-dev:amd64:
- libreadline-gplv2-dev conflicts with libreadline-dev
-  libreadline-dev:amd64 (version 8.1-1) is present and unpacked but not configured.
+files list missing for packages: 
 
-dpkg: error processing archive /home/epics/debFiles/libreadline-gplv2-dev_5.2+dfsg-3build3_amd64.deb (--install):
- conflicting packages - not installing libreadline-gplv2-dev:amd64
-Preparing to unpack .../libsctp1_1.0.19+dfsg-2build1_amd64.deb ...
+libncurses-dev is too modern -- needs version 6.3-2
+libuuid1 too modern -- needs version 2.39.3-9ubuntu6.2
 
-
-Preparing to unpack .../make_4.3-4.1build2_amd64.deb ...
-Unpacking make (4.3-4.1build2) over (4.3-4.1build2) ...
-dpkg: warning: downgrading multiarch-support from 2.28-10+deb10u4 to 2.27-3ubuntu1.6
-Preparing to unpack .../multiarch-support_2.27-3ubuntu1.6_amd64.deb ...
-Unpacking multiarch-support (2.27-3ubuntu1.6) over (2.28-10+deb10u4) ...
-Preparing to unpack .../multiarch-support_2.28-10+deb10u4_amd64.deb ...
-
-Preparing to unpack .../uuid-dev_2.39.3-9ubuntu6.2_amd64.deb ...
-Unpacking uuid-dev:amd64 (2.39.3-9ubuntu6.2) over (2.39.3-9ubuntu6.2) ...
-dpkg: error processing archive /home/epics/debFiles/vim_8.2.2434-3+deb11u3_i386.deb (--install):
- package architecture (i386) does not match system (amd64)
-Preparing to unpack .../x11proto-dev_2023.2-1_all.deb ...
-
-
-Setting up libreadline5:amd64 (5.2+dfsg-3+b13) ...
-dpkg: dependency problems prevent configuration of libreadline-dev:amd64:
- libreadline-dev:amd64 depends on libreadline8 (= 8.1-1); however:
-  Package libreadline8 is not installed.
-  Version of libreadline8 on system, provided by libreadline8t64:amd64, is 8.2-4build1.
-
-dpkg: error processing package libreadline-dev:amd64 (--install):
- dependency problems - leaving unconfigured
-Setting up libsctp1:amd64 (1.0.19+dfsg-2build1) ...
-Setting up libsframe1:amd64 (2.42-4ubuntu2.5) ...
-Setting up libssh2-1t64:amd64 (1.11.0-4.1build2) ...
-dpkg: dependency problems prevent configuration of libtinfo-dev:amd64:
- libtinfo-dev:amd64 depends on libtinfo6 (= 6.3-2); however:
-  Version of libtinfo6:amd64 on system is 6.4+20240113-1ubuntu2.
- libtinfo-dev:amd64 depends on libncurses-dev (= 6.3-2); however:
-  Version of libncurses-dev:amd64 on system is 6.4+20240113-1ubuntu2.
-
-
-
-dpkg: error processing package libtinfo-dev:amd64 (--install):
- dependency problems - leaving unconfigured
-Setting up libtsan2:amd64 (14.2.0-4ubuntu2~24.04) ...
-Setting up libubsan1:amd64 (14.2.0-4ubuntu2~24.04) ...
-Setting up libudisks2-0:amd64 (2.10.1-6ubuntu1.2) ...
-
-Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
-Errors were encountered while processing:
- /home/epics/debFiles/libreadline-gplv2-dev_5.2+dfsg-3build3_amd64.deb
- /home/epics/debFiles/vim_8.2.2434-3+deb11u3_i386.deb
- libreadline-dev:amd64
- libtinfo-dev:amd64
-extensions/
-extensions/configure/
-extensions/configure/RELEAS
+libreadline8t64 breaks needed version of libreadline8
 
 
