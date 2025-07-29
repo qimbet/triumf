@@ -1,0 +1,7 @@
+touch installedFiles.txt
+
+apt list --installed >> installedFiles.txt
+
+echo "------------------------------" >> installedFiles.txt
+
+dpkg --get-selections >> installledFiles.txt
