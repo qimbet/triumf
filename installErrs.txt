@@ -1,8 +1,0 @@
-files list missing for packages: 
-
-libncurses-dev is too modern -- needs version 6.3-2
-libuuid1 too modern -- needs version 2.39.3-9ubuntu6.2
-
-libreadline8t64 breaks needed version of libreadline8
-
-
