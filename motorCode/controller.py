@@ -38,10 +38,10 @@ Reorder, add/remove windings as needed.
 
 """
 
-#requires installation of pigpio to control pins
-#to start pin-control daemon on boot, run once: 
-#   sudo systemctl enable pigpiod
-#   sudo systemctl start pigpiod
+#Prior to runtime, install the lgpio library:
+    #pip install lgpio
+    #sudo apt update
+    #sudo apt install lgpio
 
 
 #***********************************************************************
@@ -51,14 +51,16 @@ Reorder, add/remove windings as needed.
 #***********************************************************************
 
 from time import sleep
-import pigpio
+import lgpio
 import atexit
 import signal
 import sys
 
+
+
 debug = False #prints process text if True; see d()
-delayBetweenMotorSteps_milliseconds = 25 #set rotation speed
-anglePerMotorStep = 0 #find
+delayBetweenMotorSteps_milliseconds = 0 #slow down rotation speed if needed
+anglePerMotorStep = 1.8 #find
 
 coilPins = [("coilA1", 27), #list of tuples. Each entry is: (pinName, boardPinNumber)
             ("coilA2", 22), #the pinName string is for legibility only. Not used in code
@@ -67,7 +69,9 @@ coilPins = [("coilA1", 27), #list of tuples. Each entry is: (pinName, boardPinNu
 
 
 
-pi = None #used later for pigpio
+h = None #chip handle; later used for lgpio
+
+startingState = [0] #assuming element 0 of the coilPins list is to be energized during startup
 numCoils = len(coilPins)
 
 #***********************************************************************
@@ -84,7 +88,12 @@ if True:
     def milliSec(s):
         return (s/1000)
 
-    def step(currentState, directionForward):
+    def initMotor(coilPins):
+        for coil in coilPins:
+            pinNumber = coil[1]
+            lgpio.gpio_claim_output(h, pinNumber, 0)  # Claim as output, initial value 0 (LOW)
+
+    def step(directionForward=True, currentState=[0]):
         #currentState is a list -- either one or two elements; describing the index values of which coilPins elements are energized
 
         if directionForward == True:
@@ -92,14 +101,14 @@ if True:
                 activatedPin = currentState[0]
                 addPinIndex = ((activatedPin+1) % numCoils) #reset to index 0 if at last element
                 addPin = coilPins[addPinIndex][1]
-                pi.write(addPin, 1)
+                lgpio.gpio_write(h, addPin, 1) 
 
                 currentState.append(addPinIndex)
 
             elif len(currentState) == 2:
                 laggingPinIndex = currentState[0]
                 laggingPin = coilPins[laggingPinIndex][1]
-                pi.write(laggingPin, 0)
+                lgpio.gpio_write(h, laggingPin, 0) 
 
                 currentState.remove(laggingPinIndex)
 
@@ -111,14 +120,14 @@ if True:
                 activatedPin = currentState[0]
                 addPinIndex = ((activatedPin-1) % numCoils) #reset to index 0 if at last element
                 addPin = coilPins[addPinIndex][1]
-                pi.write(addPin, 1)
+                lgpio.gpio_write(h, addPin, 1) 
 
                 currentState.insert(0, addPinIndex)
 
             elif len(currentState) == 2:
-                laggingPinIndex = currentState[1]
+                laggingPinIndex = currentState[-1]
                 laggingPin = coilPins[laggingPinIndex][1]
-                pi.write(laggingPin, 0)
+                lgpio.gpio_write(h, laggingPin, 0) 
 
                 currentState.remove(laggingPinIndex)
 
@@ -155,14 +164,11 @@ if True:
 
         return newState
 
-
 #**********************************
-#              Pin Daemon Handling
+#              Memory Handling
 
     def cleanup():
-        global pi
-        if pi is not None:
-            pi.stop()
+        lgpio.gpiochip_close(h)
 
     def signalHandler(_sig, _frame): #arguments unused but required feed by signal.signal
         cleanup()
@@ -180,50 +186,34 @@ if True:
 #***********************************************************************
 
 def main():
-    global pi
-    pi = pigpio.pi() 
-    if not pi.connected:
-        print("Failed to connect to pigpio daemon")
-        pi.stop()
-        sys.exit(1)
+    h = lgpio.gpiochip_open(0)
 
-
-    for coil in coilPins:
-        pi.set_mode(coil[1], pigpio.OUTPUT)
-        pass #pass: for debugging cases where pi.set_mode gets commented out 
-
-
-
-    startingState = [0] #assuming element 0 of the coilPins list is to be energized during startup
+    initMotor(coilPins)
 
     delayVal = milliSec(delayBetweenMotorSteps_milliseconds)
+    angle = 0
 
-    steps = 0
-
-
-    currentState = startingState
     for pin in startingState:
         pi.write(coilPins[pin][1], 1)
         pass #pass: for debugging cases where pi.set_mode gets commented out 
 
     while True:
         while True:
-            stepsStr = input("""
-            How many steps should the motor move? 
+            angleStr = input("""
+            How many degrees should the motor move? 
             
             The motor moves clockwise by default. 
             Enter a negative step number to rotate counterclockwise.
                 
             >>  """) #should update for angle -- more intuitive on a GUI. Calibration needed.
-            if stepsStr.isdigit():
-                steps = int(round(float(stepsStr), 0))
+            if angleStr.isdigit():
+                angle = float(angleStr)
                 break
             else:
                 print("That was not an integer.\n")
         
-        currentState = moveNumSteps(steps, currentState, delayVal) #moveAngle(angle, currentState, anglePerMotorStep, delayVal)
-        print(f"Motor moved {steps} steps.\n ")
-
+        currentState = moveAngle(angle, currentState, anglePerMotorStep, delayVal) #moveAngle(angle, currentState, anglePerMotorStep, delayVal)
+        print(f"Motor moved {angle} degrees.\n ")
 
 #**********************************
 #              Direct Calls
