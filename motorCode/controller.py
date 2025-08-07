@@ -59,7 +59,7 @@ import sys
 
 
 debug = False #prints process text if True; see d()
-delayBetweenMotorSteps_milliseconds = 0 #slow down rotation speed if needed
+delayBetweenMotorSteps_milliseconds = 5 #slow down rotation speed if needed
 anglePerMotorStep = 1.8 #find
 
 coilPins = [("coilA1", 27), #list of tuples. Each entry is: (pinName, boardPinNumber)
@@ -93,8 +93,9 @@ if True:
             pinNumber = coil[1]
             lgpio.gpio_claim_output(h, pinNumber, 0)  # Claim as output, initial value 0 (LOW)
 
-    def step(directionForward=True, currentState=[0]):
+    def halfStep(directionForward=True, currentState=[0]): #for debugging purposes, this is not used -- testing with step()
         #currentState is a list -- either one or two elements; describing the index values of which coilPins elements are energized
+
 
         if directionForward == True:
             if len(currentState) == 1:
@@ -137,6 +138,34 @@ if True:
         d(currentState)
         return currentState
 
+    def step(directionForward=True, currentState=[0]):
+        #currentState is a list -- either one or two elements; describing the index values of which coilPins elements are energized
+
+
+        if directionForward == True:
+            activatedPin = currentState[0]
+            addPinIndex = ((activatedPin+1) % numCoils) #reset to index 0 if at last element
+            addPin = coilPins[addPinIndex][1]
+
+            lgpio.gpio_write(h, activatedPin, 0)
+            lgpio.gpio_write(h, addPin, 1) 
+
+            currentState = [addPin]
+            
+        else: #reverse
+            activatedPin = currentState[0]
+            addPinIndex = ((activatedPin-1) % numCoils) #reset to index 0 if at last element
+            addPin = coilPins[addPinIndex][1]
+
+            lgpio.gpio_write(h, activatedPin, 0)
+            lgpio.gpio_write(h, addPin, 1) 
+
+            currentState = [addPin]
+        
+        d(currentState)
+        return currentState
+
+
     def moveNumSteps(steps, currentState, delayBetweenMotorSteps_milliseconds=0):
         directionForward = True
         if steps < 0:
@@ -146,7 +175,7 @@ if True:
         state = currentState
 
         for i in range(steps):
-            state = step(state, directionForward)
+            state = step(directionForward, state)
             sleep(delayBetweenMotorSteps_milliseconds)
 
         return state
@@ -186,15 +215,17 @@ if True:
 #***********************************************************************
 
 def main():
+    global h
     h = lgpio.gpiochip_open(0)
 
     initMotor(coilPins)
 
     delayVal = milliSec(delayBetweenMotorSteps_milliseconds)
     angle = 0
+    currentState = startingState
 
     for pin in startingState:
-        pi.write(coilPins[pin][1], 1)
+        lgpio.gpio_write(h, coilPins[pin][1], 1)
         pass #pass: for debugging cases where pi.set_mode gets commented out 
 
     while True:

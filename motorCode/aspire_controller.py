@@ -163,6 +163,7 @@ def followCommands(commandsList, currentAngle, state=startingState):
 #***********************************************************************
 
 def main(commandsList=[]): #path is a list of tuples (angle, delay). This could be imported from a .txt file, hardcoded, or prompted
+    global h
     h = lgpio.gpiochip_open(0)
 
     lgpio.gpio_claim_input(h, calibrationDevice)
