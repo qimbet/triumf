@@ -62,10 +62,11 @@ debug = False #prints process text if True; see d()
 delayBetweenMotorSteps_milliseconds = 5 #slow down rotation speed if needed
 anglePerMotorStep = 1.8 #find
 
-coilPins = [("coilA1", 27), #list of tuples. Each entry is: (pinName, boardPinNumber)
-            ("coilA2", 22), #the pinName string is for legibility only. Not used in code
-            ("coilB1", 23), 
-            ("coilB2", 24)]
+coilPins = [27,23,22,24] #A1, B1, A2, B2
+# [("coilA1", 27), #list of tuples. Each entry is: (pinName, boardPinNumber)
+#             ("coilA2", 22), #the pinName string is for legibility only. Not used in code
+#             ("coilB1", 23), 
+#             ("coilB2", 24)]
 
 
 
@@ -90,7 +91,7 @@ if True:
 
     def initMotor(coilPins):
         for coil in coilPins:
-            pinNumber = coil[1]
+            pinNumber = coil
             lgpio.gpio_claim_output(h, pinNumber, 0)  # Claim as output, initial value 0 (LOW)
 
     def halfStep(directionForward=True, currentState=[0]): #for debugging purposes, this is not used -- testing with step()
@@ -101,14 +102,14 @@ if True:
             if len(currentState) == 1:
                 activatedPin = currentState[0]
                 addPinIndex = ((activatedPin+1) % numCoils) #reset to index 0 if at last element
-                addPin = coilPins[addPinIndex][1]
+                addPin = coilPins[addPinIndex]
                 lgpio.gpio_write(h, addPin, 1) 
 
                 currentState.append(addPinIndex)
 
             elif len(currentState) == 2:
                 laggingPinIndex = currentState[0]
-                laggingPin = coilPins[laggingPinIndex][1]
+                laggingPin = coilPins[laggingPinIndex]
                 lgpio.gpio_write(h, laggingPin, 0) 
 
                 currentState.remove(laggingPinIndex)
@@ -120,14 +121,14 @@ if True:
             if len(currentState) == 1:
                 activatedPin = currentState[0]
                 addPinIndex = ((activatedPin-1) % numCoils) #reset to index 0 if at last element
-                addPin = coilPins[addPinIndex][1]
+                addPin = coilPins[addPinIndex]
                 lgpio.gpio_write(h, addPin, 1) 
 
                 currentState.insert(0, addPinIndex)
 
             elif len(currentState) == 2:
                 laggingPinIndex = currentState[-1]
-                laggingPin = coilPins[laggingPinIndex][1]
+                laggingPin = coilPins[laggingPinIndex]
                 lgpio.gpio_write(h, laggingPin, 0) 
 
                 currentState.remove(laggingPinIndex)
@@ -145,7 +146,7 @@ if True:
         if directionForward == True:
             activatedPin = currentState[0]
             addPinIndex = ((activatedPin+1) % numCoils) #reset to index 0 if at last element
-            addPin = coilPins[addPinIndex][1]
+            addPin = coilPins[addPinIndex]
 
             lgpio.gpio_write(h, activatedPin, 0)
             lgpio.gpio_write(h, addPin, 1) 
@@ -155,7 +156,7 @@ if True:
         else: #reverse
             activatedPin = currentState[0]
             addPinIndex = ((activatedPin-1) % numCoils) #reset to index 0 if at last element
-            addPin = coilPins[addPinIndex][1]
+            addPin = coilPins[addPinIndex]
 
             lgpio.gpio_write(h, activatedPin, 0)
             lgpio.gpio_write(h, addPin, 1) 
@@ -225,7 +226,7 @@ def main():
     currentState = startingState
 
     for pin in startingState:
-        lgpio.gpio_write(h, coilPins[pin][1], 1)
+        lgpio.gpio_write(h, coilPins[pin], 1)
         pass #pass: for debugging cases where pi.set_mode gets commented out 
 
     while True:
