@@ -1,0 +1,6 @@
+*.deb
+*.tar
+*.gz
+*.exe
+*.FCBak
+*.FCStd
