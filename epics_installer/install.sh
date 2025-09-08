@@ -56,7 +56,8 @@ fi
 #
 #=---------------------------------------------------------
 
-sourcePath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+coreSourcePath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+sourcePath='$coreSourcePath/packages'
 
 debDirName='debFiles'
 githubDirName='gitRepos'
@@ -64,16 +65,14 @@ githubDirName='gitRepos'
 debDirPath="$installationTargetPath/$debDirName"
 gitDirPath="$installationTargetPath/$githubDirName"
 
-mkdir -p $installationTargetPath
+sudo mkdir -p $installationTargetPath
 sudo mkdir -p /opt/epics/
 
-sudo cp -r $sourcePath/. $installationTargetPath 
+sudo cp -r $sourcePath $installationTargetPath 
 
-sudo mv $installationTargetPath/gitRepos/epics-base /opt/epics/
-tar xzvf $installationTargetPath/extensionsTop_20120904.tar.gz -C /opt/epics
-sudo rm $installationTagetPath/extensionsTop_20120904.tar.gz
+sudo mv $gitDirPath/epics-base /opt/epics/
+sudo mv $gitDirPath/edm /opt/epics/extensions/src/
 
-sudo mv $installationTargetPath/gitRepos/edm /opt/epics/extensions/src/
 
 #---------------------------------------------------------
 #
@@ -106,8 +105,6 @@ for line in "${linesForBashrc[@]}"; do
   if ! grep -Fxq "$line" ~/.bashrc; then
     # If the line doesn't exist, append it to ~/.bashrc
     echo "$line" >> ~/.bashrc
-#   else
-#     echo "Line already exists in ~/.bashrc: $line"
   fi
 done
 
@@ -127,15 +124,12 @@ source ~/.bashrc
 #
 #=--------------------------------------------------------
 
-#dev note -- look into /home/epicsRelics for .deb files removed from installation process
-#if the code works, ignore the above comment lol
-
+#unpack .tar file 
 dpkg -i "$debDirPath"/*.deb
-#git repositories are saved in the gitRepos folder -- these don't need to be installed, just copied into their intended directories
 
+tar xzvf $installationTargetPath/extensionsTop_20120904.tar.gz -C /opt/epics
+#sudo rm $installationTagetPath/extensionsTop_20120904.tar.gz
 
-
-#sudo apt --fix-broken install -y 
 
 #---------------------------------------------------------
 #
