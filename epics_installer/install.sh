@@ -57,16 +57,18 @@ fi
 #=---------------------------------------------------------
 
 coreSourcePath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-sourcePath='$coreSourcePath/packages'
-
-debDirName='debFiles'
-githubDirName='gitRepos'
 
 debDirPath="$installationTargetPath/$debDirName"
 gitDirPath="$installationTargetPath/$githubDirName"
 
-sudo mkdir -p $installationTargetPath
-sudo mkdir -p /opt/epics/
+
+sourcePath="$coreSourcePath/packages"
+debDirName='debFiles'
+githubDirName='gitRepos'
+
+
+sudo mkdir -p $installationTargetPath 		#default: /home/epics
+sudo mkdir -p /opt/epics/extensions/src
 
 sudo cp -r $sourcePath $installationTargetPath 
 
@@ -98,6 +100,9 @@ linesForBashrc=(
   'export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"'
   'export EDMFILES="$EPICS_EXTENSIONS/src/edm/edmMain"'
   'export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"'
+
+  'alias bashrc="vim ~/.bashrc"'
+  'alias src="source ~/.bashrc"'
 )
 
 for line in "${linesForBashrc[@]}"; do
@@ -107,6 +112,8 @@ for line in "${linesForBashrc[@]}"; do
     echo "$line" >> ~/.bashrc
   fi
 done
+
+echo "alias epics=\"cd $installationTargetPath\"" >> ~/.bashrc #print the given line to bash
 
 source ~/.bashrc
 
