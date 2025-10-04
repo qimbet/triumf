@@ -1,0 +1,5 @@
+sudo git clone --branch 3.15 https://github.com/epics-base/epics-base.git
+
+sudo git clone https://github.com/epicsdeb/edm.git
+
+
