@@ -96,17 +96,18 @@ source ~/.bashrc
 #=---------------------------------------------------------
 
 coreSourcePath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+sourcePath="$coreSourcePath/packages"
+
+debDirName='debFiles'
+githubDirName='gitRepos'
 
 debDirPath="$installationTargetPath/$debDirName"
 gitDirPath="$installationTargetPath/$githubDirName"
 
 
-sourcePath="$coreSourcePath/packages"
-debDirName='debFiles'
-githubDirName='gitRepos'
 
 
-sudo mkdir -p $installationTargetPath 		#default: /home/epics
+sudo mkdir -p $installationTargetPath	#default: /home/epics
 sudo mkdir -p /opt/epics/extensions/src
 
 sudo cp -r $sourcePath $installationTargetPath 
@@ -131,7 +132,12 @@ echo "alias epics=\"cd $installationTargetPath\"" >> ~/.bashrc #print the given 
 #=--------------------------------------------------------
 
 #unpack .tar file 
-dpkg -i "$debDirPath"/*.deb
+#dpkg -i "$debDirPath"/*.deb
+sudo apt-get update
+sudo apt-get install build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi x11proto-print-dev autoconf libtool sshpass
+
+
+
 
 tar xzvf $installationTargetPath/extensionsTop_20120904.tar.gz -C /opt/epics
 #sudo rm $installationTagetPath/extensionsTop_20120904.tar.gz

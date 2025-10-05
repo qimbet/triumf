@@ -14,9 +14,10 @@ sudo apt update
 sudo apt install openssh-server vim
 sudo passwd ubuntu
 sudo vim /etc/ssh/sshd_config
-	PasswordAuthentication yes
 	Subsystem sftp internal-sftp #this line may/may not be necessary
-
+	Match Group sftpusers
+		ForceCommand internal-sftp -d -p /home/ubuntu/epics
+		PasswordAuthentication yes
 
 sudo systemctl enable ssh
 
