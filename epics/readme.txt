@@ -10,16 +10,19 @@ Functionality of install.sh is at time of writing identical for both releases.
 
 To set up sftp on the virtual machine, run: 
 
-sudo apt install openssh vim
+sudo apt update
+sudo apt install openssh-server vim
 sudo passwd ubuntu
 sudo vim /etc/ssh/sshd_config
 	PasswordAuthentication yes
-	Subsystem sfpt internal-sftp #this line may/may not be necessary
+	Subsystem sftp internal-sftp #this line may/may not be necessary
 
 
 sudo systemctl enable ssh
 
 ------------------------------------------------
+apt-get install --download only [package] [p2] ...
+
 Dependency Tree:
 
 libreadline-gplv2

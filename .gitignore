@@ -5,4 +5,5 @@
 *.FCBak
 *.FCStd
 *.pdf
+*.iso
 git_excluded/
