@@ -1,5 +1,19 @@
-dependency chain: 
-
-libncurses-dev_6.3-2
-> libc6-dev
-> libc-dev
+build−essential 
+git 
+iperf3
+nmap
+openssh−server
+vim
+ribreadline−gplv2−dev
+libgif−dev
+libmotif−dev
+libxmu−dev
+libxmu−headers
+libxt−dev
+libxtst−dev
+xfonts−100dpi
+xfonts−75dpi
+x11proto−print−dev
+autoconf
+libtool
+sshpass

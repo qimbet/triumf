@@ -13,21 +13,38 @@ To set up sftp on the virtual machine, run:
 sudo apt update
 sudo apt install openssh-server vim
 sudo passwd ubuntu
+sudo mkdir epics
 sudo vim /etc/ssh/sshd_config
-	Subsystem sftp internal-sftp #this line may/may not be necessary
 	Match Group sftpusers
-		ForceCommand internal-sftp -d -p /home/ubuntu/epics
+		ForceCommand internal-sftp -d /home/ubuntu/epics
 		PasswordAuthentication yes
 
 sudo systemctl enable ssh
 
 ------------------------------------------------
 apt-get install --download only [package] [p2] ...
+Files will be cached in: /var/cache/apt/archives/
 
-Dependency Tree:
 
-libreadline-gplv2
-> libreadline5
-> libtinfo6.3-2
->> libncurses-dev6.3-2
 
+------- needed .deb files: ----------
+
+build-essential
+git
+iperf3
+nmap
+openssh-server
+vim 
+libreadline-gplv2-dev
+libgif-dev
+libmotif
+libxmu-dev
+libxmu-headers
+libxt-dev
+libxtst-dev
+xfonts-100dpi
+xfonts-75dpi
+x11proto-print-dev
+autoconf
+libtool
+sshpass
