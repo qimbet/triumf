@@ -1,34 +1,27 @@
 #!/bin/bash
 
 
-#About this script:
-
-#Paths have been changed to absolute paths for clarity & reproducibility
-#"cd", "sudo -i" commands have been removed where possible, since the installer should be run at sudo level anyways
-
-#apt installs have been relegated to a dedicated folder of .deb files.
-#This is a response to many of the installs being deprecated (e.g. x11proto-print-dev)
-
-#Moving forwards, the contents of git repositories (e.g. https://github.com/epicsdeb/edm.git) should also be frozen for isolated reproducibility
+#For:	ubuntu 18.04 Bionic Beaver
+#
+#Jacob Mattie
+#j_mattie@live.ca
 
 
 #---------------------------------------------------------
-#
-#		Housekeeping
-#
-#=--------------------------------------------------------
-
-#apt-get update 
-#apt --fix-broken install
-
-#---------------------------------------------------------
-#
-#		UI
 #
 # - Verify sudo access
 # - Prompt for directories
 #
 #=--------------------------------------------------------
+echo "Enter an installation directory, or leave blank for default </home/epics>"
+read epicsInstallDir 
+
+if [ -z "$coreDir" ]; then
+	pth="/home/epics"
+else
+    pth="$epicsInstallDir"
+fi
+
 
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script requires sudo privileges to work properly. Please run as sudo."
@@ -37,13 +30,21 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 
-echo "Enter an installation directory, or leave blank for default </home/EPICS>"
-read coreDir 
+#---------------------------------------------------------
+#
+#		apt-get update --- IF internet connection
+#
+#=--------------------------------------------------------
+checkInternet(){
+	ping -q -c 1 -W 2 8.8.8.8 < /dev/null
+	return $?
+}
 
-if [ -z "$coreDir" ]; then
-	installationTargetPath="/home/epics"
+if checkInternet; then
+	apt-get update 
+	apt --fix-broken install
 else
-    installationTargetPath="$coreDir"
+	echo "No internet connectivity detected. Skipping system updates"
 fi
 
 #---------------------------------------------------------
@@ -51,11 +52,10 @@ fi
 #		Appends lines to bashrc
 #
 #---------------------------------------------------------
-
 #single quotes are better for outer wrappings
 
 linesForBashrc=(
-  'export PATH="$PATH:$installationTargetPath"'
+  'export PATH="$PATH:$pth"'
   'export PATH="$PATH:$githubFilesPath"'
 
   'export PATH="/opt/epics/epics-base/bin/linux-x86_64:$PATH"'
@@ -88,90 +88,61 @@ source ~/.bashrc
 
 #---------------------------------------------------------
 #
-#		Program variables
-#
-#
-#  Program paths build off of here
-#
-#=---------------------------------------------------------
+#		Program Paths 
+#		  ' is a literal
+#		  " expands variables
+#----------------------------------------------------------
+epicsBase=$"/opt/epics"
+mkdir -p $pth	#default: /home/epics 
+mkdir -p "$epicsBase/extensions/src"
 
-coreSourcePath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-sourcePath="$coreSourcePath/packages"
+sourcePath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" 
+	#^ the directory from which the script was run
 
-debDirName='debFiles'
-githubDirName='gitRepos'
+cp -r $sourcePath $pth #clones; creates local copy
 
-debDirPath="$installationTargetPath/$debDirName"
-gitDirPath="$installationTargetPath/$githubDirName"
+packageExt='packages'
+debExt='debFiles'
+githubExt='gitRepos'
+tarExt='tarFiles'
 
+packageOrigin="$pth/$packageExt"
 
+debDir="$packageOrigin/$debExt"
+gitDir="$packageOrigin/$githubExt"
+tarDir="$packageOrigin/$tarExt"
 
+cp $gitDir/epics-base $epicsBase
+cp $gitDir/edm "$epicsBase/extensions/src/"
 
-sudo mkdir -p $installationTargetPath	#default: /home/epics
-sudo mkdir -p /opt/epics/extensions/src
-
-sudo cp -r $sourcePath $installationTargetPath 
-
-sudo mv $gitDirPath/epics-base /opt/epics/
-sudo mv $gitDirPath/edm /opt/epics/extensions/src/
-
-echo "alias epics=\"cd $installationTargetPath\"" >> ~/.bashrc #print the given line to bash
+echo "alias epicsDir=\"cd $pth\"" >> ~/.bashrc #add alias to bashrc
 
 #---------------------------------------------------------
-#
 #		Installs software
-#
 #
 #  Software files (.deb, github repos) are imported in a bundled .tar file
 #
 #
-#  If needed, original git links are here:
-#	sudo git clone --branch 3.15 https://github.com/epics-base/epics-base.git
-#	sudo git clone https://github.com/epicsdeb/edm.git
+#	branch 3.15 https://github.com/epics-base/epics-base.git
+#	https://github.com/epicsdeb/edm.git
 #
 #=--------------------------------------------------------
+#sudo apt-get install build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi x11proto-print-dev autoconf libtool sshpass
 
-#unpack .tar file 
-#dpkg -i "$debDirPath"/*.deb
-sudo apt-get update
-sudo apt-get install build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi x11proto-print-dev autoconf libtool sshpass
-
-
-
-
-tar xzvf $installationTargetPath/extensionsTop_20120904.tar.gz -C /opt/epics
-#sudo rm $installationTagetPath/extensionsTop_20120904.tar.gz
+dpkg -i "$debDirPath"/*.deb
+tar xzvf $pth/extensionsTop_20120904.tar.gz -C /opt/epics
 
 
 #---------------------------------------------------------
 #
 #		Edits config files
 #
-#=--------------------------------------------------------
-
-#Sed operations edit the files indicated. 
-
-#typical format is: sed 's/oldWord/newWord/' fileName
-
-#-i <-- edit in place
-#-e <-- Allow multiple commands on the given file
-#General sed format:
-#        - sed -i -e '<lineNumber><operator><argument> <targetFile>
-#                OPERATORS:
-#                c change
-#                d delete
-#                i insert BEFORE selected line
-#                a append AFTER selected line
-#                s substitute part of the line (regex) -- 10s/foo/bar -- replaces first instance of foo with bar
-#                        Can append the argument /g to substitute ALL occurrences
-#
+#---------------------------------------------------------
 
 sed -i -e '21cEPICS_BASE=/opt/epics/epics-base' -e '25s/^/#/' 					/opt/epics/epics-base/configure/RELEASE
 sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_64-linux-gnu' 	/opt/epics/extensions/configure/os/CONFIG_SITE.linux-x86_64.linux-x86_64
-
 sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' 						/opt/epics/extensions/src/edm/giflib/Makefile
 sed -i -e 's| ungif||g' 									/opt/epics/extensions/src/edm/giflib/Makefile*
-
 sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflibvideowidget' /opt/epics/extensions/src/edm/setup/setup.sh
 sed -i -e '79d' 											/opt/epics/extensions/src/edm/setup/setup.sh
 sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' 	/opt/epics/extensions/src/edm/setup/setup.sh
@@ -193,3 +164,6 @@ sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonit
 #make clean
 #make
 
+
+#------------ Cleanup -------------------
+#sudo rm $installationTagetPath/extensionsTop_20120904.tar.gz
