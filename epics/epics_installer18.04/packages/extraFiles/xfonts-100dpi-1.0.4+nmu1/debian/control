@@ -1,0 +1,50 @@
+Source: xfonts-100dpi
+Section: fonts
+Priority: optional
+Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+Build-Depends: debhelper (>= 7), pkg-config, xfonts-utils (>= 1:7.5)
+Standards-Version: 3.8.3
+
+Package: xfonts-100dpi
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends}
+Suggests: xfs | xserver
+Description: 100 dpi fonts for X 
+ xfonts-100dpi provides a set of bitmapped fonts at 100 dots per inch.  In
+ most cases it is desirable to have the X font server (xfs) and/or an X server
+ installed to make the fonts available to X clients.
+ .
+ This package contains only fonts in the ISO 10646-1 and ISO 8859-1
+ encodings, to conserve disk space.  For other encodings, see the
+ xfonts-100dpi-transcoded package.
+ .
+ This package and xfonts-75dpi provide the same set of fonts, rendered at
+ different resolutions; only one or the other is necessary, but both may be
+ installed.  xfonts-100dpi may be more suitable for large monitors and/or
+ large screen resolutions (over 1024x768).
+ .
+ This package requires the xfonts-utils package to prepare the font 
+ directories for use by an X server or X font server.
+
+Package: xfonts-100dpi-transcoded
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends}
+Suggests: xfs | xserver
+Description: 100 dpi fonts for X (transcoded from ISO 10646-1)
+ xfonts-100dpi-transcoded provides a set of bitmapped fonts at 100 dots per
+ inch.  In most cases it is desirable to have the X font server (xfs)
+ and/or an X server installed to make the fonts available to X clients.
+ .
+ This package contains fonts in several ISO 8859 encodings: -2, -3, -4, -9,
+ -10, -13, -14, and -15.  For the ISO 10646-1 and ISO 8859-1 encodings, see
+ the xfonts-100dpi package.
+ .
+ This package and xfonts-75dpi-transcoded provide the same set of fonts,
+ rendered at different resolutions; only one or the other is necessary, but
+ both may be installed.  xfonts-100dpi-transcoded may be more suitable for
+ large monitors and/or large screen resolutions (over 1024x768).
+ .
+ This package requires the xfonts-utils package to prepare the font 
+ directories for use by an X server or X font server.

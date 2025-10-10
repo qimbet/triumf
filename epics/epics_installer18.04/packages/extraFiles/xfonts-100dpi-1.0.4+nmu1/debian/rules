@@ -1,0 +1,112 @@
+#!/usr/bin/make -f
+# debian/rules for the Debian xfonts-100dpi package.
+# Copyright © 2004 Scott James Remnant <scott@netsplit.com>
+# Copyright © 2005 Daniel Stone <daniel@fooishbar.org>
+# Copyright © 2005 David Nusinow <dnusinow@debian.org>
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# set this to the name of the main shlib's binary package
+PACKAGE = xfonts-100dpi
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+	NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+	MAKEFLAGS += -j$(NUMJOBS)
+endif
+
+STAMP_DIR = debian/stamps
+
+# This package contains multiple modules as shipped by upstream.  Each module is
+# contained in a subdirectory in the root dir of the package.  You must list
+# each subdirectory explicitly so that the build system knows what to build.
+SUBDIRS = \
+	font-adobe-100dpi \
+	font-bh-100dpi \
+	font-bh-lucidatypewriter-100dpi \
+	font-bitstream-100dpi
+
+DEB_HOST_ARCH      ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+	confflags += --build=$(DEB_HOST_GNU_TYPE)
+else
+	confflags += --build=$(DEB_BUILD_GNU_TYPE) --host=$(DEB_HOST_GNU_TYPE)
+endif
+
+$(STAMP_DIR)/build-%:
+	mkdir -p $(STAMP_DIR)
+	mkdir -p $*-build
+	cd $*-build && \
+	../$*/configure \
+		--prefix=/usr \
+		--mandir=\$${prefix}/share/man \
+		--infodir=\$${prefix}/share/info \
+		$(confflags)
+	$(MAKE) -C $*-build GZIP=-n
+	>$@
+
+build: build-stamp
+build-stamp: $(addprefix $(STAMP_DIR)/build-,$(SUBDIRS))
+	>$@
+
+clean:
+	dh_testdir
+	rm -f config.cache config.log config.status
+	rm -f */config.cache */config.log */config.status
+	rm -f conftest* */conftest*
+	rm -rf autom4te.cache */autom4te.cache
+	rm -rf *-build
+	rm -rf $(STAMP_DIR)
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	set -e; for FILE in $(SUBDIRS); do \
+		$(MAKE) -C "$$FILE"-build DESTDIR=$(CURDIR)/debian/tmp install; \
+	done
+	install -D -m644 debian/fonts.alias \
+		debian/tmp/etc/X11/fonts/100dpi/xfonts-100dpi.alias
+
+# Build architecture-dependent files here.
+binary-arch: build install
+# Nothing to do
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+
+	dh_installdocs
+	dh_install --fail-missing --exclude fonts.dir --exclude fonts.scale
+	dh_installxfonts
+	dh_installchangelogs
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
+
+.PHONY: get-tarballs
+get-tarballs: $(addprefix get-tarball-,$(SUBDIRS))
+
+.PHONY: get-tarball-%
+get-tarball-%:
+	uscan --no-conf --download --no-symlink --destdir . --package $* --upstream-version $(shell awk -F = '/^PACKAGE_VERSION=/ { print $$2 }' < $*/configure || echo 0) --watchfile debian/watch.$* || test $$? = 1
+
+debian/watch.%:
+	echo version=3 > $@
+	echo 'http://xorg.freedesktop.org/releases/individual/font/ $*-(.*)\.tar\.gz' >> $@
+
+.PHONY: watchfiles
+watchfiles: $(addprefix debian/watch.,$(SUBDIRS))
+
+# vim:set ai noet sw=8 ts=8 tw=80:

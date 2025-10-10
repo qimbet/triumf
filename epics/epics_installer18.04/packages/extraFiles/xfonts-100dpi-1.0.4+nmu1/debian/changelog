@@ -1,0 +1,99 @@
+xfonts-100dpi (1:1.0.4+nmu1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Add multiarch metadata (Closes: 677857)
+
+ -- Wookey <wookey@debian.org>  Wed, 08 Jul 2015 17:31:18 +0100
+
+xfonts-100dpi (1:1.0.4) unstable; urgency=medium
+
+  * Get rid of xsfbs.
+  * Remove Cyril and David from Uploaders.
+  * Bump debhelper compat level to 7.
+  * Set GZIP=-n on build to avoid putting timestamps in compressed font files.
+
+ -- Julien Cristau <jcristau@debian.org>  Mon, 02 Feb 2015 08:35:16 +0100
+
+xfonts-100dpi (1:1.0.3) unstable; urgency=low
+
+  [ Julien Cristau ]
+  * Rename the build directory to not include DEB_BUILD_GNU_TYPE for no
+    good reason.  Thanks, Colin Watson!
+  * Remove myself from Uploaders
+  * New upstream releases (X11R7.6):
+    - font-adobe-100dpi 1.0.3
+    - font-bh-100dpi 1.0.3
+    - font-bh-lucidatypewriter-100dpi 1.0.3
+    - font-bitstream-100dpi 1.0.3
+  * Update debian/copyright from upstream COPYING files.
+
+  [ Cyril Brulebois ]
+  * Add myself to Uploaders.
+
+ -- Cyril Brulebois <kibi@debian.org>  Tue, 16 Nov 2010 23:17:33 +0100
+
+xfonts-100dpi (1:1.0.1) unstable; urgency=low
+
+  * New upstream releases for X11R7.5:
+    - font-adobe-100dpi 1.0.1
+    - font-bh-100dpi 1.0.1
+    - font-bh-lucidatypewriter-100dpi 1.0.1
+    - font-bitstream-100dpi 1.0.1
+  * Packaging updates:
+    - allow parallel builds
+    - add watch files and a debian/rules snippet to download the tarballs with
+      uscan
+    - build-depend on new xfonts-utils instead of passing --with-fontdir to
+      configure
+  * Bump Standards-Version to 3.8.3.
+  * Move to new fonts archive section.
+  * Build with debhelper 7.4.11, to fix piuparts error (closes: #364903).
+  * Drop maintainer scripts which were handling upgrades from pre-etch
+    versions.  As a side effect, no longer call dpkg
+    --print-installation-architecture (closes: #559230).
+  * Drop unused build-dep on xutils.
+
+ -- Julien Cristau <jcristau@debian.org>  Sat, 02 Jan 2010 07:36:59 +0000
+
+xfonts-100dpi (1:1.0.0-4) unstable; urgency=low
+
+  * Add upstream URL to debian/copyright (closes: #434286).
+    Thanks, Josip Rodin!
+  * Add myself to Uploaders and remove Branden with his permission.
+
+ -- Julien Cristau <jcristau@debian.org>  Tue, 24 Jul 2007 18:36:55 +0200
+
+xfonts-100dpi (1:1.0.0-3) unstable; urgency=medium
+
+  [ Eugene Konev ]
+  * Drop X11R7 from aliases install path.
+  * Switch to dh_installxfonts.
+  * Drop fonts.scale from xfonts-100dpi-transcoded. This is serious policy
+    violation, thus raised urgency.
+  * Bump policy to 3.7.2 (now we are compliant).
+  * Remove unused debhelper helpers.
+  * Build package in binary-indep, not in binary-arch.
+
+  [ David Nusinow ]
+  * Bump debhelper compat to 5, and build-dep on it to >= 5.0.31.
+  * Remove Fabio from uploaders with his permission. He's always welcome back.
+
+ -- David Nusinow <dnusinow@debian.org>  Sat, 30 Sep 2006 16:33:39 -0400
+
+xfonts-100dpi (1:1.0.0-2) experimental; urgency=low
+
+  * Add versioned xfonts-utils build-depend. Thanks Daniel Schepler.
+    (closes: #362101)
+
+ -- David Nusinow <dnusinow@debian.org>  Wed, 12 Apr 2006 19:52:22 -0400
+
+xfonts-100dpi (1:1.0.0-1) experimental; urgency=low
+
+  [ David Nusinow ]
+  * First modular upload to Debian
+
+  [ Eugene Konev ]
+  * Move fonts to /usr/share/fonts/X11/100dpi.
+  * Resurrect xfonts-100dpi-transcoded.
+
+ -- David Nusinow <dnusinow@debian.org>  Tue, 31 Jan 2006 20:11:12 -0500

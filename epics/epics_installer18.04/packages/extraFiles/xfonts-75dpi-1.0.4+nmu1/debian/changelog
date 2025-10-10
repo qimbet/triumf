@@ -1,0 +1,99 @@
+xfonts-75dpi (1:1.0.4+nmu1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Add multiarch metadata (Closes: 677858)
+
+ -- Wookey <wookey@debian.org>  Wed, 08 Jul 2015 17:31:29 +0100
+
+xfonts-75dpi (1:1.0.4) unstable; urgency=medium
+
+  * Add Vcs-* control fields.
+  * Get rid of debian/xsfbs/
+  * Bump debhelper compat level to 7.
+  * Pass GZIP=-n to make so compressed fonts don't include a timestamp.
+  * Remove Cyril and David from Uploaders.
+
+ -- Julien Cristau <jcristau@debian.org>  Mon, 02 Feb 2015 21:15:23 +0100
+
+xfonts-75dpi (1:1.0.3) unstable; urgency=low
+
+  [ Julien Cristau ]
+  * Version the xfonts-utils build-dependency.  We need the fontrootdir
+    variable in fontutil.pc.
+  * Rename the build directory to not include DEB_BUILD_GNU_TYPE for no
+    good reason.  Thanks, Colin Watson!
+  * Remove myself from Uploaders
+  * New upstream releases (X11R7.6):
+    - font-adobe-75dpi 1.0.3
+    - font-bh-75dpi 1.0.3
+    - font-bh-lucidatypewriter-75dpi 1.0.3
+    - font-bitstream-75dpi 1.0.3
+  * Update debian/copyright from upstream COPYING files.
+
+  [ Cyril Brulebois ]
+  * Add myself to Uploaders.
+
+ -- Cyril Brulebois <kibi@debian.org>  Tue, 16 Nov 2010 23:25:42 +0100
+
+xfonts-75dpi (1:1.0.1) unstable; urgency=low
+
+  * New upstream releases for X11R7.5:
+    - font-adobe-75dpi 1.0.1
+    - font-bh-75dpi 1.0.1
+    - font-bh-lucidatypewriter-75dpi 1.0.1
+    - font-bitstream-75dpi 1.0.1
+  * Packaging updates:
+    - allow parallel builds
+    - add watch files and a debian/rules snippet to download the tarballs with
+      uscan
+  * Bump Standards-Version to 3.8.3.
+  * Move to new fonts archive section.
+  * Updated xsfbs doesn't call dpkg --print-installation-architecture
+    (closes: #548253).
+  * Drop maintainer scripts.  They were handling conffiles cleanups from a no
+    longer relevant version.
+
+ -- Julien Cristau <jcristau@debian.org>  Fri, 01 Jan 2010 15:20:44 +0000
+
+xfonts-75dpi (1:1.0.0-4) unstable; urgency=low
+
+  * Add upstream URL to debian/copyright (closes: #434287).  Thanks, Josip
+    Rodin!
+  * Add myself to Uploaders and remove Branden with his permission.
+
+ -- Julien Cristau <jcristau@debian.org>  Tue, 24 Jul 2007 18:54:13 +0200
+
+xfonts-75dpi (1:1.0.0-3) unstable; urgency=medium
+
+  [ Eugene Konev ]
+  * Drop X11R7 from aliases install path.
+  * Switch to dh_installxfonts.
+  * Drop fonts.scale from xfonts-75dpi-transcoded. This is serious policy
+    violation, thus raised urgency.
+  * Correct short description of xfonts-75dpi.
+  * Bump policy to 3.7.2 (now we are compliant).
+  * Remove unused debhelper helpers.
+  * Build package in binary-indep, not in binary-arch.
+
+  [ David Nusinow ]
+  * Bump debhelper compat to 5, and build-dep on debhelper >= 5.0.31
+  * Remove Fabio from uploaders with his permission. He's always welcome back.
+
+ -- David Nusinow <dnusinow@debian.org>  Sat, 30 Sep 2006 16:35:03 -0400
+
+xfonts-75dpi (1:1.0.0-2) unstable; urgency=low
+
+  * Upload to unstable
+
+ -- David Nusinow <dnusinow@debian.org>  Mon, 10 Apr 2006 23:36:10 -0400
+
+xfonts-75dpi (1:1.0.0-1) experimental; urgency=low
+
+  [ David Nusinow ]
+  * First modular upload to Debian
+
+  [ Eugene Konev ]
+  * Move fonts to /usr/share/fonts/X11/75dpi.
+  * Resurrect xfonts-75dpi-transcoded.
+
+ -- David Nusinow <dnusinow@debian.org>  Sun, 19 Feb 2006 10:22:56 -0500

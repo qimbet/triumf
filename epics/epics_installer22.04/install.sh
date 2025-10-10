@@ -104,13 +104,13 @@ cp -r $sourcePath $pth #clones; creates local copy
 packageExt='packages'
 debExt='debFiles'
 githubExt='gitRepos'
-tarExt='tarFiles'
+filesExt='extraFiles'
 
 packageOrigin="$pth/$packageExt"
 
 debDir="$packageOrigin/$debExt"
 gitDir="$packageOrigin/$githubExt"
-tarDir="$packageOrigin/$tarExt"
+filesDir="$packageOrigin/$filesExt"
 
 cp $gitDir/epics-base $epicsBase
 cp $gitDir/edm "$epicsBase/extensions/src/"
@@ -129,9 +129,10 @@ echo "alias epicsDir=\"cd $pth\"" >> ~/.bashrc #add alias to bashrc
 #=--------------------------------------------------------
 #sudo apt-get install build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi x11proto-print-dev autoconf libtool sshpass
 
-dpkg -i "$debDirPath"/*.deb
-tar xzvf $pth/extensionsTop_20120904.tar.gz -C /opt/epics
+cp -r "$gitDir/epics-base" $epicsBase
+cp -r "$filesDir/extensions" $epicsBase
 
+dpkg -i "$debDirPath"/*.deb
 
 #---------------------------------------------------------
 #
@@ -139,16 +140,16 @@ tar xzvf $pth/extensionsTop_20120904.tar.gz -C /opt/epics
 #
 #---------------------------------------------------------
 
-sed -i -e '21cEPICS_BASE=/opt/epics/epics-base' -e '25s/^/#/' 					/opt/epics/epics-base/configure/RELEASE
-sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_64-linux-gnu' 	/opt/epics/extensions/configure/os/CONFIG_SITE.linux-x86_64.linux-x86_64
-sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' 						/opt/epics/extensions/src/edm/giflib/Makefile
-sed -i -e 's| ungif||g' 									/opt/epics/extensions/src/edm/giflib/Makefile*
-sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflibvideowidget' /opt/epics/extensions/src/edm/setup/setup.sh
-sed -i -e '79d' 											/opt/epics/extensions/src/edm/setup/setup.sh
-sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' 	/opt/epics/extensions/src/edm/setup/setup.sh
-sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' 				/opt/epics/extensions/src/edm/setup/setup.sh
-sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' 	/opt/epics/extensions/src/edm/setup/setup.sh
-sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' 			/opt/epics/extensions/src/edm/setup/setup.sh
+sed -i -e "21cEPICS_BASE=$epicsBase/epics-base" -e '25s/^/#/' 					$epicsBase/epics-base/configure/RELEASE
+sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_64-linux-gnu' 	$epicsBase/extensions/configure/os/CONFIG_SITE.linux-x86_64.linux-x86_64
+sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' 						$epicsBase/epics/extensions/src/edm/giflib/Makefile
+sed -i -e 's| ungif||g' 									$epicsBase/extensions/src/edm/giflib/Makefile*
+sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflibvideowidget' $epicsBase/extensions/src/edm/setup/setup.sh
+sed -i -e '79d' 											$epicsBase/extensions/src/edm/setup/setup.sh
+sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' 	$epicsBase/extensions/src/edm/setup/setup.sh
+sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' 				$epicsBase/extensions/src/edm/setup/setup.sh
+sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' 	$epicsBase/extensions/src/edm/setup/setup.sh
+sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' 			$epicsBase/extensions/src/edm/setup/setup.sh
 
 
 #---------------------------------------------------------
@@ -157,13 +158,11 @@ sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonit
 #
 #=--------------------------------------------------------
 
-#cd /opt/epics/epics-base 
+cd $epicsBase/epics-base 
 #make
 #
-#cd /opt/epics/extensions/src/edm
+#cd $epicsBase/extensions/src/edm
 #make clean
 #make
 
 
-#------------ Cleanup -------------------
-#sudo rm $installationTagetPath/extensionsTop_20120904.tar.gz
