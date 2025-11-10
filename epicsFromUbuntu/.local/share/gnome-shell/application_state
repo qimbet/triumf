@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<application-state>
+  <context id="">
+    <application id="org.gnome.FileRoller.desktop" open-window-count="0" score="0" last-seen="1761830689"/>
+    <application id="firefox.desktop" open-window-count="0" score="28" last-seen="1761837524"/>
+    <application id="gedit.desktop" open-window-count="0" score="0" last-seen="0"/>
+    <application id="org.gnome.Nautilus.desktop" open-window-count="1" score="13" last-seen="1761839105"/>
+    <application id="update-manager.desktop" open-window-count="0" score="0" last-seen="1761543825"/>
+    <application id="org.gnome.gedit.desktop" open-window-count="1" score="835" last-seen="1761839102"/>
+    <application id="gnome-terminal.desktop" open-window-count="0" score="0" last-seen="0"/>
+    <application id="org.gnome.Terminal.desktop" open-window-count="4" score="20919.5" last-seen="1761839099"/>
+    <application id="evince.desktop" open-window-count="0" score="3" last-seen="1761837618"/>
+    <application id="gnome-initial-setup.desktop" open-window-count="0" score="1800" last-seen="1761543833"/>
+  </context>
+</application-state>
