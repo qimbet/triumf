@@ -5,6 +5,8 @@
 
 #November, 2025
 
+#this is charted to work only on Ubuntu 18.04, due to GUI dependencies on deprecated packages
+
 
 set -euo pipefail
 
@@ -52,6 +54,24 @@ dependenciesList=( #used by apt install
     make nmap openssh-server perl python3 python3-pip python3-venv sshpass tk-dev uuid-dev vim xfonts-100dpi
     xfonts-75dpi zlib1g-dev
     )
+
+#ensure the os is the right version
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
+        echo "The installer requires os version: *** Ubuntu 18.04 *** "
+        echo "EPICS will install properly, but the GUI will not work. Continue? [Y/n]"
+
+        ans=${answer:-Y}
+        if [[ "$ans" =~ ^[Yy]$ ]]; then 
+            :
+        else
+            echo "Quitting"
+            exit 1
+        fi
+        
+    fi
+fi
 
 #Ensure the script is run with sudo:
 if [ "$(id -u)" -ne 0 ]; then

@@ -8,6 +8,9 @@
 *.iso
 *.conda
 
+*.swp
+*.un~
+
 condaFiles/
 git_excluded/
 pythonFiles/
