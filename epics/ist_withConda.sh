@@ -1,0 +1,485 @@
+#!/usr/bin/env bash
+
+#Jacob Mattie
+#j_mattie@live.ca
+
+#November, 2025
+
+
+set -euo pipefail
+
+trap 'echo "ERROR in function ${FUNCNAME[0]:-main}, file ${BASH_SOURCE[1]:${BASH_SOURCE[0]}}, line $LINENO"; exit 1' ERR
+
+# ===================================================
+# Directory Management
+# ===================================================
+
+#region paths, constants, functions
+EPICS_HOST_ARCH="linux-x86_64"
+
+# Root directory for EPICS installation
+EPICS_ROOT="/opt/epics"
+EPICS_BASE="$EPICS_ROOT/base"
+EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
+EPICS_MODULES="$EPICS_ROOT/modules"
+EDM_DIR="$EPICS_ROOT/extensions/src/edm"
+CONDA_DIR="/opt/miniconda"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+PYTHON_VENV="$EPICS_ROOT/venv"
+
+source /etc/os-release 
+VERSION="$VERSION_ID" #detect ubuntu version
+FILE_DIR_NAME="localFiles_$VERSION"
+
+LOCAL_GIT_CACHE="$SCRIPT_DIR/localRepos" #enables offline downloads
+LOCAL_FILES="$SCRIPT_DIR/$FILE_DIR_NAME" #targets relevant file package
+LOCAL_DEB_REPO="$LOCAL_FILES/debFiles"
+
+LOCAL_PYTHON_FILES="$SCRIPT_DIR/pythonFiles"
+LOCAL_PIP_FILES="$LOCAL_PYTHON_FILES/pipFiles" 
+LOCAL_CONDA_DIR="$SCRIPT_DIR/condaFiles" #install .tar.gz files for needed packages (e.g. numpy, pyepics, PyDM)
+LOCAL_CONDA_FILES="$LOCAL_CONDA_DIR/condaPackages" #install .tar.gz files for needed packages (e.g. numpy, pyepics, PyDM)
+
+PYTHON_VERSION="3.10" #referenced in python installation section -- for file pathing
+PYQT_VERSION="5.12.3" #pin version at 5.12.3 until PyDM widgets are updated in Designer
+
+dependenciesList=( #used by apt install
+    autoconf build-essential dpkg-dev git iperf3 libbz2-dev libdb5.3-dev libdpkg-perl libexpat1-dev libffi-dev
+    libgdbm-dev libgif-dev liblzma-dev libmotif-dev libncurses5-dev libncursesw5-dev libpng-dev libreadline-dev 
+    libssl-dev libsqlite3-dev libtool libx11-dev libxmu-dev libxmu-headers libxm4 libxt-dev libxtst-dev
+    make nmap openssh-server perl python3 python3-pip python3-venv sshpass tk-dev uuid-dev vim xfonts-100dpi
+    xfonts-75dpi zlib1g-dev
+    )
+
+#Ensure the script is run with sudo:
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script requires sudo privileges to work properly. Rerunning as sudo:"
+    sudo bash "$0" "$@" --source-path "$SCRIPT_DIR" 
+
+    exit 0 #exit original script after rerunning with sudo
+fi
+
+LOGFILE="$SCRIPT_DIR/logs.log"
+exec > >(tee "$LOGFILE") 2>&1
+
+# Ensure required directories exist
+mkdir -p "$EPICS_ROOT"
+mkdir -p "$EPICS_ROOT/configure"
+mkdir -p "$EPICS_MODULES"
+mkdir -p "$LOCAL_GIT_CACHE/src"
+mkdir -p "$PYTHON_VENV"
+mkdir -p "$CONDA_DIR"
+
+
+
+check_internet() { #check connectivity; used to install missing files in case of local corruption
+    if ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
+        return 1  # online
+    else
+        return 0  # offline
+    fi
+}
+
+#endregion
+
+
+# ---------------------------------------------------
+# Install OS Dependencies
+# ---------------------------------------------------
+
+#region dependencies 
+
+
+if true; then
+    #if dir does not exist or is empty, create it & populate with .deb files
+    if [ ! -d "$LOCAL_DEB_REPO" ] || [ -z "$(find "$LOCAL_DEB_REPO" -mindepth 1 -print -quit)" ]; then
+        
+        mkdir -p $LOCAL_DEB_REPO
+
+        if check_internet; then #if internet is available, install packages
+            echo "Local package repo for os $FILE_DIR_NAME not found, installing key packages from internet..."
+            
+            apt --fix-broken install -y #these may be unnecessary
+            apt update
+
+            apt-get -o=dir::cache::archives="$LOCAL_DEB_REPO" install --download-only -y "${dependenciesList[@]}"
+
+
+
+            echo "Downloaded core files and dependencies"
+
+        else #error message, exit if no internet
+            echo "Error: local .deb repository not found or empty at $LOCAL_DEB_REPO"
+            echo "Offline installation cannot proceed."
+            exit 1
+        fi
+    fi
+
+
+    #install from local repository
+    if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
+        echo "Using local package repository: $LOCAL_DEB_REPO"
+
+        #Prerequisite packages: dpkg-dev, make
+
+        # --- Install make (needed to install dpkg-dev) ---
+        if ! command -v make >/dev/null 2>&1; then
+            echo "Installing make from local repo..."
+            if ls "$LOCAL_DEB_REPO"/make_*.deb >/dev/null 2>&1; then
+                dpkg -i "$LOCAL_DEB_REPO"/make_*.deb || true
+                apt-get install -f -y || true
+            else
+                echo "Error: make_*.deb not found in $LOCAL_DEB_REPO"
+                exit 1
+            fi
+        fi
+
+        if true; then
+            # --- Install dpkg-dev (needed later for dpkg -i) ---
+            if ! command -v dpkg-scanpackages >/dev/null 2>&1; then
+                echo "Installing dpkg-dev from local repo..."
+                if ls "$LOCAL_DEB_REPO"/dpkg-dev*.deb >/dev/null 2>&1; then
+                    dpkg -i "$LOCAL_DEB_REPO"/dpkg-dev*.deb
+                    # Fix unmet dependencies using local .debs
+                    apt-get --fix-broken install -y -o Dir::Etc::sourcelist="-" \
+                        -o Dir::Etc::sourceparts="-" \
+                        -o APT::Get::Download-Only=false \
+                        -o Dir::Etc::sourcelist="-" \
+                        -o APT::Get::AllowUnauthenticated=true
+                else
+                    echo "Error: dpkg-dev*.deb not found in $LOCAL_DEB_REPO"
+                    exit 1
+                fi
+            fi
+
+
+        fi
+                
+
+        apt --fix-broken install -y
+
+        # --- Point apt to the local .deb repository; install ---
+        TMP_LIST=$(mktemp)
+        echo "deb [trusted=yes] file:$LOCAL_DEB_REPO ./" | tee "$TMP_LIST" >/dev/null
+        mv "$TMP_LIST" /etc/apt/sources.list.d/local.list
+
+        cd "$LOCAL_DEB_REPO" || exit 1
+        dpkg-scanpackages . /dev/null > Packages
+        gzip -9c Packages > Packages.gz 
+
+        apt update
+        apt install -y "${dependenciesList[@]}"
+    fi
+
+    command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate git, make
+    command -v make >/dev/null 2>&1 || { echo "make not found"; exit 1; }
+fi
+
+echo "Successfully installed dependencies"
+
+
+#endregion
+
+# ---------------------------------------------------
+# Install Conda 
+# ---------------------------------------------------
+
+#region conda installation
+#newline to test upload script
+
+rm -rf "$CONDA_DIR" #remove pre-existing conda installation if exists
+bash "$LOCAL_CONDA_DIR/Miniconda3-latest-Linux-x86_64.sh" -b -p "$CONDA_DIR"
+
+source "$CONDA_DIR/etc/profile.d/conda.sh" #add conda to shell
+
+conda config --system --remove channels defaults || true
+
+#conda install -y $LOCAL_CONDA_FILES/conda-build-*.conda
+for f in "$LOCAL_CONDA_FILES"/conda-build*.conda; do
+    echo "installing file: $f"
+
+    [ -f "$f" ] || continue  #skip if no file exists
+    conda install --offline -y "$f" --override-channels -c "file://$LOCAL_CONDA_FILES"
+done
+
+conda activate base
+
+#conda-build index "$LOCAL_CONDA_FILES" #index file is already given in condaFiles 
+
+conda create -y --offline -n pydm-environment \
+    python="$PYTHON_VERSION" pyqt="$PYQT_VERSION" \
+    pip numpy scipy six psutil pyqtgraph pydm \
+    -c "file://$LOCAL_CONDA_FILES"
+
+conda activate pydm-environment
+
+
+
+
+
+#Python and pip:
+#cd /tmp
+#tar -xzf "$LOCAL_PYTHON_FILES/Python-$PYTHON_VERSION.tgz"
+
+#cd "Python-$PYTHON_VERSION"
+
+#./configure --prefix=/opt/python/3.12.2 --enable-optimizations --with-ensurepip=install
+
+
+#make -j"$(nproc)" #compiles
+#make install    #installs Python 
+
+#echo "Successfully installed Python and pip"
+
+
+#PYTHON="${PYTHON:-/opt/python/3.12.2/bin/python3.12}" 
+#
+#$PYTHON -m venv "$PYTHON_VENV"
+#source "$PYTHON_VENV/bin/activate"
+
+#endregion
+
+
+# ---------------------------------------------------
+# Install EPICS Base
+# ---------------------------------------------------
+
+#region epicsBase
+if true; then
+    echo "Cloning EPICS Base..."
+    cd "$EPICS_ROOT"
+
+    if [ ! -d "$EPICS_BASE" ]; then #clone base.git
+        if [ -d "$LOCAL_GIT_CACHE/base.git" ]; then
+            echo "Cloning EPICS Base from local cache..."
+            git clone --recursive "$LOCAL_GIT_CACHE/base.git" "$EPICS_BASE"
+        else
+            if check_internet; then
+                echo "Local cache not found, cloning EPICS Base from GitHub..."
+                git clone --recursive https://github.com/epics-base/epics-base "$EPICS_BASE"
+            else
+                echo "Error: Local cache empty and no internet connection. Cannot clone EPICS Base."
+                exit 1
+            fi
+        fi
+    fi
+
+
+    if true; then #appends to calling user's bashrc, 
+sudo -u "$SUDO_USER" tee -a "/home/$SUDO_USER/.bashrc" > /dev/null <<EOF
+export EPICS_BASE="$EPICS_BASE"
+export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
+export EPICS_HOST_ARCH=linux-x86_64
+export PATH="\$EPICS_BASE/bin/\$EPICS_HOST_ARCH:\$EPICS_EXTENSIONS/bin/\$EPICS_HOST_ARCH:\$PATH"
+export EDMOBJECTS="\$EPICS_EXTENSIONS/src/edm/setup"
+export EDMPVOBJECTS="\$EPICS_EXTENSIONS/src/edm/setup"
+export EDMFILES="\$EPICS_EXTENSIONS/src/edm/setup"
+export EDMHELPFILES="\$EPICS_EXTENSIONS/src/edm/helpFiles"
+export EDMLIBS="\$EPICS_EXTENSIONS/lib/\$EPICS_HOST_ARCH"
+export LD_LIBRARY_PATH="\$EPICS_BASE/lib/\$EPICS_HOST_ARCH:\${LD_LIBRARY_PATH:-}"
+export EDM_USE_SHARED_LIBS=YES
+EOF
+    fi
+
+    # ---------------------------------------------------
+    # Build EPICS Base
+    # ---------------------------------------------------
+    echo "Building EPICS Base..."
+    cd "$EPICS_BASE"
+    make -j"$(nproc)"
+fi
+
+export EPICS_BASE="$EPICS_BASE" #adds paths to current shell (root: installer.sh)
+export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
+export EPICS_HOST_ARCH=linux-x86_64
+export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
+export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
+export EDMPVOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
+export EDMFILES="$EPICS_EXTENSIONS/src/edm/setup"
+export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
+export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
+export LD_LIBRARY_PATH="$EPICS_BASE/lib/$EPICS_HOST_ARCH:${LD_LIBRARY_PATH:-}"
+export EDM_USE_SHARED_LIBS=YES
+
+echo "Successfully installed EPICS base"
+
+#endregion
+
+
+# ---------------------------------------------------
+# Install EPICS Extensions
+# ---------------------------------------------------
+
+#region epics extensions
+
+echo "Cloning EPICS Extensions..."
+cd "$EPICS_ROOT"
+
+if [ ! -d "$EPICS_EXTENSIONS/.git" ]; then 
+    if [ -d "$LOCAL_GIT_CACHE/extensions.git" ]; then
+        echo "Cloning EPICS Extensions from local cache..."
+        git clone --recursive "$LOCAL_GIT_CACHE/extensions.git" "$EPICS_EXTENSIONS"
+    else
+        echo "Cloning EPICS Extensions from GitHub..."
+        git clone --recursive https://github.com/epics-extensions/extensions "$EPICS_EXTENSIONS"
+    fi
+fi
+
+mkdir -p "$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH"
+mkdir -p "$EPICS_EXTENSIONS/configure"
+
+if ! grep -q '^EDM' "$EPICS_EXTENSIONS/configure/RELEASE" 2>/dev/null; then
+    echo "EDM=\$(EPICS_EXTENSIONS)/src/edm" >> "$EPICS_EXTENSIONS/configure/RELEASE"
+fi
+
+
+if [ -e "$EPICS_ROOT/configure" ] && [ ! -L "$EPICS_ROOT/configure" ]; then #remove legacy '/epics/configure' dir if existing
+    rm -rf "$EPICS_ROOT/configure"
+fi
+
+
+if [ ! -e "$EPICS_ROOT/configure" ]; then
+    ln -s "$EPICS_BASE/configure" "$EPICS_ROOT/configure" #points /epics/configure to /epics/base/configure to 'fix' outdated pathing
+fi
+
+
+echo "Created symlink: $EPICS_ROOT/configure -> $EPICS_BASE/configure"
+
+echo "Successfully configured extensions!"
+
+#endregion
+
+
+# ---------------------------------------------------
+# PyEpics (python interaction module)
+# ---------------------------------------------------
+
+#region pyepics 
+mkdir -p "/opt/epics_python"
+"$PYTHON" -m pip install --no-index --find-links "$LOCAL_PIP_FILES" --prefix=/opt/epics_python pyepics pydm
+
+
+#endregion
+
+
+# ---------------------------------------------------
+# Clone EDM into Extensions
+# ---------------------------------------------------
+
+#region EDM
+#
+#cd $SCRIPT_DIR
+#
+#
+#
+#
+#sed -i -e '21cEPICS_BASE=/opt/epics/epics-base' -e '25s/^/#/' extensions/configure/RELEASE
+#sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_64-linux-gnu' extensions/configure/os/CONFIG_SITE.linux-x86_64.linux-x86_64
+#
+#cd "$EPICS_ROOT/extensions/src"
+#cp -r $LOCAL_GIT_CACHE/edm .
+#cd "$EPICS_ROOT/extensions/src"
+#
+#sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' edm/giflib/Makefile
+#sed -i -e 's| ungif||g' edm/giflib/Makefile*
+#
+#cd edm
+#make clean
+#make
+#cd setup
+#sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflib
+#videowidget' setup.sh
+#sed -i -e '79d' setup.sh
+#sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' setup.sh
+#sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' setup.sh
+#sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
+#sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
+#HOST_ARCH=linux-x86_64 sh setup.sh
+#
+#
+#
+#
+#
+#
+#if [ -d "localRepos/edm" ]; then 
+#    mkdir -p $EPICS_EXTENSIONS/src #/epics/base/extensions/src
+#    cp -r localRepos/edm/* $EPICS_EXTENSIONS/src
+#
+#    sudo find $EPICS_ROOT -type f -name Makefile -exec sed -i 's|\$top/configure|\$top/base/configure|g' {} +
+#    sudo find "$EPICS_ROOT" -type f -name Makefile -exec sed -i "s|^TOP = [./]\+|TOP = $EPICS_ROOT|" {} + #replace any combination of . / with absolute path
+#
+#
+#    #Edits config files 
+#    sed -i 's|^EPICS_BASE=$(TOP)/\.\./base|EPICS_BASE=$(TOP)|' /epics/extensions/configure/RELEASE
+#    sed -i -e 's| ungif||g' "$EPICS_EXTENSIONS/src/giflib/Makefile"
+#
+#    # edits all files in /epics:
+#    #   /epics/configure ---> /epics/base/configure
+#
+#    cd "$EPICS_EXTENSIONS/src"
+#
+#    echo "Preparing to make EDM"
+#
+#    #edit Makefile in /epics/extensions/src: 
+#    #change:
+#    #   include $(TOP)/configure/CONFIG
+#    # to 
+#    #   include $(TOP)/base/configure/CONFIG
+#    # sed -i 's|$(TOP)/configure/CONFIG|$(TOP)/base/configure/CONFIG|' /epics/extensions/src/Makefile
+#
+#    make -j"$(nproc)"
+#fi
+#
+#endregion
+
+
+# ---------------------------------------------------
+# Modify environment variables
+# ---------------------------------------------------
+
+#region environment variables
+if true; then
+    ENV_SCRIPT="$EPICS_ROOT/epics_env.sh"
+
+    # Create env script with system-wide exports
+    cat > "$ENV_SCRIPT" <<'EOF'
+export EPICS_ROOT=/epics
+export EPICS_BASE=${EPICS_BASE:-/epics/base}
+export EPICS_EXTENSIONS=${EPICS_EXTENSIONS:-$EPICS_ROOT/extensions}
+export EPICS_HOST_ARCH=linux-x86_64
+export PATH="${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:$PATH"
+export LD_LIBRARY_PATH="${EPICS_BASE}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH:-}"
+EOF
+
+    # Make readable by all users
+    chmod 644 "$ENV_SCRIPT"
+
+    # Link into global bashrc
+    if ! grep -Fxq "source $ENV_SCRIPT" /etc/bash.bashrc; then
+        echo "source $ENV_SCRIPT" | tee -a /etc/bash.bashrc >/dev/null
+    fi
+    
+    if [ -f /epics/epics_env.sh ]; then #add to /etc/profile to add epics to SSH shell
+        . /epics/epics_env.sh
+    fi
+
+    # Add to current user's bashrc as well
+    if ! grep -Fxq "source $ENV_SCRIPT" ~/.bashrc; then
+        echo "source $ENV_SCRIPT" >> ~/.bashrc
+    fi
+
+    # printf "\n\nRun the command: source $EPICS_ROOT/epics_env.sh to add epics to your system environment"
+
+    sudo -u "$SUDO_USER" bash -c "source \"$EPICS_ROOT/epics_env.sh\""  #adds ENV_SCRIPT to active shell immediately
+fi
+
+#endregion
+
+
+# ---------------------------------------------------
+# End-script processes 
+# ---------------------------------------------------
+
+echo "Done!"

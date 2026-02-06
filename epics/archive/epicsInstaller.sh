@@ -8,8 +8,6 @@
 
 set -euo pipefail
 
-trap 'echo "ERROR in function ${FUNCNAME[0]}, file ${BASH_SOURCE[1]}, line $LINENO"; exit 1' ERR
-
 # ===============================
 # Directory Management
 # ===============================
@@ -20,8 +18,7 @@ EPICS_ROOT="/epics"
 EPICS_BASE="$EPICS_ROOT/base"
 EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
 EPICS_MODULES="$EPICS_ROOT/modules"
-# EDM_DIR="$EPICS_EXTENSIONS/src/edm"
-EDM_DIR="$EPICS_ROOT/extensions/src/edm"
+EDM_DIR="$EPICS_EXTENSIONS/src/edm"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -40,6 +37,7 @@ if [ "$(id -u)" -ne 0 ]; then
 
     exit 0 #exit original script after rerunning with sudo
 fi
+
 
 LOGFILE="$SCRIPT_DIR/logs.log"
 exec > >(tee "$LOGFILE") 2>&1
@@ -63,7 +61,7 @@ check_internet() { #check connectivity; used to install missing files in case of
 # Install OS Dependencies
 # -------------------------------
 #full package list:
-# dpkg-dev make libpng-dev libmotif-dev libxm4 zlib1g-dev libgif-dev libx11-dev libxtst-dev libxmu-dev libdpkg-perl perl build-essential git vim
+# dpkg-dev make libpng-dev libmotif-dev libxm4 zlib1g-dev libgif-dev libx11-dev libxtst-dev libxmu-dev perl build-essential git vim
 
 if true; then
     #if dir does not exist or is empty, create it & populate with .deb files
@@ -74,14 +72,13 @@ if true; then
         if check_internet; then #if internet is available, install packages
             echo "Local package repo for os $FILE_DIR_NAME not found, installing key packages from internet..."
             
-            apt --fix-broken install -y #these may be unnecessary
-            apt update
+            # apt --fix-broken install -y #these may be unnecessary
+            # apt update
 
-            apt-get -o=dir::cache::archives="$LOCAL_DEB_REPO" \
+            apt-get -o=dir::cache::archives="$LOCAL_DEB_REPO" \  #download in $LOCAL_[...]
             install --download-only -y \
-            dpkg-dev make libpng-dev libmotif-dev libxm4 zlib1g-dev libgif-dev libx11-dev libxtst-dev libxmu-dev libdpkg-perl perl build-essential git vim
-
-            echo "Downloaded core files and dependencies"
+            dpkg-dev make libpng-dev libmotif-dev libxm4 zlib1g-dev libgif-dev libx11-dev libxtst-dev \
+            libxmu-dev perl build-essential git vim
 
         else #error message, exit if no internet
             echo "Error: local .deb repository not found or empty at $LOCAL_DEB_REPO"
@@ -90,14 +87,20 @@ if true; then
         fi
     fi
 
+    #ensure dpkg-dev is installed first
+    if ls "$LOCAL_DEB_REPO"/dpkg-dev*.deb >/dev/null 2>&1; then
+        echo "Bootstrapping dpkg-dev from local repo..."
+        dpkg -i "$LOCAL_DEB_REPO"/dpkg-dev*.deb || true
+        # Fix dependencies that may be missing
+        apt-get install -f -y || true
+    fi
 
     #install from local repository
     if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
+
         echo "Using local package repository: $LOCAL_DEB_REPO"
 
-        #Prerequisite packages: dpkg-dev, make
-
-        # --- Install make (needed to install dpkg-dev) ---
+        # --- Step 0: Bootstrap make and dpkg-dev if missing ---
         if ! command -v make >/dev/null 2>&1; then
             echo "Installing make from local repo..."
             if ls "$LOCAL_DEB_REPO"/make_*.deb >/dev/null 2>&1; then
@@ -109,31 +112,24 @@ if true; then
             fi
         fi
 
-        if true; then
-            # --- Install dpkg-dev (needed later for dpkg -i) ---
-            if ! command -v dpkg-scanpackages >/dev/null 2>&1; then
-                echo "Installing dpkg-dev from local repo..."
-                if ls "$LOCAL_DEB_REPO"/dpkg-dev*.deb >/dev/null 2>&1; then
-                    dpkg -i "$LOCAL_DEB_REPO"/dpkg-dev*.deb
-                    # Fix unmet dependencies using local .debs
-                    apt-get --fix-broken install -y -o Dir::Etc::sourcelist="-" \
-                        -o Dir::Etc::sourceparts="-" \
-                        -o APT::Get::Download-Only=false \
-                        -o Dir::Etc::sourcelist="-" \
-                        -o APT::Get::AllowUnauthenticated=true
-                else
-                    echo "Error: dpkg-dev*.deb not found in $LOCAL_DEB_REPO"
-                    exit 1
-                fi
+        # --- Step 1: Ensure dpkg-dev is installed ---
+        if ! command -v dpkg-scanpackages >/dev/null 2>&1; then
+            echo "Installing dpkg-dev from local repo (required for index generation)..."
+            if ls "$LOCAL_DEB_REPO"/dpkg-dev*.deb >/dev/null 2>&1; then
+                dpkg -i "$LOCAL_DEB_REPO"/dpkg-dev*.deb
+                # Fix unmet dependencies using local .debs
+                apt-get --fix-broken install -y -o Dir::Etc::sourcelist="-" \
+                    -o Dir::Etc::sourceparts="-" \
+                    -o APT::Get::Download-Only=false \
+                    -o Dir::Etc::sourcelist="-" \
+                    -o APT::Get::AllowUnauthenticated=true
+            else
+                echo "Error: dpkg-dev*.deb not found in $LOCAL_DEB_REPO"
+                exit 1
             fi
-
-
         fi
-                
 
-        apt --fix-broken install -y
-
-        # --- Point apt to the local .deb repository; install ---
+        # --- Step 2: Register the local repo ---
         TMP_LIST=$(mktemp)
         echo "deb [trusted=yes] file:$LOCAL_DEB_REPO ./" | tee "$TMP_LIST" >/dev/null
         mv "$TMP_LIST" /etc/apt/sources.list.d/local.list
@@ -144,15 +140,13 @@ if true; then
 
         apt update
         apt install -y \
-        libpng-dev libmotif-dev libxm4 zlib1g-dev libgif-dev libx11-dev libxtst-dev libdpkg-perl\
+        libpng-dev libmotif-dev libxm4 zlib1g-dev libgif-dev libx11-dev libxtst-dev \
         libxmu-dev perl build-essential git vim
     fi
 
-    command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate git, make
+    command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate installs of git, make
     command -v make >/dev/null 2>&1 || { echo "make not found"; exit 1; }
 fi
-
-printf "Successfully installed dependencies"
 
 # -------------------------------
 # Clone EPICS Base
@@ -176,21 +170,23 @@ if true; then
         fi
     fi
 
+    # -------------------------------
+    # Set Environment Variables
+    # -------------------------------
+    if true; then
+        export EPICS_BASE="$EPICS_BASE"
+        export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
+        export EPICS_HOST_ARCH=linux-x86_64
+        export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
 
-    if true; then #appends to calling user's bashrc, 
-sudo -u "$SUDO_USER" tee -a "/home/$SUDO_USER/.bashrc" > /dev/null <<EOF
-export EPICS_BASE="$EPICS_BASE"
-export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
-export EPICS_HOST_ARCH=linux-x86_64
-export PATH="\$EPICS_BASE/bin/\$EPICS_HOST_ARCH:\$EPICS_EXTENSIONS/bin/\$EPICS_HOST_ARCH:\$PATH"
-export EDMOBJECTS="\$EPICS_EXTENSIONS/src/edm/setup"
-export EDMPVOBJECTS="\$EPICS_EXTENSIONS/src/edm/setup"
-export EDMFILES="\$EPICS_EXTENSIONS/src/edm/setup"
-export EDMHELPFILES="\$EPICS_EXTENSIONS/src/edm/helpFiles"
-export EDMLIBS="\$EPICS_EXTENSIONS/lib/\$EPICS_HOST_ARCH"
-export LD_LIBRARY_PATH="\$EPICS_BASE/lib/\$EPICS_HOST_ARCH:\${LD_LIBRARY_PATH:-}"
-export EDM_USE_SHARED_LIBS=YES
-EOF
+        # Required for EDM
+        export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
+        export EDMPVOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
+        export EDMFILES="$EPICS_EXTENSIONS/src/edm/setup"
+        export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
+        export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
+        export LD_LIBRARY_PATH="$EPICS_BASE/lib/$EPICS_HOST_ARCH:${LD_LIBRARY_PATH:-}"
+        export EDM_USE_SHARED_LIBS=YES
     fi
 
     # -------------------------------
@@ -201,19 +197,6 @@ EOF
     make -j"$(nproc)"
 fi
 
-export EPICS_BASE="$EPICS_BASE" #adds paths to current shell (root: installer.sh)
-export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
-export EPICS_HOST_ARCH=linux-x86_64
-export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
-export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
-export EDMPVOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
-export EDMFILES="$EPICS_EXTENSIONS/src/edm/setup"
-export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
-export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
-export LD_LIBRARY_PATH="$EPICS_BASE/lib/$EPICS_HOST_ARCH:${LD_LIBRARY_PATH:-}"
-export EDM_USE_SHARED_LIBS=YES
-
-printf "Successfully installed EPICS base"
 
 # -------------------------------
 # Clone EPICS Extensions
@@ -238,59 +221,94 @@ if ! grep -q '^EDM' "$EPICS_EXTENSIONS/configure/RELEASE" 2>/dev/null; then
     echo "EDM=\$(EPICS_EXTENSIONS)/src/edm" >> "$EPICS_EXTENSIONS/configure/RELEASE"
 fi
 
-
-if [ -e "$EPICS_ROOT/configure" ] && [ ! -L "$EPICS_ROOT/configure" ]; then #remove legacy '/epics/configure' dir if existing
-    rm -rf "$EPICS_ROOT/configure"
-fi
-
-ln -s "$EPICS_BASE/configure" "$EPICS_ROOT/configure" #points /epics/configure to /epics/base/configure to 'fix' outdated pathing
-echo "Created symlink: $EPICS_ROOT/configure -> $EPICS_BASE/configure"
-
-echo "Successfully configured extensions!"
-
-
 # # -------------------------------
 # # Clone EDM into Extensions
 # # -------------------------------
-#note that EDM has been deprecated.
-#Most commonly, we use
-# >> CSS BOY / Phoebus  (industry standard)
-# >> caQtDM             (direct replacement for EDM)
-# >> PyDM               (Beamline-popular, python-oriented)
+# echo "Cloning EDM..."
+# mkdir -p "$(dirname "$EDM_DIR")"  # ensure src/ exists
 
-cd $SCRIPT_DIR
-if [ -d "localRepos/edm" ]; then 
-    mkdir -p $EPICS_EXTENSIONS/src #/epics/base/extensions/src
-    cp -r localRepos/edm/* $EPICS_EXTENSIONS/src
+# if [ ! -d "$EDM_DIR" ]; then
+#     if [ -d "$LOCAL_GIT_CACHE/edm.git" ]; then
+#         echo "Cloning EDM from local cache..."
+#         git clone --recursive "$LOCAL_GIT_CACHE/edm.git" "$EDM_DIR"
+#     else
+#         if check_internet; then
+#             echo "Local cache empty, cloning EDM from GitHub..."
+#             git clone --recursive https://github.com/epicsdeb/edm "$EDM_DIR"
+#         else
+#             echo "Error: Local cache empty and no internet connection. Cannot clone EDM."
+#             exit 1
+#         fi
+#     fi
+# fi
 
-    sudo find $EPICS_ROOT -type f -name Makefile -exec sed -i 's|\$top/configure|\$top/base/configure|g' {} +
-    sudo find "$EPICS_ROOT" -type f -name Makefile -exec sed -i "s|^TOP = [./]\+|TOP = $EPICS_ROOT|" {} + #replace any combination of . / with absolute path
-
-
-    #Edits config files 
-    sed -i 's|^EPICS_BASE=$(TOP)/\.\./base|EPICS_BASE=$(TOP)|' /epics/extensions/configure/RELEASE
-    sed -i -e 's| ungif||g' "$EPICS_EXTENSIONS/src/giflib/Makefile"
-
-    # edits all files in /epics:
-    #   /epics/configure ---> /epics/base/configure
-
-    cd "$EPICS_EXTENSIONS/src"
-
-    printf "Preparing to make EDM\n"
-
-    #edit Makefile in /epics/extensions/src: 
-    #change:
-    #   include $(TOP)/configure/CONFIG
-    # to 
-    #   include $(TOP)/base/configure/CONFIG
-    # sed -i 's|$(TOP)/configure/CONFIG|$(TOP)/base/configure/CONFIG|' /epics/extensions/src/Makefile
-
-    make -j"$(nproc)"
-fi
+# mkdir -p "$EPICS_EXTENSIONS/lib/linux-x86_64"S
 
 
+# if [ true ]; then
+#     # -------------------------------
+#     # Patch CONFIG_SITE for EDM
+#     # -------------------------------
+
+#     CONFIG_SITE="$EPICS_EXTENSIONS/configure/os/CONFIG_SITE.$EPICS_HOST_ARCH"
+#     mkdir -p "$(dirname "$CONFIG_SITE")"
+
+#     cat > "$CONFIG_SITE" <<EOF
+# EDM_USE_SHARED_LIBS=YES
+# X11_LIB=/usr/lib/x86_64-linux-gnu
+# X11_INC=/usr/include
+# MOTIF_LIB=/usr/lib/x86_64-linux-gnu
+# MOTIF_INC=/usr/include
+# EOF
 
 
+#     export CONFIG_SITE
+
+#     # -------------------------------
+#     # Build EDM
+#     # -------------------------------
+
+#     echo "Building EDM..."
+#     cd "$EDM_DIR"
+#     make clean
+#     make -j"$(nproc)"
+
+#     echo "EDM build process completed"
+
+
+#     # Install EDM binary
+#     mkdir -p "$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH"
+
+#     EDM_BIN="$(find "$EDM_DIR" -type f -executable -name edm -print -quit)"
+#     [ -n "$EDM_BIN" ] || { echo "edm binary not found"; exit 1; }
+#     install -m 755 "$EDM_BIN" "$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH/"
+
+
+#     # -------------------------------
+#     # Patch EDM Fonts
+#     # -------------------------------
+#     EDM_FONTS="$EDM_DIR/setup/fonts.list"
+#     echo "Configuring EDM fonts..."
+#     mkdir -p "$(dirname "$EDM_FONTS")"  # ensure setup/ exists
+
+#     cat > "$EDM_FONTS" <<'EOF'
+# courier-bold-r-12.0
+# helvetica-bold-r-12.0
+# courier={
+#     -misc-liberation mono-(medium,bold)-(r,i)-normal--0-(80=90,100,120,140,160,180,200,240,280,320,360,420,480,600,720)-75-75-m-0-*-* exact
+#     -adobe-courier-(medium,bold)-(r,o)-normal--0-(80,100,120,140,160,180,200,240,280,320,360,420,480,600,720)-75-75-*-0-*-1
+#     -monotype-arial-(medium,bold)-(r,i)-normal--*-(80,100,120,140,160,180,200,240,280,320,360,420,480,600,720)-75-75-p-*-*-*
+# }
+# EOF
+
+
+#     # -------------------------------
+#     # UI
+#     # -------------------------------
+#     echo "EPICS + EDM installation complete!"
+#     echo "Remember to source the environment variables before running EPICS or EDM:"
+#     echo "  source $EPICS_ROOT/epics_env.sh"
+# fi
 
 # -------------------------------
 # Modify environment variables
@@ -325,9 +343,6 @@ EOF
         echo "source $ENV_SCRIPT" >> ~/.bashrc
     fi
 
-    # printf "\n\nRun the command: source $EPICS_ROOT/epics_env.sh to add epics to your system environment"
-
-    sudo -u "$SUDO_USER" bash -c "source \"$EPICS_ROOT/epics_env.sh\""  #adds ENV_SCRIPT to active shell immediately
+    source "$ENV_SCRIPT" #adds ENV_SCRIPT to active shell immediately
 fi
 
-echo "Done!"
