@@ -5,72 +5,33 @@
 
 #November, 2025
 
-#this is charted to work only on Ubuntu 18.04, due to GUI dependencies on deprecated packages
-
 
 set -euo pipefail
 
 trap 'echo "ERROR in function ${FUNCNAME[0]:-main}, file ${BASH_SOURCE[1]:${BASH_SOURCE[0]}}, line $LINENO"; exit 1' ERR
 
-# ===================================================
+# ===============================
 # Directory Management
-# ===================================================
-
-#region paths, constants, functions
+# ===============================
 EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
-EPICS_ROOT="/opt/epics"
+EPICS_ROOT="/epics"
 EPICS_BASE="$EPICS_ROOT/base"
 EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
 EPICS_MODULES="$EPICS_ROOT/modules"
+# EDM_DIR="$EPICS_EXTENSIONS/src/edm"
 EDM_DIR="$EPICS_ROOT/extensions/src/edm"
-CONDA_DIR="/opt/miniconda"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-PYTHON_VENV="$EPICS_ROOT/venv"
 
 source /etc/os-release 
 VERSION="$VERSION_ID" #detect ubuntu version
 FILE_DIR_NAME="localFiles_$VERSION"
 
 LOCAL_GIT_CACHE="$SCRIPT_DIR/localRepos" #enables offline downloads
-LOCAL_DEB_REPO="$SCRIPT_DIR/$FILE_DIR_NAME"
+LOCAL_DEB_REPO="$SCRIPT_DIR/$FILE_DIR_NAME" #targets relevant file package
 
-LOCAL_PYTHON_FILES="$SCRIPT_DIR/pythonFiles"
-LOCAL_PIP_FILES="$LOCAL_PYTHON_FILES/pipFiles" 
-LOCAL_CONDA_DIR="$SCRIPT_DIR/condaFiles" #install .tar.gz files for needed packages (e.g. numpy, pyepics, PyDM)
-LOCAL_CONDA_FILES="$LOCAL_CONDA_DIR/condaPackages" #install .tar.gz files for needed packages (e.g. numpy, pyepics, PyDM)
-
-PYTHON_VERSION="3.10" #referenced in python installation section -- for file pathing
-PYQT_VERSION="5.12.3" #pin version at 5.12.3 until PyDM widgets are updated in Designer
-
-dependenciesList=( #used by apt install
-    autoconf build-essential dpkg-dev git iperf3 libbz2-dev libdb5.3-dev libdpkg-perl libexpat1-dev libffi-dev
-    libgdbm-dev libgif-dev liblzma-dev libmotif-dev libncurses5-dev libncursesw5-dev libpng-dev libreadline-dev 
-    libssl-dev libsqlite3-dev libtool libx11-dev libxmu-dev libxmu-headers libxm4 libxt-dev libxtst-dev
-    make nmap openssh-server perl python3 python3-pip python3-venv sshpass tk-dev uuid-dev vim xfonts-100dpi
-    xfonts-75dpi zlib1g-dev
-    )
-
-#ensure the os is the right version
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
-        echo "The installer requires os version: *** Ubuntu 18.04 *** "
-        echo "EPICS will install properly, but the GUI will not work. Continue? [Y/n]"
-
-        ans=${answer:-Y}
-        if [[ "$ans" =~ ^[Yy]$ ]]; then 
-            :
-        else
-            echo "Quitting"
-            exit 1
-        fi
-        
-    fi
-fi
 
 #Ensure the script is run with sudo:
 if [ "$(id -u)" -ne 0 ]; then
@@ -88,28 +49,21 @@ mkdir -p "$EPICS_ROOT"
 mkdir -p "$EPICS_ROOT/configure"
 mkdir -p "$EPICS_MODULES"
 mkdir -p "$LOCAL_GIT_CACHE/src"
-mkdir -p "$PYTHON_VENV"
-mkdir -p "$CONDA_DIR"
-
 
 
 check_internet() { #check connectivity; used to install missing files in case of local corruption
     if ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
-        return 1  # online
+        return 0  # online
     else
-        return 0  # offline
+        return 1  # offline
     fi
 }
 
-#endregion
-
-
-# ---------------------------------------------------
+# -------------------------------
 # Install OS Dependencies
-# ---------------------------------------------------
-
-#region dependencies 
-
+# -------------------------------
+#full package list:
+# dpkg-dev make libpng-dev libmotif-dev libxm4 zlib1g-dev libgif-dev libx11-dev libxtst-dev libxmu-dev libdpkg-perl perl build-essential git vim
 
 if true; then
     #if dir does not exist or is empty, create it & populate with .deb files
@@ -123,9 +77,9 @@ if true; then
             apt --fix-broken install -y #these may be unnecessary
             apt update
 
-            apt-get -o=dir::cache::archives="$LOCAL_DEB_REPO" install --download-only -y "${dependenciesList[@]}"
-
-
+            apt-get -o=dir::cache::archives="$LOCAL_DEB_REPO" \
+            install --download-only -y \
+            dpkg-dev make libpng-dev libmotif-dev libxm4 zlib1g-dev libgif-dev libx11-dev libxtst-dev libxmu-dev libdpkg-perl perl build-essential git vim
 
             echo "Downloaded core files and dependencies"
 
@@ -189,83 +143,20 @@ if true; then
         gzip -9c Packages > Packages.gz 
 
         apt update
-        apt install -y "${dependenciesList[@]}"
+        apt install -y \
+        libpng-dev libmotif-dev libxm4 zlib1g-dev libgif-dev libx11-dev libxtst-dev libdpkg-perl\
+        libxmu-dev perl build-essential git vim
     fi
 
     command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate git, make
     command -v make >/dev/null 2>&1 || { echo "make not found"; exit 1; }
 fi
 
-echo "Successfully installed dependencies"
+printf "Successfully installed dependencies"
 
-
-#endregion
-
-# ---------------------------------------------------
-# Install Conda 
-# ---------------------------------------------------
-
-#region conda installation
-#newline to test upload script
-
-rm -rf "$CONDA_DIR" #remove pre-existing conda installation if exists
-bash "$LOCAL_CONDA_DIR/Miniconda3-latest-Linux-x86_64.sh" -b -p "$CONDA_DIR"
-
-source "$CONDA_DIR/etc/profile.d/conda.sh" #add conda to shell
-
-conda config --system --remove channels defaults || true
-
-#conda install -y $LOCAL_CONDA_FILES/conda-build-*.conda
-for f in "$LOCAL_CONDA_FILES"/conda-build*.conda; do
-    echo "installing file: $f"
-
-    [ -f "$f" ] || continue  #skip if no file exists
-    conda install --offline -y "$f" --override-channels -c "file://$LOCAL_CONDA_FILES"
-done
-
-conda activate base
-
-#conda-build index "$LOCAL_CONDA_FILES" #index file is already given in condaFiles 
-
-conda create -y --offline -n pydm-environment \
-    python="$PYTHON_VERSION" pyqt="$PYQT_VERSION" \
-    pip numpy scipy six psutil pyqtgraph pydm \
-    -c "file://$LOCAL_CONDA_FILES"
-
-conda activate pydm-environment
-
-
-
-
-
-#Python and pip:
-#cd /tmp
-#tar -xzf "$LOCAL_PYTHON_FILES/Python-$PYTHON_VERSION.tgz"
-
-#cd "Python-$PYTHON_VERSION"
-
-#./configure --prefix=/opt/python/3.12.2 --enable-optimizations --with-ensurepip=install
-
-
-#make -j"$(nproc)" #compiles
-#make install    #installs Python 
-
-#echo "Successfully installed Python and pip"
-
-
-#PYTHON="${PYTHON:-/opt/python/3.12.2/bin/python3.12}" 
-#
-#$PYTHON -m venv "$PYTHON_VENV"
-#source "$PYTHON_VENV/bin/activate"
-
-#endregion
-
-
-# ---------------------------------------------------
-# Install EPICS Base
-# ---------------------------------------------------
-
-#region epicsBase
+# -------------------------------
+# Clone EPICS Base
+# -------------------------------
 if true; then
     echo "Cloning EPICS Base..."
     cd "$EPICS_ROOT"
@@ -302,9 +193,9 @@ export EDM_USE_SHARED_LIBS=YES
 EOF
     fi
 
-    # ---------------------------------------------------
+    # -------------------------------
     # Build EPICS Base
-    # ---------------------------------------------------
+    # -------------------------------
     echo "Building EPICS Base..."
     cd "$EPICS_BASE"
     make -j"$(nproc)"
@@ -322,17 +213,11 @@ export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
 export LD_LIBRARY_PATH="$EPICS_BASE/lib/$EPICS_HOST_ARCH:${LD_LIBRARY_PATH:-}"
 export EDM_USE_SHARED_LIBS=YES
 
-echo "Successfully installed EPICS base"
+printf "Successfully installed EPICS base"
 
-#endregion
-
-
-# ---------------------------------------------------
-# Install EPICS Extensions
-# ---------------------------------------------------
-
-#region epics extensions
-
+# -------------------------------
+# Clone EPICS Extensions
+# -------------------------------
 echo "Cloning EPICS Extensions..."
 cd "$EPICS_ROOT"
 
@@ -358,107 +243,16 @@ if [ -e "$EPICS_ROOT/configure" ] && [ ! -L "$EPICS_ROOT/configure" ]; then #rem
     rm -rf "$EPICS_ROOT/configure"
 fi
 
-
-if [ ! -e "$EPICS_ROOT/configure" ]; then
-    ln -s "$EPICS_BASE/configure" "$EPICS_ROOT/configure" #points /epics/configure to /epics/base/configure to 'fix' outdated pathing
-fi
-
-
+ln -s "$EPICS_BASE/configure" "$EPICS_ROOT/configure" #points /epics/configure to /epics/base/configure to 'fix' outdated pathing
 echo "Created symlink: $EPICS_ROOT/configure -> $EPICS_BASE/configure"
 
 echo "Successfully configured extensions!"
 
-#endregion
 
 
-# ---------------------------------------------------
-# PyEpics (python interaction module)
-# ---------------------------------------------------
-
-#region pyepics 
-mkdir -p "/opt/epics_python"
-"$PYTHON" -m pip install --no-index --find-links "$LOCAL_PIP_FILES" --prefix=/opt/epics_python pyepics pydm
-
-
-#endregion
-
-
-# ---------------------------------------------------
-# Clone EDM into Extensions
-# ---------------------------------------------------
-
-#region EDM
-#
-#cd $SCRIPT_DIR
-#
-#
-#
-#
-#sed -i -e '21cEPICS_BASE=/opt/epics/epics-base' -e '25s/^/#/' extensions/configure/RELEASE
-#sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_64-linux-gnu' extensions/configure/os/CONFIG_SITE.linux-x86_64.linux-x86_64
-#
-#cd "$EPICS_ROOT/extensions/src"
-#cp -r $LOCAL_GIT_CACHE/edm .
-#cd "$EPICS_ROOT/extensions/src"
-#
-#sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' edm/giflib/Makefile
-#sed -i -e 's| ungif||g' edm/giflib/Makefile*
-#
-#cd edm
-#make clean
-#make
-#cd setup
-#sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflib
-#videowidget' setup.sh
-#sed -i -e '79d' setup.sh
-#sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' setup.sh
-#sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' setup.sh
-#sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
-#sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
-#HOST_ARCH=linux-x86_64 sh setup.sh
-#
-#
-#
-#
-#
-#
-#if [ -d "localRepos/edm" ]; then 
-#    mkdir -p $EPICS_EXTENSIONS/src #/epics/base/extensions/src
-#    cp -r localRepos/edm/* $EPICS_EXTENSIONS/src
-#
-#    sudo find $EPICS_ROOT -type f -name Makefile -exec sed -i 's|\$top/configure|\$top/base/configure|g' {} +
-#    sudo find "$EPICS_ROOT" -type f -name Makefile -exec sed -i "s|^TOP = [./]\+|TOP = $EPICS_ROOT|" {} + #replace any combination of . / with absolute path
-#
-#
-#    #Edits config files 
-#    sed -i 's|^EPICS_BASE=$(TOP)/\.\./base|EPICS_BASE=$(TOP)|' /epics/extensions/configure/RELEASE
-#    sed -i -e 's| ungif||g' "$EPICS_EXTENSIONS/src/giflib/Makefile"
-#
-#    # edits all files in /epics:
-#    #   /epics/configure ---> /epics/base/configure
-#
-#    cd "$EPICS_EXTENSIONS/src"
-#
-#    echo "Preparing to make EDM"
-#
-#    #edit Makefile in /epics/extensions/src: 
-#    #change:
-#    #   include $(TOP)/configure/CONFIG
-#    # to 
-#    #   include $(TOP)/base/configure/CONFIG
-#    # sed -i 's|$(TOP)/configure/CONFIG|$(TOP)/base/configure/CONFIG|' /epics/extensions/src/Makefile
-#
-#    make -j"$(nproc)"
-#fi
-#
-#endregion
-
-
-# ---------------------------------------------------
+# -------------------------------
 # Modify environment variables
-# ---------------------------------------------------
-
-#region environment variables
+# -------------------------------
 if true; then
     ENV_SCRIPT="$EPICS_ROOT/epics_env.sh"
 
@@ -489,16 +283,9 @@ EOF
         echo "source $ENV_SCRIPT" >> ~/.bashrc
     fi
 
-    # printf "\n\nRun the command: source $EPICS_ROOT/epics_env.sh to add epics to your system environment"
+    printf "\n\nTo complete the installation: \nRun the command: source $EPICS_ROOT/epics_env.sh to add epics to your system environment"
 
-    sudo -u "$SUDO_USER" bash -c "source \"$EPICS_ROOT/epics_env.sh\""  #adds ENV_SCRIPT to active shell immediately
+    sudo -u "$SUDO_USER" bash -c "source \"$EPICS_ROOT/epics_env.sh\"" 
 fi
-
-#endregion
-
-
-# ---------------------------------------------------
-# End-script processes 
-# ---------------------------------------------------
 
 echo "Done!"

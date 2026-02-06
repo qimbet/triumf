@@ -1,16 +1,19 @@
+#bulky files. Shipped together on release
 *.deb
+*.conda
 *.tar
 *.gz
+
+#misc files
+*.iso
 *.exe
 *.FCBak
 *.FCStd
 *.pdf
-*.iso
-*.conda
-
 *.swp
 *.un~
 
+#precompiled package directories (myriad extensions)
 condaFiles/
 git_excluded/
 pythonFiles/
