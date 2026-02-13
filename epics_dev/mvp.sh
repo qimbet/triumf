@@ -27,7 +27,7 @@ EPICS_BASE="$EPICS_ROOT/base"
 EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
 EPICS_MODULES="$EPICS_ROOT/modules"
 EDM_DIR="$EPICS_ROOT/extensions/src/edm"
-CONDA_DIR="/opt/miniconda"
+#CONDA_DIR="/opt/miniconda"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -42,8 +42,8 @@ LOCAL_DEB_REPO="$SCRIPT_DIR/$FILE_DIR_NAME"
 
 LOCAL_PYTHON_FILES="$SCRIPT_DIR/pythonFiles"
 LOCAL_PIP_FILES="$LOCAL_PYTHON_FILES/pipFiles" 
-LOCAL_CONDA_DIR="$SCRIPT_DIR/condaFiles" #install .tar.gz files for needed packages (e.g. numpy, pyepics, PyDM)
-LOCAL_CONDA_FILES="$LOCAL_CONDA_DIR/condaPackages" #install .tar.gz files for needed packages (e.g. numpy, pyepics, PyDM)
+#LOCAL_CONDA_DIR="$SCRIPT_DIR/condaFiles" #install .tar.gz files for needed packages (e.g. numpy, pyepics, PyDM)
+#LOCAL_CONDA_FILES="$LOCAL_CONDA_DIR/condaPackages" #install .tar.gz files for needed packages (e.g. numpy, pyepics, PyDM)
 
 PYTHON_VERSION="3.10" #referenced in python installation section -- for file pathing
 PYQT_VERSION="5.12.3" #pin version at 5.12.3 until PyDM widgets are updated in Designer
@@ -91,7 +91,7 @@ mkdir -p "$EPICS_ROOT/configure"
 mkdir -p "$EPICS_MODULES"
 mkdir -p "$LOCAL_GIT_CACHE/src"
 mkdir -p "$PYTHON_VENV"
-mkdir -p "$CONDA_DIR"
+#mkdir -p "$CONDA_DIR"
 
 
 
@@ -106,7 +106,7 @@ check_internet() { #check connectivity; used to install missing files in case of
 debug() {
     if [ "$debugFlag" = True ]; then
         local input=""
-        printf "logged value(s) --> $@"
+        printf "logged value(s): $@"
         printf "\npress 'enter' to continue\n"
         read input
     fi
@@ -129,7 +129,6 @@ breakpoint() {
 #region dependencies 
 #if dir does not exist or is empty, create it & populate with .deb files
 if [ ! -d "$LOCAL_DEB_REPO" ] || [ -z "$(find "$LOCAL_DEB_REPO" -mindepth 1 -print -quit)" ]; then
-    
     mkdir -p $LOCAL_DEB_REPO
     debug "Local deb repo not found"
 
@@ -156,7 +155,7 @@ fi
 
 #install from local repository
 if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
-    debug "Local deb files found at: $LOCAL_DEB_REPO"
+    #debug "Using local package repository: $LOCAL_DEB_REPO"
 
     #Prerequisite packages: dpkg-dev, make
 
@@ -193,8 +192,10 @@ if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
 
     fi
             
+    echo "Beginning local installation"
 
-    apt --fix-broken install -y
+    #apt --fix-broken install -y #only necessary if downloads are incomplete; shouldn't be the case
+    #debug "apt fix broken finished"
 
     # --- Point apt to the local .deb repository; install ---
     TMP_LIST=$(mktemp)
@@ -205,8 +206,7 @@ if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
     dpkg-scanpackages . /dev/null > Packages
     gzip -9c Packages > Packages.gz 
 
-    debug "starting apt update"
-    apt update
+    #apt update
     apt install -y "${dependenciesList[@]}"
 fi
 
