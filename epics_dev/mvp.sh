@@ -33,9 +33,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 PYTHON_VENV="$EPICS_ROOT/venv"
 
-source /etc/os-release 
-VERSION="$VERSION_ID" #detect ubuntu version
-FILE_DIR_NAME="localFiles_$VERSION"
+source /etc/os-release  #add $VERSION_ID to shell
+FILE_DIR_NAME="localFiles_$VERSION_ID"
 
 LOCAL_GIT_CACHE="$SCRIPT_DIR/localRepos" #enables offline downloads
 LOCAL_DEB_REPO="$SCRIPT_DIR/$FILE_DIR_NAME"
@@ -121,6 +120,7 @@ breakpoint() {
 
 #endregion
 
+debug "$LOCAL_DEB_REPO"
 
 # ---------------------------------------------------
 # Install OS Dependencies
