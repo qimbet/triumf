@@ -7,7 +7,7 @@
 
 #this is charted to work only on Ubuntu 18.04, due to GUI dependencies on deprecated packages
 
-debugFlag=True #Boolean for verbose outputs & breakpoints
+debugFlag=$1 #Boolean for verbose outputs & breakpoints, passed as arg
 breakpointLevel=0 #breakpoints are numbered, this sets the depth that the program will run
 
 set -euo pipefail
@@ -95,6 +95,10 @@ mkdir -p "$PYTHON_VENV"
 
 
 check_internet() { #check connectivity; used to install missing files in case of local corruption
+    if [ "$debugFlag" = True ]; then
+        printf "Local files missing!\nPress enter to continue"
+        read input
+    fi
     if ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
         return 1  # online
     else
