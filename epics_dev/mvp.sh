@@ -19,67 +19,21 @@ trap 'echo "ERROR in function ${FUNCNAME[0]:-main}, file ${BASH_SOURCE[1]:${BASH
 # ===================================================
 
 #region paths, constants, functions
+source /etc/os-release  #add $VERSION_ID to shell
+FILE_DIR_NAME="localFiles_$VERSION_ID"
 EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 EPICS_ROOT="/opt/epics"
 EPICS_BASE="$EPICS_ROOT/base"
 EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
-EPICS_MODULES="$EPICS_ROOT/modules"
 EDM_DIR="$EPICS_ROOT/extensions/src/edm"
-#CONDA_DIR="/opt/miniconda"
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-PYTHON_VENV="$EPICS_ROOT/venv"
-
-source /etc/os-release  #add $VERSION_ID to shell
-FILE_DIR_NAME="localFiles_$VERSION_ID"
 
 LOCAL_GIT_CACHE="$SCRIPT_DIR/localRepos" #enables offline downloads
 LOCAL_DEB_REPO="$SCRIPT_DIR/$FILE_DIR_NAME"
 
-LOCAL_PYTHON_FILES="$SCRIPT_DIR/pythonFiles"
-LOCAL_PIP_FILES="$LOCAL_PYTHON_FILES/pipFiles" 
-#LOCAL_CONDA_DIR="$SCRIPT_DIR/condaFiles" #install .tar.gz files for needed packages (e.g. numpy, pyepics, PyDM)
-#LOCAL_CONDA_FILES="$LOCAL_CONDA_DIR/condaPackages" #install .tar.gz files for needed packages (e.g. numpy, pyepics, PyDM)
-
-PYTHON_VERSION="3.10" #referenced in python installation section -- for file pathing
-PYQT_VERSION="5.12.3" #pin version at 5.12.3 until PyDM widgets are updated in Designer
-
-dependenciesList=( #used by apt install
-    autoconf build-essential dpkg-dev git iperf3 libbz2-dev libdb5.3-dev libdpkg-perl libexpat1-dev libffi-dev
-    libgdbm-dev libgif-dev liblzma-dev libmotif-dev libncurses5-dev libncursesw5-dev libpng-dev libreadline-dev 
-    libssl-dev libsqlite3-dev libtool libx11-dev libxmu-dev libxmu-headers libxm4 libxt-dev libxtst-dev
-    make nmap openssh-server perl python3 python3-pip python3-venv sshpass tk-dev uuid-dev vim xfonts-100dpi
-    xfonts-75dpi zlib1g-dev
-    )
-
-#ensure the os is the right version
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
-        echo "The installer requires os version: *** Ubuntu 18.04 *** "
-        echo "EPICS will install properly, but the GUI will not work. Continue? [Y/n]"
-
-        ans=${answer:-Y}
-        if [[ "$ans" =~ ^[Yy]$ ]]; then 
-            :
-        else
-            echo "Quitting"
-            exit 1
-        fi
-        
-    fi
-fi
-
-#Ensure the script is run with sudo:
-if [ "$(id -u)" -ne 0 ]; then
-    echo "This script requires sudo privileges to work properly. Rerunning as sudo:"
-    sudo bash "$0" "$@" --source-path "$SCRIPT_DIR" 
-
-    exit 0 #exit original script after rerunning with sudo
-fi
 
 LOGFILE="$SCRIPT_DIR/logs.log"
 exec > >(tee "$LOGFILE") 2>&1
@@ -87,13 +41,46 @@ exec > >(tee "$LOGFILE") 2>&1
 # Ensure required directories exist
 mkdir -p "$EPICS_ROOT"
 mkdir -p "$EPICS_ROOT/configure"
-mkdir -p "$EPICS_MODULES"
-mkdir -p "$LOCAL_GIT_CACHE/src"
-mkdir -p "$PYTHON_VENV"
-#mkdir -p "$CONDA_DIR"
 
 
+dependenciesList=( #used by apt install
+    dpkg-dev make
+    build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
+    libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi x11proto-print-dev autoconf libtool sshpass
+    )
 
+
+#region user interaction; runtime environment / permissions
+    #ensure the os is the right version
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
+            echo "The installer requires os version: *** Ubuntu 18.04 *** "
+            echo "EPICS will install properly, but the GUI will not work. Continue? [Y/n]" #edit for accuracy after release!!
+
+            ans=${answer:-Y}
+            if [[ "$ans" =~ ^[Yy]$ ]]; then 
+                :
+            else
+                echo "Quitting"
+                exit 1
+            fi
+
+        fi
+    fi
+
+    #Ensure the script is run with sudo:
+    if [ "$(id -u)" -ne 0 ]; then
+        echo "This script requires sudo privileges to work properly. Rerunning as sudo:"
+        sudo bash "$0" "$@" --source-path "$SCRIPT_DIR" 
+
+        exit 0 #exit original script after rerunning with sudo
+    fi
+
+#endregion
+
+
+#region functions
 check_internet() { #check connectivity; used to install missing files in case of local corruption
     if [ "$debugFlag" = True ]; then
         printf "Local files missing!\nPress enter to continue"
@@ -121,37 +108,42 @@ breakpoint() {
         debug "Breakpoint reached; $num"
     fi
 }
+#endregion
 
 #endregion
 
-debug "$LOCAL_DEB_REPO"
 
 # ---------------------------------------------------
-# Install OS Dependencies
+# Install dependencies via apt/dpkg 
 # ---------------------------------------------------
 
 #region dependencies 
 #if dir does not exist or is empty, create it & populate with .deb files
-if [ ! -d "$LOCAL_DEB_REPO" ] || [ -z "$(find "$LOCAL_DEB_REPO" -mindepth 1 -print -quit)" ]; then
+if [ ! -d "$LOCAL_DEB_REPO" ]; then 
     mkdir -p $LOCAL_DEB_REPO
-    debug "Local deb repo not found"
+    debug "Local deb repo not found. Creating..."
+fi
 
+        
+for pkg in "${dependenciesList[@]}"; do #identify missing files for dependencies
+    #NOTE: this only checks the top-level packages; their own dependencies are not handled here
+    if ! ls "$LOCAL_DEB_REPO"/"$pkg"_*.deb >/dev/null 2>&1; then
+        missing_pkgs+=("$pkg")  # add to list 
+    fi
+done
+
+if [ "${#missing_pkgs[@]}" -ne 0 ]; then 
     if check_internet; then #if internet is available, install packages
         debug "Internet available -- populating deb files"
         echo "Local package repo for os $FILE_DIR_NAME not found, installing key packages from internet..."
-        
-        apt --fix-broken install -y #these may be unnecessary
-        apt update
 
-        apt-get -o=dir::cache::archives="$LOCAL_DEB_REPO" install --download-only -y "${dependenciesList[@]}"
-
-
+        apt-get -o=dir::cache::archives="$LOCAL_DEB_REPO" install --download-only -y "${dependenciesList[@]}" #download .deb files to localDir
 
         echo "Downloaded core files and dependencies"
 
     else #error message, exit if no internet
         echo "Error: local .deb repository not found or empty at $LOCAL_DEB_REPO"
-        echo "Offline installation cannot proceed."
+        echo "No internet access: installation cannot proceed."
         exit 1
     fi
 fi
@@ -159,58 +151,58 @@ fi
 
 #install from local repository
 if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
-    #debug "Using local package repository: $LOCAL_DEB_REPO"
 
-    #Prerequisite packages: dpkg-dev, make
-
-    # --- Install make (needed to install dpkg-dev) ---
-    if ! command -v make >/dev/null 2>&1; then
+    #region prerequisite installs; make, dpkg-dev
+    # Install make (needed to install dpkg-dev)
+    if ! command -v make >/dev/null 2>&1; then #if make does not exist in $PATH
         echo "Installing make from local repo..."
+
         if ls "$LOCAL_DEB_REPO"/make_*.deb >/dev/null 2>&1; then
-            dpkg -i "$LOCAL_DEB_REPO"/make_*.deb || true
-            apt-get install -f -y || true
+            dpkg -i "$LOCAL_DEB_REPO"/make_*.deb #attempt to install make 
+
+            # Fix unmet dependencies using local .debs
+            apt-get --fix-broken install -y -o Dir::Etc::sourcelist="-" \
+                -o Dir::Etc::sourceparts="-" \
+                -o APT::Get::Download-Only=false \
+                -o Dir::Etc::sourcelist="-" \
+                -o APT::Get::AllowUnauthenticated=true
         else
-            echo "Error: make_*.deb not found in $LOCAL_DEB_REPO"
+            debug "Error: make_*.deb not found in $LOCAL_DEB_REPO"
             exit 1
         fi
     fi
 
-    if true; then
-        # --- Install dpkg-dev (needed later for dpkg -i) ---
-        if ! command -v dpkg-scanpackages >/dev/null 2>&1; then
-            echo "Installing dpkg-dev from local repo..."
-            if ls "$LOCAL_DEB_REPO"/dpkg-dev*.deb >/dev/null 2>&1; then
-                dpkg -i "$LOCAL_DEB_REPO"/dpkg-dev*.deb
-                # Fix unmet dependencies using local .debs
-                apt-get --fix-broken install -y -o Dir::Etc::sourcelist="-" \
-                    -o Dir::Etc::sourceparts="-" \
-                    -o APT::Get::Download-Only=false \
-                    -o Dir::Etc::sourcelist="-" \
-                    -o APT::Get::AllowUnauthenticated=true
-            else
-                echo "Error: dpkg-dev*.deb not found in $LOCAL_DEB_REPO"
-                exit 1
-            fi
+    if ! command -v dpkg-scanpackages >/dev/null 2>&1; then #if dpkg does not exist in $PATH
+        #use make to install dpkg-dev
+        echo "Installing dpkg-dev from local repo..."
+        if ls "$LOCAL_DEB_REPO"/dpkg-dev*.deb >/dev/null 2>&1; then
+            dpkg -i "$LOCAL_DEB_REPO"/dpkg-dev*.deb
+
+            # Fix unmet dependencies using local .debs
+            apt-get --fix-broken install -y -o Dir::Etc::sourcelist="-" \
+                -o Dir::Etc::sourceparts="-" \
+                -o APT::Get::Download-Only=false \
+                -o Dir::Etc::sourcelist="-" \
+                -o APT::Get::AllowUnauthenticated=true
+        else
+            echo "Error: dpkg-dev*.deb not found in $LOCAL_DEB_REPO"
+            exit 1
         fi
-
-
     fi
+    #endregion
             
-    echo "Beginning local installation"
+    debug "Make, dpkg-dev installed. Beginning local installation"
 
-    #apt --fix-broken install -y #only necessary if downloads are incomplete; shouldn't be the case
-    #debug "apt fix broken finished"
-
-    # --- Point apt to the local .deb repository; install ---
+    #install dependenciesList from local_deb_repo 
     TMP_LIST=$(mktemp)
     echo "deb [trusted=yes] file:$LOCAL_DEB_REPO ./" | tee "$TMP_LIST" >/dev/null
-    mv "$TMP_LIST" /etc/apt/sources.list.d/local.list
+    mv "$TMP_LIST" /etc/apt/sources.list.d/local.list #apt fileSources directory
 
     cd "$LOCAL_DEB_REPO" || exit 1
-    dpkg-scanpackages . /dev/null > Packages
+    dpkg-scanpackages . /dev/null > Packages #indexes files
     gzip -9c Packages > Packages.gz 
 
-    #apt update
+    apt update #update cache
     apt install -y "${dependenciesList[@]}"
 fi
 
@@ -334,69 +326,64 @@ echo "Successfully configured extensions!"
 # ---------------------------------------------------
 
 #region EDM
-#
-#cd $SCRIPT_DIR
-#
-#
-#
-#
-#sed -i -e '21cEPICS_BASE=/opt/epics/epics-base' -e '25s/^/#/' extensions/configure/RELEASE
-#sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_64-linux-gnu' extensions/configure/os/CONFIG_SITE.linux-x86_64.linux-x86_64
-#
-#cd "$EPICS_ROOT/extensions/src"
-#cp -r $LOCAL_GIT_CACHE/edm .
-#cd "$EPICS_ROOT/extensions/src"
-#
-#sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' edm/giflib/Makefile
-#sed -i -e 's| ungif||g' edm/giflib/Makefile*
-#
-#cd edm
-#make clean
-#make
-#cd setup
-#sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflib
-#videowidget' setup.sh
-#sed -i -e '79d' setup.sh
-#sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' setup.sh
-#sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' setup.sh
-#sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
-#sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
-#HOST_ARCH=linux-x86_64 sh setup.sh
-#
-#
-#
-#
-#
-#
-#if [ -d "localRepos/edm" ]; then 
-#    mkdir -p $EPICS_EXTENSIONS/src #/epics/base/extensions/src
-#    cp -r localRepos/edm/* $EPICS_EXTENSIONS/src
-#
-#    sudo find $EPICS_ROOT -type f -name Makefile -exec sed -i 's|\$top/configure|\$top/base/configure|g' {} +
-#    sudo find "$EPICS_ROOT" -type f -name Makefile -exec sed -i "s|^TOP = [./]\+|TOP = $EPICS_ROOT|" {} + #replace any combination of . / with absolute path
-#
-#
-#    #Edits config files 
-#    sed -i 's|^EPICS_BASE=$(TOP)/\.\./base|EPICS_BASE=$(TOP)|' /epics/extensions/configure/RELEASE
-#    sed -i -e 's| ungif||g' "$EPICS_EXTENSIONS/src/giflib/Makefile"
-#
-#    # edits all files in /epics:
-#    #   /epics/configure ---> /epics/base/configure
-#
-#    cd "$EPICS_EXTENSIONS/src"
-#
-#    echo "Preparing to make EDM"
-#
-#    #edit Makefile in /epics/extensions/src: 
-#    #change:
-#    #   include $(TOP)/configure/CONFIG
-#    # to 
-#    #   include $(TOP)/base/configure/CONFIG
-#    # sed -i 's|$(TOP)/configure/CONFIG|$(TOP)/base/configure/CONFIG|' /epics/extensions/src/Makefile
-#
-#    make -j"$(nproc)"
-#fi
-#
+
+cd $EPICS_ROOT
+
+
+sed -i -e '21cEPICS_BASE=/opt/epics/epics-base' -e '25s/^/#/' extensions/configure/RELEASE
+sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_64-linux-gnu' extensions/configure/os/CONFIG_SITE.linux-x86_64.linux-x86_64
+
+cd "$EPICS_ROOT/extensions/src"
+cp -r $LOCAL_GIT_CACHE/edm .
+cd "$EPICS_ROOT/extensions/src"
+
+sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' edm/giflib/Makefile
+sed -i -e 's| ungif||g' edm/giflib/Makefile*
+
+cd edm
+make clean
+make
+cd setup
+sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflib
+videowidget' setup.sh
+sed -i -e '79d' setup.sh
+sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' setup.sh
+sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' setup.sh
+sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
+sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
+HOST_ARCH=linux-x86_64 sh setup.sh
+
+
+
+if [ -d "localRepos/edm" ]; then 
+    mkdir -p $EPICS_EXTENSIONS/src #/epics/base/extensions/src
+    cp -r localRepos/edm/* $EPICS_EXTENSIONS/src
+
+    sudo find $EPICS_ROOT -type f -name Makefile -exec sed -i 's|\$top/configure|\$top/base/configure|g' {} +
+    sudo find "$EPICS_ROOT" -type f -name Makefile -exec sed -i "s|^TOP = [./]\+|TOP = $EPICS_ROOT|" {} + #replace any combination of . / with absolute path
+
+
+    #Edits config files 
+    sed -i 's|^EPICS_BASE=$(TOP)/\.\./base|EPICS_BASE=$(TOP)|' /epics/extensions/configure/RELEASE
+    sed -i -e 's| ungif||g' "$EPICS_EXTENSIONS/src/giflib/Makefile"
+
+    # edits all files in /epics:
+    #   /epics/configure ---> /epics/base/configure
+
+    cd "$EPICS_EXTENSIONS/src"
+
+    echo "Preparing to make EDM"
+
+    #edit Makefile in /epics/extensions/src: 
+    #change:
+    #   include $(TOP)/configure/CONFIG
+    # to 
+    #   include $(TOP)/base/configure/CONFIG
+    # sed -i 's|$(TOP)/configure/CONFIG|$(TOP)/base/configure/CONFIG|' /epics/extensions/src/Makefile
+
+    make -j"$(nproc)"
+fi
+
 #endregion
 
 
@@ -410,14 +397,13 @@ if true; then
 
     # Create env script with system-wide exports
     cat > "$ENV_SCRIPT" <<'EOF'
-export EPICS_ROOT=/epics
-export EPICS_BASE=${EPICS_BASE:-/epics/base}
+export EPICS_ROOT=/opt/epics
+export EPICS_BASE=${EPICS_BASE:-$EPICS_ROOT/base}
 export EPICS_EXTENSIONS=${EPICS_EXTENSIONS:-$EPICS_ROOT/extensions}
 export EPICS_HOST_ARCH=linux-x86_64
 export PATH="${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:$PATH"
 export LD_LIBRARY_PATH="${EPICS_BASE}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH:-}"
 EOF
-
     # Make readable by all users
     chmod 644 "$ENV_SCRIPT"
 

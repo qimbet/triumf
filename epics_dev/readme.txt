@@ -7,7 +7,7 @@ Creating, reading PVs from epics commandline
 ensure variables are set: 
 	check: echo $EPICS_BASE
 	If no path is given (should be set by the installer by default), run: 
-		source /epics/epics_env.sh
+		source /opt/epics/epics_env.sh
 
 
 in a program directory (e.g. /epics/test/db/)

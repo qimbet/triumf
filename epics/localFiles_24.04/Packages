@@ -1,0 +1,81 @@
+Package: libpng-dev
+Source: libpng1.6
+Version: 1.6.43-5ubuntu0.1
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 756
+Depends: libpng16-16t64 (= 1.6.43-5ubuntu0.1), zlib1g-dev
+Recommends: libpng-tools
+Conflicts: libpng12-0-dev, libpng12-dev, libpng2-dev, libpng3-dev
+Breaks: libpng16-dev (<< 1.6.20-3), libpng16-devtools (<< 1.6.21-1)
+Replaces: libpng16-dev (<< 1.6.20-3), libpng16-devtools (<< 1.6.21-1)
+Filename: ./libpng-dev_1.6.43-5ubuntu0.1_amd64.deb
+Size: 264362
+MD5sum: f67bd747504b0615e72387583f2c1eae
+SHA1: 6a8d41fc9380d2016b3a9f3a13785f0c92f6940b
+SHA256: 22334e0607c7e10a3f33193a571f2148647a93af243d54cbb5fe200ea9ba3035
+Section: libdevel
+Priority: optional
+Multi-Arch: same
+Homepage: http://libpng.org/pub/png/libpng.html
+Description: PNG library - development (version 1.6)
+ libpng is a library implementing an interface for reading and writing
+ PNG (Portable Network Graphics) format files.
+ .
+ This package contains the header and development files needed to build
+ programs and packages using libpng.
+Original-Maintainer: Maintainers of libpng1.6 packages <libpng1.6@packages.debian.org>
+
+Package: libpng-tools
+Source: libpng1.6
+Version: 1.6.43-5ubuntu0.1
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 96
+Depends: libc6 (>= 2.34), libpng16-16t64 (= 1.6.43-5ubuntu0.1), zlib1g (>= 1:1.2.3.4)
+Breaks: libpng16-tools (<< 1.6.21-1)
+Replaces: libpng16-tools (<< 1.6.21-1)
+Filename: ./libpng-tools_1.6.43-5ubuntu0.1_amd64.deb
+Size: 28500
+MD5sum: 531d62426edc0eef323854e3b29728f5
+SHA1: ae75a4f8f15d8c12a626feb196dad4478174e77b
+SHA256: 9cfb8204b8b6d24c600659dc591d4b6b312f53a0ea5f94d339f6469c40c4e11e
+Section: libdevel
+Priority: optional
+Multi-Arch: foreign
+Homepage: http://libpng.org/pub/png/libpng.html
+Description: PNG library - tools (version 1.6)
+ libpng is a library implementing an interface for reading and writing
+ PNG (Portable Network Graphics) format files.
+ .
+ This package contains a program to interact with libpng from the
+ command line.
+Original-Maintainer: Maintainers of libpng1.6 packages <libpng1.6@packages.debian.org>
+
+Package: libpng16-16t64
+Source: libpng1.6
+Version: 1.6.43-5ubuntu0.1
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 330
+Depends: libc6 (>= 2.29), zlib1g (>= 1:1.2.3.4)
+Breaks: libpng16-16 (<< 1.6.43-5ubuntu0.1)
+Replaces: libpng16-16
+Provides: libpng16-16 (= 1.6.43-5ubuntu0.1)
+Filename: ./libpng16-16t64_1.6.43-5ubuntu0.1_amd64.deb
+Size: 187276
+MD5sum: 73c97f4b96da55a419281d3c70233b28
+SHA1: 87c397120bb7b78dd43912b22886f55424141376
+SHA256: a7815ddc79024b247de25e70b046c6ddb9658139af5422144a5d2a888bd90a25
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://libpng.org/pub/png/libpng.html
+Description: PNG library - runtime (version 1.6)
+ libpng is a library implementing an interface for reading and writing
+ PNG (Portable Network Graphics) format files.
+ .
+ This package contains the runtime library files needed to run software
+ using libpng.
+Original-Maintainer: Maintainers of libpng1.6 packages <libpng1.6@packages.debian.org>
+

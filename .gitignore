@@ -14,8 +14,10 @@
 *.un~
 
 #precompiled package directories (myriad extensions)
+localFiles/
+localRepos/
+training/
 condaFiles/
 git_excluded/
 pythonFiles/
-localRepos/
 base-*/
