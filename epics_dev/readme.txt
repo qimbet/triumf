@@ -10,7 +10,7 @@ ensure variables are set:
 		source /opt/epics/epics_env.sh
 
 
-in a program directory (e.g. /epics/test/db/)
+in a program directory (e.g. /opt/epics/test/db/)
 create a .db file; test.db
 
 

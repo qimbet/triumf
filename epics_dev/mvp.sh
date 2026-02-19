@@ -29,7 +29,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 EPICS_ROOT="/opt/epics"
 EPICS_BASE="$EPICS_ROOT/base"
 EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
-EDM_DIR="$EPICS_ROOT/extensions/src/edm"
+EDM_DIR="$EPICS_EXTENSIONS/src/edm"
+EPICS_GUI="$EPICS_ROOT/gui"
 
 LOCAL_GIT_CACHE="$SCRIPT_DIR/localRepos" #enables offline downloads
 LOCAL_DEB_REPO="$SCRIPT_DIR/$FILE_DIR_NAME"
@@ -40,7 +41,7 @@ exec > >(tee "$LOGFILE") 2>&1
 
 # Ensure required directories exist
 mkdir -p "$EPICS_ROOT"
-mkdir -p "$EPICS_ROOT/configure"
+#mkdir -p "$EPICS_ROOT/configure"
 
 
 dependenciesList=( #used by apt install
@@ -109,6 +110,7 @@ breakpoint() {
     fi
 }
 #endregion
+
 
 #endregion
 
@@ -215,13 +217,12 @@ echo "Successfully installed dependencies"
 #endregion
 
 # ---------------------------------------------------
-# Install EPICS Base
+# Validate, copy .git repositories 
 # ---------------------------------------------------
 
-#region epicsBase
-echo "Cloning EPICS Base..."
-cd "$EPICS_ROOT"
+#region git
 
+#BASE
 if [ ! -d "$EPICS_BASE" ]; then #clone base.git
     if [ -d "$LOCAL_GIT_CACHE/base.git" ]; then
         echo "Cloning EPICS Base from local cache..."
@@ -237,24 +238,64 @@ if [ ! -d "$EPICS_BASE" ]; then #clone base.git
     fi
 fi
 
+#EXTENSIONS
+if [ ! -d "$EPICS_EXTENSIONS/.git" ]; then 
+    if [ -d "$LOCAL_GIT_CACHE/extensions.git" ]; then
+        echo "Cloning EPICS Extensions from local cache..."
+        git clone --recursive "$LOCAL_GIT_CACHE/extensions.git" "$EPICS_EXTENSIONS"
+    else
+        if check_internet; then
+            echo "Cloning EPICS Extensions from GitHub..."
+            git clone --recursive https://github.com/epics-extensions/extensions "$EPICS_EXTENSIONS"
+        else
+            echo "Error: Local cache empty and no internet connection. Cannot clone EPICS Extensions."
+            exit 1
+    fi
+fi
 
-sudo -u "$SUDO_USER" tee -a "/home/$SUDO_USER/.bashrc" > /dev/null <<EOF
+#EPICS GUI
+if [ ! -d "$EPICS_GUI/.git" ]; then 
+    if [ -d "$LOCAL_GIT_CACHE/gui.git" ]; then
+        echo "Cloning EPICS GUI from local cache..."
+        git clone --recursive "$LOCAL_GIT_CACHE/gui.git" "$EPICS_GUI"
+    else
+        if check_internet; then
+            echo "Cloning EPICS GUI from GitHub..."
+            git clone --recursive https://github.com/MattiasHenders/epics-gui-triumf.git "$EPICS_EXTENSIONS"
+        else
+            echo "Error: Local cache empty and no internet connection. Cannot clone EPICS GUI."
+            exit 1
+    fi
+fi
+#endregion
+
+
+# ---------------------------------------------------
+# Build EPICS Base
+# ---------------------------------------------------
+
+#region epicsBase
+
+sudo -u "$SUDO_USER" tee -a "/home/$SUDO_USER/.bashrc" > /dev/null <<EOF #edits .bashrc of the user who invoked sudo
 export EPICS_BASE="$EPICS_BASE"
 export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
+export EPICS_GUI="$EPICS_GUI"
+
 export EPICS_HOST_ARCH=linux-x86_64
 export PATH="\$EPICS_BASE/bin/\$EPICS_HOST_ARCH:\$EPICS_EXTENSIONS/bin/\$EPICS_HOST_ARCH:\$PATH"
+export LD_LIBRARY_PATH="\$EPICS_BASE/lib/\$EPICS_HOST_ARCH:\${LD_LIBRARY_PATH:-}"
+
 export EDMOBJECTS="\$EPICS_EXTENSIONS/src/edm/setup"
 export EDMPVOBJECTS="\$EPICS_EXTENSIONS/src/edm/setup"
 export EDMFILES="\$EPICS_EXTENSIONS/src/edm/setup"
 export EDMHELPFILES="\$EPICS_EXTENSIONS/src/edm/helpFiles"
 export EDMLIBS="\$EPICS_EXTENSIONS/lib/\$EPICS_HOST_ARCH"
-export LD_LIBRARY_PATH="\$EPICS_BASE/lib/\$EPICS_HOST_ARCH:\${LD_LIBRARY_PATH:-}"
 export EDM_USE_SHARED_LIBS=YES
+
 EOF
 
-# ---------------------------------------------------
-# Build EPICS Base
-# ---------------------------------------------------
+
+
 echo "Building EPICS Base..."
 cd "$EPICS_BASE"
 debug "Starting EPICS Base make"
