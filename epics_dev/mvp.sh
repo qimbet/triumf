@@ -378,9 +378,16 @@ echo "Successfully installed EPICS base"
 
 
 #add paths to calling user's shell (user invoking sudo)
-sudo -u "$SUDO_USER" tee -a "/home/$SUDO_USER/.bashrc" > /dev/null <<'EOF' 
 
-export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH"
+#check for presence of $EPICS_MARKER in bashrc before appending
+#if marker is present, then skip. This avoids duplicates
+
+EPICS_MARKER="#=======  EPICS ENVIRONMENT VARIABLES ======= "
+if ! grep -qF "$EPICS_MARKER" "/home/$SUDO_USER/.bashrc"; then 
+    sudo -u "$SUDO_USER" tee -a "/home/$SUDO_USER/.bashrc" > /dev/null <<EOF
+
+$EPICS_MARKER
+export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:\$PATH"
 
 export EPICS_BASE="$EPICS_BASE"
 export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
@@ -388,6 +395,7 @@ export EPICS_GUI="$EPICS_GUI"
 
 export EPICS_HOST_ARCH=$EPICS_HOST_ARCH
 export LD_LIBRARY_PATH="$EPICS_BASE/lib/$EPICS_HOST_ARCH:${LD_LIBRARY_PATH:-}"
+export EPICS_CA_AUTO_ADDR_LIST=YES
 
 export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
 export EDMPVOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
@@ -405,7 +413,7 @@ EOF
 # Install EPICS Extensions
 # ---------------------------------------------------
 
-#region epics extensions
+#region epics extensions - deprecated
 #cd "$EPICS_ROOT"
 #
 #mkdir -p "$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH"
@@ -439,7 +447,7 @@ EOF
 
 #region EDM
 
-cd $EPICS_ROOT
+cd $EPICS_ROOT #relative paths >:(
 
 sed -i -e "21cEPICS_BASE=$EPICS_BASE" -e '25s/^/#/' extensions/configure/RELEASE
 sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_64-linux-gnu' extensions/configure/os/CONFIG_SITE.linux-x86_64.linux-x86_64
@@ -451,7 +459,7 @@ cd $EDM_DIR
 sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' edm/giflib/Makefile
 sed -i -e 's| ungif||g' edm/giflib/Makefile*
 
-cd edm
+cd edm #these few lines sketch me out. Too much relative pathing invites errors
 make clean
 make
 
@@ -516,6 +524,7 @@ export EPICS_HOST_ARCH=linux-x86_64
 export PATH="${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:$PATH"
 export LD_LIBRARY_PATH="${EPICS_BASE}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH:-}"
 EOF
+
     # Make readable by all users
     chmod 644 "$ENV_SCRIPT"
 
