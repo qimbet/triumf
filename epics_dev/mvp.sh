@@ -25,6 +25,7 @@ EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FILES_DIR="$SCRIPT_DIR/installerFiles"
 
 EPICS_ROOT="/opt/epics"
 EPICS_BASE="$EPICS_ROOT/base"
@@ -32,8 +33,8 @@ EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
 EDM_DIR="$EPICS_EXTENSIONS/src/edm"
 EPICS_GUI="$EPICS_ROOT/gui"
 
-LOCAL_GIT_CACHE="$SCRIPT_DIR/localRepos" #enables offline downloads
-LOCAL_DEB_REPO="$SCRIPT_DIR/$FILE_DIR_NAME"
+LOCAL_GIT_CACHE="$FILES_DIR/localRepos" #enables offline downloads
+LOCAL_DEB_REPO="$FILES_DIR/$FILE_DIR_NAME"
 
 
 LOGFILE="$SCRIPT_DIR/logs.log"
@@ -41,7 +42,6 @@ exec > >(tee "$LOGFILE") 2>&1
 
 # Ensure required directories exist
 mkdir -p "$EPICS_ROOT"
-#mkdir -p "$EPICS_ROOT/configure"
 
 
 dependenciesList=( #used by apt install
@@ -52,31 +52,38 @@ dependenciesList=( #used by apt install
 
 
 #region user interaction; runtime environment / permissions
-    #ensure the os is the right version
-    if [ -f /etc/os-release ]; then
-        . /etc/os-release
-        if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
-            echo "The installer requires os version: *** Ubuntu 18.04 *** "
-            echo "EPICS will install properly, but the GUI will not work. Continue? [Y/n]" #edit for accuracy after release!!
+#ensure the os is the right version
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
+        echo "The installer requires os version: *** Ubuntu 18.04 *** "
+        echo "EPICS will install properly, but the GUI will not work. Continue? [Y/n]" #edit for accuracy after release!!
 
-            ans=${answer:-Y}
-            if [[ "$ans" =~ ^[Yy]$ ]]; then 
-                :
-            else
-                echo "Quitting"
-                exit 1
-            fi
-
+        ans=${answer:-Y}
+        if [[ "$ans" =~ ^[Yy]$ ]]; then 
+            :
+        else
+            echo "Quitting"
+            exit 1
         fi
-    fi
 
-    #Ensure the script is run with sudo:
-    if [ "$(id -u)" -ne 0 ]; then
-        echo "This script requires sudo privileges to work properly. Rerunning as sudo:"
-        sudo bash "$0" "$@" --source-path "$SCRIPT_DIR" 
-
-        exit 0 #exit original script after rerunning with sudo
     fi
+fi
+
+#Ensure the script is run with sudo:
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script requires sudo privileges to work properly. Rerunning as sudo:"
+    sudo bash "$0" "$@" --source-path "$SCRIPT_DIR" 
+
+    exit 0 #exit original script after rerunning with sudo
+fi
+
+#Detect/remove previous installations in $EPICS_ROOT
+if [ -d $EPICS_ROOT] && [ -n "$EPICS_ROOT"]; then
+    debug "Deleting previous epics install files"
+    printf "Previous epics install detected at $EPICS_ROOT \nDeleting prior epics files."
+    rm -rf "$EPICS_ROOT"
+fi
 
 #endregion
 
@@ -107,6 +114,34 @@ breakpoint() {
     local num=$1
     if [ "$breakpointLevel" -ge "$num" ]; then
         debug "Breakpoint reached; $num"
+    fi
+}
+
+cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "EPICS Base"
+    local githubLink="$1"
+    local targetPath="$2"   # where it is to be cloned
+    local gitDirName="$3"   # string name of repo (used for UI)
+
+    if [ ! -d "$targetPath" ]; then #if target path is empty
+        #it may be worth adding a layer to validate the .git extension
+        #sometimes .git dirs are cloned with/without the trailing .git tag
+        #it's hardcoded here to look for .git dirs only. Edge case, but I'd bet it'll catch someone someday
+        if [ -d "$LOCAL_GIT_CACHE/${gitDirName}.git" ]; then 
+            echo "Cloning $gitDirName from local cache..."
+            git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
+            return $? #most recent exit code; returns 0 on a success
+        else
+            if check_internet; then
+                echo "Local cache not found. Cloning $gitDirName from GitHub..."
+                mkdir -p "$LOCAL_GIT_CACHE"
+                git clone --recursive "$githubLink" "$LOCAL_GIT_CACHE/${gitDirName}.git" #ensures .git suffix
+                git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
+                return $?
+            fi
+        fi
+
+        echo "Error: Local cache empty and no internet connection. Cannot clone $gitDirName."
+        exit 1
     fi
 }
 #endregion
@@ -211,6 +246,9 @@ fi
 command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate git, make
 command -v make >/dev/null 2>&1 || { echo "make not found"; exit 1; }
 
+#particular libxp files called for by epics-base
+dpkg -i libxp6_1.0.2-1ubuntu1_amd64.deb libxp-dev_1.0.2-1ubuntu1_amd64.deb
+
 echo "Successfully installed dependencies"
 
 
@@ -223,52 +261,90 @@ echo "Successfully installed dependencies"
 #region git
 
 #BASE
-if [ ! -d "$EPICS_BASE" ]; then #clone base.git
-    if [ -d "$LOCAL_GIT_CACHE/base.git" ]; then
-        echo "Cloning EPICS Base from local cache..."
-        git clone --recursive "$LOCAL_GIT_CACHE/base.git" "$EPICS_BASE"
-    else
-        if check_internet; then
-            echo "Local cache not found, cloning EPICS Base from GitHub..."
-            git clone --recursive https://github.com/epics-base/epics-base "$EPICS_BASE"
-        else
-            echo "Error: Local cache empty and no internet connection. Cannot clone EPICS Base."
-            exit 1
-        fi
-    fi
-fi
+baseLink='https://github.com/epics-base/epics-base'
+extensionsLink='https://github.com/epics-extensions/extensions'
+edmLink='https://github.com/epicsdeb/edm.git'
+guiLink='https://github.com/MattiasHenders/epics-gui-triumf.git'
 
-#EXTENSIONS
-if [ ! -d "$EPICS_EXTENSIONS/.git" ]; then 
-    if [ -d "$LOCAL_GIT_CACHE/extensions.git" ]; then
-        echo "Cloning EPICS Extensions from local cache..."
-        git clone --recursive "$LOCAL_GIT_CACHE/extensions.git" "$EPICS_EXTENSIONS"
-    else
-        if check_internet; then
-            echo "Cloning EPICS Extensions from GitHub..."
-            git clone --recursive https://github.com/epics-extensions/extensions "$EPICS_EXTENSIONS"
-        else
-            echo "Error: Local cache empty and no internet connection. Cannot clone EPICS Extensions."
-            exit 1
-    fi
-fi
+cloneGitRepo $baseLink $EPICS_BASE "EPICS Base"
+cloneGitRepo $extensionsLink $EPICS_EXTENSIONS "EPICS Extensions"
+cloneGitRepo $edmLink $EDM_DIR "EDM"
+cloneGitRepo $guiLink $EPICS_GUI "EPICS GUI"
 
-#EPICS GUI
-if [ ! -d "$EPICS_GUI/.git" ]; then 
-    if [ -d "$LOCAL_GIT_CACHE/gui.git" ]; then
-        echo "Cloning EPICS GUI from local cache..."
-        git clone --recursive "$LOCAL_GIT_CACHE/gui.git" "$EPICS_GUI"
-    else
-        if check_internet; then
-            echo "Cloning EPICS GUI from GitHub..."
-            git clone --recursive https://github.com/MattiasHenders/epics-gui-triumf.git "$EPICS_EXTENSIONS"
-        else
-            echo "Error: Local cache empty and no internet connection. Cannot clone EPICS GUI."
-            exit 1
-    fi
-fi
+#region deprecated git clones
+#if [ ! -d "$EPICS_BASE" ]; then #clone base.git
+    #if [ -d "$LOCAL_GIT_CACHE/base.git" ]; then
+        #echo "Cloning EPICS Base from local cache..."
+        #git clone --recursive "$LOCAL_GIT_CACHE/base.git" "$EPICS_BASE" 
+    #else
+        #if check_internet; then
+            #echo "Local cache not found, cloning EPICS Base from GitHub..."
+            #git clone --recursive https://github.com/epics-base/epics-base "$LOCAL_GIT_CACHE"
+            #git clone --recursive "$LOCAL_GIT_CACHE/base.git" "$EPICS_BASE"
+        #else
+            #echo "Error: Local cache empty and no internet connection. Cannot clone EPICS Base."
+            #exit 1
+        #fi
+    #fi
+#fi
+
+##EXTENSIONS
+#if [ ! -d "$EPICS_EXTENSIONS/.git" ]; then 
+    #if [ -d "$LOCAL_GIT_CACHE/extensions.git" ]; then
+        #echo "Cloning EPICS Extensions from local cache..."
+        #git clone --recursive "$LOCAL_GIT_CACHE/extensions.git" "$EPICS_EXTENSIONS"
+    #else
+        #if check_internet; then
+            #echo "Cloning EPICS Extensions from GitHub..."
+            #git clone --recursive https://github.com/epics-extensions/extensions "$LOCAL_GIT_CACHE"
+            #git clone --recursive "$LOCAL_GIT_CACHE/extensions.git" "$EPICS_EXTENSIONS"
+        #else
+            #echo "Error: Local cache empty and no internet connection. Cannot clone EPICS Extensions."
+            #exit 1
+    #fi
+#fi
+
+##EDM
+#if [ ! -d "$EDM_DIR/.git" ]; then 
+    #if [ -d "$LOCAL_GIT_CACHE/edm.git" ]; then
+        #echo "Cloning EPICS GUI from local cache..."
+        #git clone --recursive "$LOCAL_GIT_CACHE/edm.git" "$EPICS_GUI"
+    #else
+        #if check_internet; then
+            #echo "Cloning EDM from GitHub..."
+            #git clone --recursive https://github.com/epicsdeb/edm.git "$LOCAL_GIT_CACHE"
+            #git clone --recursive "$LOCAL_GIT_CACHE/edm.git" "$EPICS_GUI"
+        #else
+            #echo "Error: Local cache empty and no internet connection. Cannot clone EDM."
+            #exit 1
+    #fi
+#fi
+
+##EPICS GUI
+#if [ ! -d "$EPICS_GUI/.git" ]; then 
+    #if [ -d "$LOCAL_GIT_CACHE/epics-gui-triumf.git" ]; then
+        #echo "Cloning EPICS GUI from local cache..."
+        #git clone --recursive "$LOCAL_GIT_CACHE/epics-gui-triumf.git" "$EPICS_GUI"
+    #else
+        #if check_internet; then
+            #echo "Cloning EPICS GUI from GitHub..."
+            #git clone --recursive https://github.com/MattiasHenders/epics-gui-triumf.git "$LOCAL_GIT_CACHE"
+            #git clone --recursive "$LOCAL_GIT_CACHE/epics-gui-triumf.git" "$EPICS_GUI"
+        #else
+            #echo "Error: Local cache empty and no internet connection. Cannot clone EPICS GUI."
+            #exit 1
+    #fi
+#fi
 #endregion
 
+#endregion
+
+
+# ---------------------------------------------------
+# Prepare ExtensionsTop
+# ---------------------------------------------------
+
+tar xvzf $FILES_DIR/extensionsTop_20120904.tar.gz -C $EPICS_ROOT #creates extensions dir
 
 # ---------------------------------------------------
 # Build EPICS Base
@@ -276,44 +352,51 @@ fi
 
 #region epicsBase
 
-sudo -u "$SUDO_USER" tee -a "/home/$SUDO_USER/.bashrc" > /dev/null <<EOF #edits .bashrc of the user who invoked sudo
+#adds paths to current shell (root: installer.sh)
+export EPICS_BASE="$EPICS_BASE" 
+export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
+export EPICS_HOST_ARCH="$EPICS_HOST_ARCH"
+
+export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH"
+export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
+
+export EPICS_CA_AUTO_ADDR_LIST=YES
+
+export EDMPVOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
+export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
+export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
+export EDMFILES="$EPICS_EXTENSIONS/src/edm/edmMain"
+export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
+
+export LD_LIBRARY_PATH="$EDMLIBS:$EPICS_BASE/lib/$EPICS_HOST_ARCH"
+
+
+debug "Starting EPICS Base make"
+make -j"$(nproc)" -C "$EPICS_BASE"
+
+echo "Successfully installed EPICS base"
+
+
+#add paths to calling user's shell (user invoking sudo)
+sudo -u "$SUDO_USER" tee -a "/home/$SUDO_USER/.bashrc" > /dev/null <<'EOF' 
+
+export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH"
+
 export EPICS_BASE="$EPICS_BASE"
 export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
 export EPICS_GUI="$EPICS_GUI"
 
-export EPICS_HOST_ARCH=linux-x86_64
-export PATH="\$EPICS_BASE/bin/\$EPICS_HOST_ARCH:\$EPICS_EXTENSIONS/bin/\$EPICS_HOST_ARCH:\$PATH"
-export LD_LIBRARY_PATH="\$EPICS_BASE/lib/\$EPICS_HOST_ARCH:\${LD_LIBRARY_PATH:-}"
+export EPICS_HOST_ARCH=$EPICS_HOST_ARCH
+export LD_LIBRARY_PATH="$EPICS_BASE/lib/$EPICS_HOST_ARCH:${LD_LIBRARY_PATH:-}"
 
-export EDMOBJECTS="\$EPICS_EXTENSIONS/src/edm/setup"
-export EDMPVOBJECTS="\$EPICS_EXTENSIONS/src/edm/setup"
-export EDMFILES="\$EPICS_EXTENSIONS/src/edm/setup"
-export EDMHELPFILES="\$EPICS_EXTENSIONS/src/edm/helpFiles"
-export EDMLIBS="\$EPICS_EXTENSIONS/lib/\$EPICS_HOST_ARCH"
-export EDM_USE_SHARED_LIBS=YES
-
-EOF
-
-
-
-echo "Building EPICS Base..."
-cd "$EPICS_BASE"
-debug "Starting EPICS Base make"
-make -j"$(nproc)"
-
-export EPICS_BASE="$EPICS_BASE" #adds paths to current shell (root: installer.sh)
-export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
-export EPICS_HOST_ARCH=linux-x86_64
-export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
 export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
 export EDMPVOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
 export EDMFILES="$EPICS_EXTENSIONS/src/edm/setup"
 export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
 export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
-export LD_LIBRARY_PATH="$EPICS_BASE/lib/$EPICS_HOST_ARCH:${LD_LIBRARY_PATH:-}"
 export EDM_USE_SHARED_LIBS=YES
 
-echo "Successfully installed EPICS base"
+EOF
 
 #endregion
 
@@ -323,41 +406,29 @@ echo "Successfully installed EPICS base"
 # ---------------------------------------------------
 
 #region epics extensions
-
-echo "Cloning EPICS Extensions..."
-cd "$EPICS_ROOT"
-
-if [ ! -d "$EPICS_EXTENSIONS/.git" ]; then 
-    if [ -d "$LOCAL_GIT_CACHE/extensions.git" ]; then
-        echo "Cloning EPICS Extensions from local cache..."
-        git clone --recursive "$LOCAL_GIT_CACHE/extensions.git" "$EPICS_EXTENSIONS"
-    else
-        echo "Cloning EPICS Extensions from GitHub..."
-        git clone --recursive https://github.com/epics-extensions/extensions "$EPICS_EXTENSIONS"
-    fi
-fi
-
-mkdir -p "$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH"
-mkdir -p "$EPICS_EXTENSIONS/configure"
-
-if ! grep -q '^EDM' "$EPICS_EXTENSIONS/configure/RELEASE" 2>/dev/null; then
-    echo "EDM=\$(EPICS_EXTENSIONS)/src/edm" >> "$EPICS_EXTENSIONS/configure/RELEASE"
-fi
-
-
-if [ -e "$EPICS_ROOT/configure" ] && [ ! -L "$EPICS_ROOT/configure" ]; then #remove legacy '/epics/configure' dir if existing
-    rm -rf "$EPICS_ROOT/configure"
-fi
-
-
-if [ ! -e "$EPICS_ROOT/configure" ]; then
-    ln -s "$EPICS_BASE/configure" "$EPICS_ROOT/configure" #points /epics/configure to /epics/base/configure to 'fix' outdated pathing
-fi
-
-
-echo "Created symlink: $EPICS_ROOT/configure -> $EPICS_BASE/configure"
-
-echo "Successfully configured extensions!"
+#cd "$EPICS_ROOT"
+#
+#mkdir -p "$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH"
+#mkdir -p "$EPICS_EXTENSIONS/configure"
+#
+#if ! grep -q '^EDM' "$EPICS_EXTENSIONS/configure/RELEASE" 2>/dev/null; then
+#    echo "EDM=\$(EPICS_EXTENSIONS)/src/edm" >> "$EPICS_EXTENSIONS/configure/RELEASE"
+#fi
+#
+#
+#if [ -e "$EPICS_ROOT/configure" ] && [ ! -L "$EPICS_ROOT/configure" ]; then #remove legacy '/epics/configure' dir if existing
+#    rm -rf "$EPICS_ROOT/configure"
+#fi
+#
+#
+#if [ ! -e "$EPICS_ROOT/configure" ]; then
+#    ln -s "$EPICS_BASE/configure" "$EPICS_ROOT/configure" #points /epics/configure to /epics/base/configure to 'fix' outdated pathing
+#fi
+#
+#
+#echo "Created symlink: $EPICS_ROOT/configure -> $EPICS_BASE/configure"
+#
+#echo "Successfully configured extensions!"
 
 #endregion
 
@@ -370,13 +441,12 @@ echo "Successfully configured extensions!"
 
 cd $EPICS_ROOT
 
-
-sed -i -e '21cEPICS_BASE=/opt/epics/epics-base' -e '25s/^/#/' extensions/configure/RELEASE
+sed -i -e "21cEPICS_BASE=$EPICS_BASE" -e '25s/^/#/' extensions/configure/RELEASE
 sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_64-linux-gnu' extensions/configure/os/CONFIG_SITE.linux-x86_64.linux-x86_64
 
-cd "$EPICS_ROOT/extensions/src"
-cp -r $LOCAL_GIT_CACHE/edm .
-cd "$EPICS_ROOT/extensions/src"
+#cp -r $LOCAL_GIT_CACHE/edm .
+#cd "$EPICS_EXTENSIONS/src"
+cd $EDM_DIR
 
 sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' edm/giflib/Makefile
 sed -i -e 's| ungif||g' edm/giflib/Makefile*
@@ -384,6 +454,7 @@ sed -i -e 's| ungif||g' edm/giflib/Makefile*
 cd edm
 make clean
 make
+
 cd setup
 sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflib
 videowidget' setup.sh
@@ -392,7 +463,7 @@ sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba
 sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' setup.sh
 sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
 sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
-HOST_ARCH=linux-x86_64 sh setup.sh
+HOST_ARCH=$EPICS_HOST_ARCH sh setup.sh
 
 
 
