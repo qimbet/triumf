@@ -45,7 +45,7 @@ mkdir -p "$EPICS_ROOT"
 
 
 dependenciesList=( #used by apt install
-    dpkg-dev make
+    dpkg-dev make wine
     build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
     libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi x11proto-print-dev autoconf libtool sshpass
     )
@@ -84,6 +84,36 @@ if [ -d $EPICS_ROOT] && [ -n "$EPICS_ROOT"]; then
     printf "Previous epics install detected at $EPICS_ROOT \nDeleting prior epics files."
     rm -rf "$EPICS_ROOT"
 fi
+
+#detect WSL vs. native Linux (necessary for GUI)
+is_wsl=false
+sysEnv="Native Ubuntu"
+if grep -qi microsoft /proc/version || [[ -n "$WSL_DISTRO_NAME" ]]; then
+    is_wsl=true
+fi
+if $is_wsl; then
+    sysEnv="WSL"
+fi
+
+printf read -p "Installer detected $env_detected. Is this correct? [Y/n]: " 
+read response
+
+response=${response,,}  # convert to lowercase
+if [[ "$response" == "n" ]]; then
+    sysEnv = 
+    echo "Aborting installation. Please run on the correct environment."
+    
+fi
+
+echo "Proceeding with installation
+read -p  response
+response=${response,,}  # convert to lowercase
+if [[ "$response" == "n" ]]; then
+    echo "Aborting installation. Please run on the correct environment."
+    exit 1
+fi
+
+echo "Proceeding with installation
 
 #endregion
 
@@ -387,14 +417,14 @@ if ! grep -qF "$EPICS_MARKER" "/home/$SUDO_USER/.bashrc"; then
     sudo -u "$SUDO_USER" tee -a "/home/$SUDO_USER/.bashrc" > /dev/null <<EOF
 
 $EPICS_MARKER
-export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:\$PATH"
-
 export EPICS_BASE="$EPICS_BASE"
 export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
 export EPICS_GUI="$EPICS_GUI"
-
 export EPICS_HOST_ARCH=$EPICS_HOST_ARCH
-export LD_LIBRARY_PATH="$EPICS_BASE/lib/$EPICS_HOST_ARCH:${LD_LIBRARY_PATH:-}"
+
+export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:\$PATH"
+export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:\$PATH"
+
 export EPICS_CA_AUTO_ADDR_LIST=YES
 
 export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
@@ -404,13 +434,15 @@ export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
 export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
 export EDM_USE_SHARED_LIBS=YES
 
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+
 EOF
 
 #endregion
 
 
 # ---------------------------------------------------
-# Install EPICS Extensions
+# Install EPICS Extensions -- deprecated
 # ---------------------------------------------------
 
 #region epics extensions - deprecated
@@ -445,7 +477,7 @@ EOF
 # Clone EDM into Extensions
 # ---------------------------------------------------
 
-#region EDM
+#region EDM 
 
 cd $EPICS_ROOT #relative paths >:(
 
@@ -455,15 +487,18 @@ sed -i -e '14cX11_LIB=/usr/lib/x86_64-linux-gnu' -e '18cMOTIF_LIB=/usr/lib/x86_6
 #cp -r $LOCAL_GIT_CACHE/edm .
 #cd "$EPICS_EXTENSIONS/src"
 cd $EDM_DIR
+#these few lines sketch me out. Too much relative pathing invites errors
 
-sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' edm/giflib/Makefile
-sed -i -e 's| ungif||g' edm/giflib/Makefile*
+sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' giflib/Makefile
+sed -i -e 's| ungif||g' giflib/Makefile*
 
-cd edm #these few lines sketch me out. Too much relative pathing invites errors
+debug "Making edm"
 make clean
 make
+debug "Successfully made edm"
 
 cd setup
+
 sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflib
 videowidget' setup.sh
 sed -i -e '79d' setup.sh
@@ -473,81 +508,84 @@ sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a4
 sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
 HOST_ARCH=$EPICS_HOST_ARCH sh setup.sh
 
+#endregion
 
-
-if [ -d "localRepos/edm" ]; then 
-    mkdir -p $EPICS_EXTENSIONS/src #/epics/base/extensions/src
-    cp -r localRepos/edm/* $EPICS_EXTENSIONS/src
-
-    sudo find $EPICS_ROOT -type f -name Makefile -exec sed -i 's|\$top/configure|\$top/base/configure|g' {} +
-    sudo find "$EPICS_ROOT" -type f -name Makefile -exec sed -i "s|^TOP = [./]\+|TOP = $EPICS_ROOT|" {} + #replace any combination of . / with absolute path
-
-
-    #Edits config files 
-    sed -i 's|^EPICS_BASE=$(TOP)/\.\./base|EPICS_BASE=$(TOP)|' /epics/extensions/configure/RELEASE
-    sed -i -e 's| ungif||g' "$EPICS_EXTENSIONS/src/giflib/Makefile"
-
-    # edits all files in /epics:
-    #   /epics/configure ---> /epics/base/configure
-
-    cd "$EPICS_EXTENSIONS/src"
-
-    echo "Preparing to make EDM"
-
-    #edit Makefile in /epics/extensions/src: 
-    #change:
-    #   include $(TOP)/configure/CONFIG
-    # to 
-    #   include $(TOP)/base/configure/CONFIG
-    # sed -i 's|$(TOP)/configure/CONFIG|$(TOP)/base/configure/CONFIG|' /epics/extensions/src/Makefile
-
-    make -j"$(nproc)"
-fi
+#region edm spaghetti -- deprecated
+#if [ -d "localRepos/edm" ]; then 
+#    mkdir -p $EPICS_EXTENSIONS/src #/epics/base/extensions/src
+#    cp -r localRepos/edm/* $EPICS_EXTENSIONS/src
+#
+#    sudo find $EPICS_ROOT -type f -name Makefile -exec sed -i 's|\$top/configure|\$top/base/configure|g' {} +
+#    sudo find "$EPICS_ROOT" -type f -name Makefile -exec sed -i "s|^TOP = [./]\+|TOP = $EPICS_ROOT|" {} + #replace any combination of . / with absolute path
+#
+#
+#    #Edits config files 
+#    sed -i 's|^EPICS_BASE=$(TOP)/\.\./base|EPICS_BASE=$(TOP)|' /epics/extensions/configure/RELEASE
+#    sed -i -e 's| ungif||g' "$EPICS_EXTENSIONS/src/giflib/Makefile"
+#
+#    # edits all files in /epics:
+#    #   /epics/configure ---> /epics/base/configure
+#
+#    cd "$EPICS_EXTENSIONS/src"
+#
+#    echo "Preparing to make EDM"
+#
+#    #edit Makefile in /epics/extensions/src: 
+#    #change:
+#    #   include $(TOP)/configure/CONFIG
+#    # to 
+#    #   include $(TOP)/base/configure/CONFIG
+#    # sed -i 's|$(TOP)/configure/CONFIG|$(TOP)/base/configure/CONFIG|' /epics/extensions/src/Makefile
+#
+#    make -j"$(nproc)"
+#fi
 
 #endregion
 
 
 # ---------------------------------------------------
-# Modify environment variables
+# Modify environment variables -- deprecated
 # ---------------------------------------------------
 
-#region environment variables
-if true; then
-    ENV_SCRIPT="$EPICS_ROOT/epics_env.sh"
+#region environment variables -- deprecated
+#ENV_SCRIPT="$EPICS_ROOT/epics_env.sh" #This should be redundant; the installer adds to path directly
+##however, should it be needed, this adds paths manually
+#
+#cat > "$ENV_SCRIPT" <<EOF
+#
+#export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH"
+#export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
+#
+#export EPICS_ROOT=$EPICS_ROOT
+#export EPICS_BASE=$EPICS_BASE
+#export EPICS_GUI="$EPICS_GUI"
+#export EPICS_EXTENSIONS=$EPICS_EXTENSIONS
+#
+#export EPICS_HOST_ARCH=$EPICS_HOST_ARCH
+#
+#export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+#export EPICS_CA_AUTO_ADDR_LIST=YES
+#
+#export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
+#export EDMPVOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
+#export EDMFILES="$EPICS_EXTENSIONS/src/edm/setup"
+#export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
+#export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
+#export EDM_USE_SHARED_LIBS=YES
+#
+#EOF
+#
+## Make readable by all users
+#chmod 644 "$ENV_SCRIPT"
 
-    # Create env script with system-wide exports
-    cat > "$ENV_SCRIPT" <<'EOF'
-export EPICS_ROOT=/opt/epics
-export EPICS_BASE=${EPICS_BASE:-$EPICS_ROOT/base}
-export EPICS_EXTENSIONS=${EPICS_EXTENSIONS:-$EPICS_ROOT/extensions}
-export EPICS_HOST_ARCH=linux-x86_64
-export PATH="${EPICS_BASE}/bin/${EPICS_HOST_ARCH}:$PATH"
-export LD_LIBRARY_PATH="${EPICS_BASE}/lib/${EPICS_HOST_ARCH}:${LD_LIBRARY_PATH:-}"
-EOF
-
-    # Make readable by all users
-    chmod 644 "$ENV_SCRIPT"
-
-    # Link into global bashrc
-    if ! grep -Fxq "source $ENV_SCRIPT" /etc/bash.bashrc; then
-        echo "source $ENV_SCRIPT" | tee -a /etc/bash.bashrc >/dev/null
-    fi
-    
-    if [ -f /epics/epics_env.sh ]; then #add to /etc/profile to add epics to SSH shell
-        . /epics/epics_env.sh
-    fi
-
-    # Add to current user's bashrc as well
-    if ! grep -Fxq "source $ENV_SCRIPT" ~/.bashrc; then
-        echo "source $ENV_SCRIPT" >> ~/.bashrc
-    fi
-
-    # printf "\n\nRun the command: source $EPICS_ROOT/epics_env.sh to add epics to your system environment"
-
-    sudo -u "$SUDO_USER" bash -c "source \"$EPICS_ROOT/epics_env.sh\""  #adds ENV_SCRIPT to active shell immediately
-fi
+#sudo -u "$SUDO_USER" bash -c "source \"$EPICS_ROOT/epics_env.sh\""  #adds ENV_SCRIPT to active shell immediately
 
 #endregion
+
+# ---------------------------------------------------
+# GUI -- Xming, for WSL instances 
+# ---------------------------------------------------
+
 
 
 # ---------------------------------------------------
