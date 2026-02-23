@@ -433,6 +433,10 @@ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 
 EOF
 
+fi
+
+echo "Succesfully configured EPICS Base"
+
 #endregion
 
 
@@ -502,6 +506,8 @@ sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' se
 sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
 sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
 HOST_ARCH=$EPICS_HOST_ARCH sh setup.sh
+
+echo "Successfully installed & configured EDM"
 
 #endregion
 
