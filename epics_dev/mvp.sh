@@ -45,7 +45,7 @@ mkdir -p "$EPICS_ROOT"
 
 
 dependenciesList=( #used by apt install
-    dpkg-dev make wine
+    dpkg-dev make wine-stable
     build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
     libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi x11proto-print-dev autoconf libtool sshpass
     )
@@ -79,14 +79,14 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 #Detect/remove previous installations in $EPICS_ROOT
-if [ -d $EPICS_ROOT] && [ -n "$EPICS_ROOT"]; then
+if [ -d $EPICS_ROOT] && [ -n "$EPICS_ROOT" ]; then
     debug "Deleting previous epics install files"
     printf "Previous epics install detected at $EPICS_ROOT \nDeleting prior epics files."
     rm -rf "$EPICS_ROOT"
 fi
 
 #detect WSL vs. native Linux (necessary for GUI)
-if grep -qi microsoft /proc/version || [[ -n "$WSL_DISTRO_NAME" ]]; then
+if grep -qi microsoft /proc/version || [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
     sysEnv="WSL" 
 else
     sysEnv="Native Ubuntu"
@@ -183,14 +183,17 @@ if [ ! -d "$LOCAL_DEB_REPO" ]; then
 fi
 
         
+missing_pkgs=()
 for pkg in "${dependenciesList[@]}"; do #identify missing files for dependencies
     #NOTE: this only checks the top-level packages; their own dependencies are not handled here
     if ! ls "$LOCAL_DEB_REPO"/"$pkg"_*.deb >/dev/null 2>&1; then
         missing_pkgs+=("$pkg")  # add to list 
+        printf "Missing package: %s" "$pkg"
     fi
 done
 
 if [ "${#missing_pkgs[@]}" -ne 0 ]; then 
+    echo Missing package files.
     if check_internet; then #if internet is available, install packages
         debug "Internet available -- populating deb files"
         echo "Local package repo for os $FILE_DIR_NAME not found, installing key packages from internet..."
