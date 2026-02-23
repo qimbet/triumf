@@ -78,12 +78,11 @@ breakpoint() {
     fi
 }
 
-cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "EPICS Base"
+cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "EPICS Base" "base"
     local githubLink="$1"
     local targetPath="$2"   # where it is to be cloned
-    local dirName="$3"   # string name of repo (used for UI)
-
-    gitDirName="${dirName,,}"
+    local dirName="$3"      # string name of repo (used for UI)
+    local gitDirName="$4"   # name of repo as it is saved
 
     if [ ! -d "$targetPath" ]; then #if target path is empty
         #it may be worth adding a layer to validate the .git extension
@@ -292,10 +291,10 @@ extensionsLink='https://github.com/epics-extensions/extensions'
 edmLink='https://github.com/epicsdeb/edm.git'
 guiLink='https://github.com/MattiasHenders/epics-gui-triumf.git'
 
-cloneGitRepo $baseLink $EPICS_BASE "EPICS Base"
-cloneGitRepo $extensionsLink $EPICS_EXTENSIONS "EPICS Extensions"
-cloneGitRepo $edmLink $EDM_DIR "EDM"
-cloneGitRepo $guiLink $EPICS_GUI "EPICS GUI"
+cloneGitRepo $baseLink $EPICS_BASE "EPICS Base" "base"
+cloneGitRepo $extensionsLink $EPICS_EXTENSIONS "EPICS Extensions" "extensions"
+cloneGitRepo $edmLink $EDM_DIR "EDM" "edm"
+cloneGitRepo $guiLink $EPICS_GUI "EPICS GUI" "epics-gui-triumf"
 
 #region deprecated git clones
 #if [ ! -d "$EPICS_BASE" ]; then #clone base.git
