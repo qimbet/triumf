@@ -86,34 +86,25 @@ if [ -d $EPICS_ROOT] && [ -n "$EPICS_ROOT"]; then
 fi
 
 #detect WSL vs. native Linux (necessary for GUI)
-is_wsl=false
-sysEnv="Native Ubuntu"
 if grep -qi microsoft /proc/version || [[ -n "$WSL_DISTRO_NAME" ]]; then
-    is_wsl=true
-fi
-if $is_wsl; then
-    sysEnv="WSL"
+    sysEnv="WSL" 
+else
+    sysEnv="Native Ubuntu"
 fi
 
-printf read -p "Installer detected $env_detected. Is this correct? [Y/n]: " 
+printf "Linux framework detected: %s. Is this correct? [Y/n]:" "$sysEnv"
 read response
 
-response=${response,,}  # convert to lowercase
-if [[ "$response" == "n" ]]; then
-    sysEnv = 
-    echo "Aborting installation. Please run on the correct environment."
-    
+response=${response,,}
+if [[ "$response" == "n" || "$response" == "no" ]]; then
+    if [[ "$sysEnv" == "WSL" ]]; then
+        sysEnv="Native Ubuntu"
+    else
+        sysEnv="WSL"
+    fi
 fi
 
-echo "Proceeding with installation
-read -p  response
-response=${response,,}  # convert to lowercase
-if [[ "$response" == "n" ]]; then
-    echo "Aborting installation. Please run on the correct environment."
-    exit 1
-fi
-
-echo "Proceeding with installation
+echo "Proceeding with installation"
 
 #endregion
 
@@ -586,7 +577,7 @@ HOST_ARCH=$EPICS_HOST_ARCH sh setup.sh
 # GUI -- Xming, for WSL instances 
 # ---------------------------------------------------
 
-
+echo "Skipping XMING install"
 
 # ---------------------------------------------------
 # End-script processes 
