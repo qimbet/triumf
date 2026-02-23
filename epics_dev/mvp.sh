@@ -141,19 +141,21 @@ breakpoint() {
 cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "EPICS Base"
     local githubLink="$1"
     local targetPath="$2"   # where it is to be cloned
-    local gitDirName="$3"   # string name of repo (used for UI)
+    local dirName="$3"   # string name of repo (used for UI)
+
+    gitDirName="${dirName,,}"
 
     if [ ! -d "$targetPath" ]; then #if target path is empty
         #it may be worth adding a layer to validate the .git extension
         #sometimes .git dirs are cloned with/without the trailing .git tag
         #it's hardcoded here to look for .git dirs only. Edge case, but I'd bet it'll catch someone someday
-        if [ -d "$LOCAL_GIT_CACHE/${gitDirName}.git" ]; then 
-            echo "Cloning $gitDirName from local cache..."
+        if [ -d "$LOCAL_GIT_CACHE/${dirname}.git" ]; then 
+            echo "Cloning $dirName from local cache..."
             git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
             return $? #most recent exit code; returns 0 on a success
         else
             if check_internet; then
-                echo "Local cache not found. Cloning $gitDirName from GitHub..."
+                echo "Local cache not found. Cloning $irName from GitHub..."
                 mkdir -p "$LOCAL_GIT_CACHE"
                 git clone --recursive "$githubLink" "$LOCAL_GIT_CACHE/${gitDirName}.git" #ensures .git suffix
                 git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
@@ -161,7 +163,7 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
             fi
         fi
 
-        echo "Error: Local cache empty and no internet connection. Cannot clone $gitDirName."
+        echo "Error: Local cache empty and no internet connection. Cannot clone $dirName."
         exit 1
     fi
 }
