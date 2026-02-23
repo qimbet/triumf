@@ -43,71 +43,11 @@ exec > >(tee "$LOGFILE") 2>&1
 # Ensure required directories exist
 mkdir -p "$EPICS_ROOT"
 
-
 dependenciesList=( #used by apt install
     dpkg-dev make wine-stable
     build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
     libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi x11proto-print-dev autoconf libtool sshpass
     )
-
-
-#region user interaction; runtime environment / permissions
-#ensure the os is the right version
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
-        echo "The installer requires os version: *** Ubuntu 18.04 *** "
-        echo "EPICS will install properly, but the GUI will not work. Continue? [Y/n]" #edit for accuracy after release!!
-
-        ans=${answer:-Y}
-        if [[ "$ans" =~ ^[Yy]$ ]]; then 
-            :
-        else
-            echo "Quitting"
-            exit 1
-        fi
-
-    fi
-fi
-
-#Ensure the script is run with sudo:
-if [ "$(id -u)" -ne 0 ]; then
-    echo "This script requires sudo privileges to work properly. Rerunning as sudo:"
-    sudo bash "$0" "$@" --source-path "$SCRIPT_DIR" 
-
-    exit 0 #exit original script after rerunning with sudo
-fi
-
-#Detect/remove previous installations in $EPICS_ROOT
-if [ -d $EPICS_ROOT] && [ -n "$EPICS_ROOT" ]; then
-    debug "Deleting previous epics install files"
-    printf "Previous epics install detected at $EPICS_ROOT \nDeleting prior epics files."
-    rm -rf "$EPICS_ROOT"
-fi
-
-#detect WSL vs. native Linux (necessary for GUI)
-if grep -qi microsoft /proc/version || [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
-    sysEnv="WSL" 
-else
-    sysEnv="Native Ubuntu"
-fi
-
-printf "Linux framework detected: %s. Is this correct? [Y/n]:" "$sysEnv"
-read response
-
-response=${response,,}
-if [[ "$response" == "n" || "$response" == "no" ]]; then
-    if [[ "$sysEnv" == "WSL" ]]; then
-        sysEnv="Native Ubuntu"
-    else
-        sysEnv="WSL"
-    fi
-fi
-
-echo "Proceeding with installation"
-
-#endregion
-
 
 #region functions
 check_internet() { #check connectivity; used to install missing files in case of local corruption
@@ -149,7 +89,7 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
         #it may be worth adding a layer to validate the .git extension
         #sometimes .git dirs are cloned with/without the trailing .git tag
         #it's hardcoded here to look for .git dirs only. Edge case, but I'd bet it'll catch someone someday
-        if [ -d "$LOCAL_GIT_CACHE/${dirname}.git" ]; then 
+        if [ -d "$LOCAL_GIT_CACHE/${gitDirName}.git" ]; then 
             echo "Cloning $dirName from local cache..."
             git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
             return $? #most recent exit code; returns 0 on a success
@@ -169,6 +109,66 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
 }
 #endregion
 
+#region user interaction; runtime environment / permissions
+
+#ensure the os is the right version
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
+        echo "The installer requires os version: *** Ubuntu 18.04 *** "
+        echo "EPICS will install properly, but the GUI will not work. Continue? [Y/n]" #edit for accuracy after release!!
+
+        ans=${answer:-Y}
+        if [[ "$ans" =~ ^[Yy]$ ]]; then 
+            :
+        else
+            echo "Quitting"
+            exit 1
+        fi
+
+    fi
+fi
+
+
+#Ensure the script is run with sudo:
+if [ "$(id -u)" -ne 0 ]; then
+    echo "This script requires sudo privileges to work properly. Rerunning as sudo:"
+    sudo bash "$0" "$@" --source-path "$SCRIPT_DIR" 
+
+    exit 0 #exit original script after rerunning with sudo
+fi
+
+
+#Detect/remove previous installations in $EPICS_ROOT
+if [ -d $EPICS_ROOT ] && [ -n "$EPICS_ROOT" ]; then
+    debug "Deleting previous epics install files"
+    printf "Previous epics install detected at $EPICS_ROOT \nDeleting prior epics files.\n"
+    rm -rf "$EPICS_ROOT"
+fi
+
+
+#detect WSL vs. native Linux (necessary for GUI)
+if grep -qi microsoft /proc/version || [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
+    sysEnv="WSL" 
+else
+    sysEnv="Native Ubuntu"
+fi
+
+printf "Linux framework detected: %s. Is this correct? [Y/n]:" "$sysEnv"
+read response
+
+response=${response,,}
+if [[ "$response" == "n" || "$response" == "no" ]]; then
+    if [[ "$sysEnv" == "WSL" ]]; then
+        sysEnv="Native Ubuntu"
+    else
+        sysEnv="WSL"
+    fi
+fi
+
+echo "Proceeding with installation"
+
+#endregion
 
 #endregion
 
