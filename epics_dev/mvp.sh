@@ -8,7 +8,6 @@
 #this is charted to work only on Ubuntu 18.04, due to GUI dependencies on deprecated packages
 
 debugFlag=$1 #Boolean for verbose outputs & breakpoints, passed as arg
-breakpointLevel=0 #breakpoints are numbered, this sets the depth that the program will run
 
 set -euo pipefail
 
@@ -62,7 +61,7 @@ check_internet() { #check connectivity; used to install missing files in case of
     fi
 }
 
-debug() {
+breakpoint() {
     if [ "$debugFlag" = True ]; then
         local input=""
         printf "logged value(s): $@"
@@ -71,12 +70,6 @@ debug() {
     fi
 }
 
-breakpoint() {
-    local num=$1
-    if [ "$breakpointLevel" -ge "$num" ]; then
-        debug "Breakpoint reached; $num"
-    fi
-}
 
 cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "EPICS Base" "base"
     local githubLink="$1"
@@ -140,7 +133,7 @@ fi
 
 #Detect/remove previous installations in $EPICS_ROOT
 if [ -d $EPICS_ROOT ] && [ -n "$EPICS_ROOT" ]; then
-    debug "Deleting previous epics install files"
+    echo "Deleting previous epics install files"
     printf "Previous epics install detected at $EPICS_ROOT \nDeleting prior epics files.\n"
     rm -rf "$EPICS_ROOT"
 fi
@@ -180,7 +173,7 @@ echo "Proceeding with installation"
 #if dir does not exist or is empty, create it & populate with .deb files
 if [ ! -d "$LOCAL_DEB_REPO" ]; then 
     mkdir -p $LOCAL_DEB_REPO
-    debug "Local deb repo not found. Creating..."
+    echo "Local deb repo not found. Creating..."
 fi
 
         
@@ -196,7 +189,7 @@ done
 if [ "${#missing_pkgs[@]}" -ne 0 ]; then 
     echo Missing package files.
     if check_internet; then #if internet is available, install packages
-        debug "Internet available -- populating deb files"
+        echo "Internet available -- populating deb files"
         echo "Local package repo for os $FILE_DIR_NAME not found, installing key packages from internet..."
 
         apt-get -o=dir::cache::archives="$LOCAL_DEB_REPO" install --download-only -y "${dependenciesList[@]}" #download .deb files to localDir
@@ -229,7 +222,7 @@ if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
                 -o Dir::Etc::sourcelist="-" \
                 -o APT::Get::AllowUnauthenticated=true
         else
-            debug "Error: make_*.deb not found in $LOCAL_DEB_REPO"
+            echo "Error: make_*.deb not found in $LOCAL_DEB_REPO"
             exit 1
         fi
     fi
@@ -253,7 +246,7 @@ if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
     fi
     #endregion
             
-    debug "Make, dpkg-dev installed. Beginning local installation"
+    echo "Make, dpkg-dev installed. Beginning local installation"
 
     #install dependenciesList from local_deb_repo 
     TMP_LIST=$(mktemp)
@@ -396,7 +389,7 @@ export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
 export LD_LIBRARY_PATH="$EDMLIBS:$EPICS_BASE/lib/$EPICS_HOST_ARCH"
 
 
-debug "Starting EPICS Base make"
+echo "Starting EPICS Base make"
 make -j"$(nproc)" -C "$EPICS_BASE"
 
 echo "Successfully installed EPICS base"
@@ -430,6 +423,7 @@ export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
 export EDM_USE_SHARED_LIBS=YES
 
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+source $EDM_DIR/setup/setup.sh 
 
 EOF
 
@@ -491,10 +485,10 @@ cd $EDM_DIR
 sed -i -e '15s/$/ -DGIFLIB_MAJOR=5 -DGIFLIB_MINOR=1/' giflib/Makefile
 sed -i -e 's| ungif||g' giflib/Makefile*
 
-debug "Making edm"
+echo "Making edm"
 make clean
 make
-debug "Successfully made edm"
+echo "Successfully made edm"
 
 cd setup
 
