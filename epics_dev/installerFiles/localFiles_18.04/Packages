@@ -1580,6 +1580,31 @@ Description: OpenSymbol TrueType font
  bullets (needed for bullets in LibreOffice) and non-latin character
 Original-Maintainer: Debian LibreOffice Maintainers <debian-openoffice@lists.debian.org>
 
+Package: fonts-wine
+Source: wine
+Version: 3.0-1ubuntu1
+Architecture: all
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 904
+Breaks: wine1.6 (<< 1:1.8.4ubuntu1~)
+Replaces: wine1.6 (<< 1:1.8.4ubuntu1~)
+Built-Using: khronos-api (= 0~svn33340-0.1), unicode-data (= 10.0.0-3)
+Filename: ./fonts-wine_3.0-1ubuntu1_all.deb
+Size: 146484
+MD5sum: e65a291c84a19cf2905ed7abc98a6943
+SHA1: f5858e6cce899bc116bb3b1d1c6fff308cff5a34
+SHA256: 756c4f8d8a55c63036484b07b69ebeeaf476c6e9473d295e5c0bcabfc79df417
+Section: fonts
+Priority: optional
+Multi-Arch: foreign
+Homepage: https://www.winehq.org
+Description: Windows API implementation - fonts
+ Wine is a free MS-Windows API implementation.
+ This is still a work in progress and many applications may still not work.
+ .
+ This package provides the fonts used by Wine.
+Original-Maintainer: Debian Wine Party <pkg-wine-party@lists.alioth.debian.org>
+
 Package: fwupd
 Version: 1.2.14-0~18.04.3
 Architecture: amd64
@@ -1718,6 +1743,26 @@ Priority: optional
 Homepage: http://gcc.gnu.org/
 Description: GNU C compiler
  This is the GNU C compiler, a fairly portable optimizing compiler for C.
+Original-Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+
+Package: gcc-8-base
+Source: gcc-8
+Version: 8.4.0-1ubuntu1~18.04
+Architecture: i386
+Maintainer: Ubuntu Core developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 117
+Filename: ./gcc-8-base_8.4.0-1ubuntu1~18.04_i386.deb
+Size: 18744
+MD5sum: 329b625d6a322259479b17284907fe75
+SHA1: 10a5e86c122120eb91394951b64fab75f776775f
+SHA256: 9f961c1c7490b9133de0cd79e7e1b45a4c0895d3b140a7de5e7146081de3bb80
+Section: libs
+Priority: required
+Multi-Arch: same
+Homepage: http://gcc.gnu.org/
+Description: GCC, the GNU Compiler Collection (base package)
+ This package contains files common to all languages and libraries
+ contained in the GNU Compiler Collection (GCC).
 Original-Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
 
 Package: ghostscript
@@ -2594,6 +2639,44 @@ Gstreamer-Elements: gtkglsink, gtksink
 Gstreamer-Version: 1.14
 Original-Maintainer: Maintainers of GStreamer packages <gst-plugins-good1.0@packages.debian.org>
 
+Package: gstreamer1.0-plugins-base
+Source: gst-plugins-base1.0
+Version: 1.14.5-0ubuntu1~18.04.3
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 2204
+Depends: libc6 (>= 2.7), libcdparanoia0 (>= 3.10.2+debian), libglib2.0-0 (>= 2.40), libgstreamer-plugins-base1.0-0 (>= 1.14.5), libgstreamer1.0-0 (>= 1.14.5), libogg0 (>= 1.0rc3), libopus0 (>= 1.1), liborc-0.4-0 (>= 1:0.4.25), libtheora0 (>= 1.0), libvisual-0.4-0 (>= 0.4.0), libvorbis0a (>= 1.1.2), libvorbisenc2 (>= 1.1.2)
+Suggests: gvfs
+Breaks: gstreamer1.0-plugins-bad (<< 1.13.1)
+Replaces: gstreamer1.0-plugins-bad (<< 1.13.1)
+Provides: gstreamer1.0-audiosource, gstreamer1.0-videosource
+Filename: ./gstreamer1.0-plugins-base_1.14.5-0ubuntu1~18.04.3_i386.deb
+Size: 602160
+MD5sum: f079ab13d5a5c23eb1287846e874b35a
+SHA1: f05a62629c0823608e6b5800c99683d6d4c28491
+SHA256: d42bca218e8fb4045900183dae44d56343406b1f564aeeafba4c55d0f2dd45c5
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://gstreamer.freedesktop.org
+Description: GStreamer plugins from the "base" set
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Applications using this library can do
+ anything from real-time sound processing to playing videos, and just
+ about anything else media-related.  Its plugin-based architecture means
+ that new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the GStreamer plugins from the "base" set, an
+ essential exemplary set of elements.
+Gstreamer-Decoders: application/kate; application/ogg; application/x-ass; application/x-ogg-avi; application/x-ogm-audio; application/x-ogm-text; application/x-ogm-video; application/x-ssa; application/x-subtitle; application/x-subtitle-dks; application/x-subtitle-lrc; application/x-subtitle-mpl2; application/x-subtitle-qttext; application/x-subtitle-sami; application/x-subtitle-tmplayer; application/x-subtitle-vtt; audio/ogg; audio/x-opus, channel-mapping-family=(int)[ 1, 255 ], stream-count=(int)[ 1, 255 ], coupled-count=(int)[ 0, 255 ]; audio/x-opus, channel-mapping-family=(int)0; audio/x-unaligned-raw, format=(string){ S8, U8, S16LE, S16BE, U16LE, U16BE, S24_32LE, S24_32BE, U24_32LE, U24_32BE, S32LE, S32BE, U32LE, U32BE, S24LE, S24BE, U24LE, U24BE, S20LE, S20BE, U20LE, U20BE, S18LE, S18BE, U18LE, U18BE, F32LE, F32BE, F64LE, F64BE }, layout=(string){ interleaved, non-interleaved }; audio/x-vorbis; video/ogg; video/x-theora; video/x-unaligned-raw, format=(string){ I420, YV12, YUY2, UYVY, AYUV, RGBx, BGRx, xRGB, xBGR, RGBA, BGRA, ARGB, ABGR, RGB, BGR, Y41B, Y42B, YVYU, Y444, v210, v216, NV12, NV21, GRAY8, GRAY16_BE, GRAY16_LE, v308, RGB16, BGR16, RGB15, BGR15, UYVP, A420, RGB8P, YUV9, YVU9, IYU1, ARGB64, AYUV64, r210, I420_10BE, I420_10LE, I422_10BE, I422_10LE, Y444_10BE, Y444_10LE, GBR, GBR_10BE, GBR_10LE, NV16, NV24, NV12_64Z32, A420_10BE, A420_10LE, A422_10BE, A422_10LE, A444_10BE, A444_10LE, NV61, P010_10BE, P010_10LE, IYU2, VYUY, GBRA, GBRA_10BE, GBRA_10LE, GBR_12BE, GBR_12LE, GBRA_12BE, GBRA_12LE, I420_12BE, I420_12LE, I422_12BE, I422_12LE, Y444_12BE, Y444_12LE, GRAY10_LE32, NV12_10LE32, NV16_10LE32 }
+Gstreamer-Elements: adder, appsink, appsrc, audioconvert, audiointerleave, audiomixer, audiorate, audioresample, audiotestsrc, cdparanoiasrc, decodebin, decodebin3, encodebin, giosink, giosrc, giostreamsink, giostreamsrc, liveadder, multifdsink, multisocketsink, oggaviparse, oggdemux, oggmux, oggparse, ogmaudioparse, ogmtextparse, ogmvideoparse, opusdec, opusenc, parsebin, playbin, playbin3, playsink, rawaudioparse, rawvideoparse, socketsrc, ssaparse, streamsynchronizer, subparse, subtitleoverlay, tcpclientsink, tcpclientsrc, tcpserversink, tcpserversrc, theoradec, theoraenc, theoraparse, unalignedaudioparse, unalignedvideoparse, uridecodebin, uridecodebin3, urisourcebin, videoconvert, videorate, videoscale, videotestsrc, volume, vorbisdec, vorbisenc, vorbisparse, vorbistag
+Gstreamer-Encoders: application/ogg; audio/ogg; audio/x-opus; audio/x-vorbis; video/ogg; video/x-theora
+Gstreamer-Uri-Sinks: appsink, file, resource
+Gstreamer-Uri-Sources: appsrc, cdda, file, resource
+Gstreamer-Version: 1.14
+Original-Maintainer: Maintainers of GStreamer packages <gst-plugins-base1.0@packages.debian.org>
+
 Package: gstreamer1.0-plugins-good
 Source: gst-plugins-good1.0
 Version: 1.14.5-0ubuntu1~18.04.3
@@ -3196,6 +3279,83 @@ Description: Heimdal Kerberos - ASN.1 library
  This package contains the ASN.1 parser required for Heimdal.
 Original-Maintainer: Brian May <bam@debian.org>
 
+Package: libasound2
+Source: alsa-lib
+Version: 1.1.3-5ubuntu0.6
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 1387
+Depends: libasound2-data (>= 1.1.3-5ubuntu0.6), libc6 (>= 2.16)
+Suggests: libasound2-plugins (>= 1.0.24)
+Breaks: bluez-alsa (<= 4.94-2), libasound2-plugin-equal (<= 0.6-1), libasound2-plugins (<< 1.0.24)
+Filename: ./libasound2_1.1.3-5ubuntu0.6_i386.deb
+Size: 381732
+MD5sum: cfd64910042dac7f2b5085d26e5b4b36
+SHA1: d8939851a34ac76b1e4fdcb37e035c44c5fb0641
+SHA256: b3049d44bb59684633fd6e87d9342c04dee203ef96770287d6d70670df11c6e4
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://www.alsa-project.org/
+Description: shared library for ALSA applications
+ This package contains the ALSA library and its standard plugins, as well
+ as the required configuration files.
+ .
+ ALSA is the Advanced Linux Sound Architecture.
+Original-Maintainer: Debian ALSA Maintainers <pkg-alsa-devel@lists.alioth.debian.org>
+
+Package: libasound2-plugins
+Source: alsa-plugins
+Version: 1.1.1-1ubuntu1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 256
+Depends: libasound2 (>= 1.0.27), libc6 (>= 2.15), libjack-jackd2-0 (>= 1.9.5~dfsg-14) | libjack-0.116, libpulse0 (>= 0.99.1), libsamplerate0 (>= 0.1.7), libspeexdsp1 (>= 1.2~beta3.2-1)
+Filename: ./libasound2-plugins_1.1.1-1ubuntu1_i386.deb
+Size: 57232
+MD5sum: a24f27f8b9b750c87e23b7d85aefa379
+SHA1: b8b3eb6ea4a2dc23a54a8ab58a809d176553ac23
+SHA256: e4419dd9417d236c3e69b78fa023ec7fa1f11f40bc31a479bfe4f5e6ce01d7a4
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.alsa-project.org/
+Description: ALSA library additional plugins
+ This package contains plugins for the ALSA library that are
+ not included in the main libasound2 package.
+ .
+ The following plugins are included, among other:
+   - jack: play or capture via JACK
+   - oss: run native ALSA apps on OSS drivers
+   - pulse: play or capture via Pulse Audio
+   - samplerate and speexrate: rate converters
+   - upmix and vdownmix: convert from/to 2 and 4/6 channel streams
+ .
+ ALSA is the Advanced Linux Sound Architecture.
+Original-Maintainer: Debian ALSA Maintainers <pkg-alsa-devel@lists.alioth.debian.org>
+
+Package: libasyncns0
+Source: libasyncns
+Version: 0.8-6
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 39
+Depends: libc6 (>= 2.15)
+Filename: ./libasyncns0_0.8-6_i386.deb
+Size: 12518
+MD5sum: 3aa1c5e237b6a4ea284585f6c33acb19
+SHA1: 8432eb572e4009548d3e0d32881d05234c69673a
+SHA256: 736a48ede88aad56cd50e1c876a7118cb275833df3deab767b290846ad323795
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://0pointer.de/lennart/projects/libasyncns/
+Description: Asynchronous name service query library
+ libasyncns is a C library for Linux/Unix for executing name service queries
+ asynchronously. It is an asynchronous wrapper around getaddrinfo(3),
+ getnameinfo(3), res_query(3) and res_search(3) from libc and libresolv.
+Original-Maintainer: Tanguy Ortolo <tanguy+debian@ortolo.eu>
+
 Package: libatomic1
 Source: gcc-8
 Version: 8.4.0-1ubuntu1~18.04
@@ -3216,6 +3376,85 @@ Description: support library providing __atomic built-in functions
  library providing __atomic built-in functions. When an atomic call cannot
  be turned into lock-free instructions, GCC will make calls into this library.
 Original-Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+
+Package: libavahi-client3
+Source: avahi
+Version: 0.7-3.1ubuntu1.3
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 131
+Depends: libavahi-common3 (>= 0.6.22), libc6 (>= 2.4), libdbus-1-3 (>= 1.9.14)
+Filename: ./libavahi-client3_0.7-3.1ubuntu1.3_i386.deb
+Size: 27036
+MD5sum: ae14162c5a96315ba9ad26a536ea098c
+SHA1: e5569bbc39ca1a230581cfb5975a6829f48c1336
+SHA256: 7fed7bf662df0c28fe6162738208b1244bf3946e18ba0c2aacf10edb754b6670
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://avahi.org/
+Description: Avahi client library
+ Avahi is a fully LGPL framework for Multicast DNS Service Discovery.
+ It allows programs to publish and discover services and hosts
+ running on a local network with no specific configuration. For
+ example you can plug into a network and instantly find printers to
+ print to, files to look at and people to talk to.
+ .
+ This package contains the library for Avahi's C API which  allows you
+ to integrate mDNS/DNS-SD functionality into your application.
+Original-Maintainer: Utopia Maintenance Team <pkg-utopia-maintainers@lists.alioth.debian.org>
+
+Package: libavahi-common-data
+Source: avahi
+Version: 0.7-3.1ubuntu1.3
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 112
+Filename: ./libavahi-common-data_0.7-3.1ubuntu1.3_i386.deb
+Size: 22172
+MD5sum: ac163d0599340a7f8c5f7cbf9bdabaca
+SHA1: 9b7c4358e1a74d61bd3e78e89ad2a6eaff6972d9
+SHA256: facf5d8d648b9cdf4175ae42c7983bde0597a761b16c948479eba94d8c450876
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://avahi.org/
+Description: Avahi common data files
+ Avahi is a fully LGPL framework for Multicast DNS Service Discovery.
+ It allows programs to publish and discover services and hosts
+ running on a local network with no specific configuration. For
+ example you can plug into a network and instantly find printers to
+ print to, files to look at and people to talk to.
+ .
+ This package contains common data files for avahi.
+Original-Maintainer: Utopia Maintenance Team <pkg-utopia-maintainers@lists.alioth.debian.org>
+
+Package: libavahi-common3
+Source: avahi
+Version: 0.7-3.1ubuntu1.3
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 108
+Depends: libc6 (>= 2.4), libavahi-common-data
+Filename: ./libavahi-common3_0.7-3.1ubuntu1.3_i386.deb
+Size: 23248
+MD5sum: 2a76228401338a77e5b21696cb765b09
+SHA1: ee156ec2ba153e5be2458cbd4160290a5e9e8514
+SHA256: b2f71f3d57d901f217c718df2afaa2fa31794a5a78baaed65d1d32beed95ab98
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://avahi.org/
+Description: Avahi common library
+ Avahi is a fully LGPL framework for Multicast DNS Service Discovery.
+ It allows programs to publish and discover services and hosts
+ running on a local network with no specific configuration. For
+ example you can plug into a network and instantly find printers to
+ print to, files to look at and people to talk to.
+ .
+ This package contains the Avahi common library, which is a set of common
+ functions used by many of Avahis components and client applications.
+Original-Maintainer: Utopia Maintenance Team <pkg-utopia-maintainers@lists.alioth.debian.org>
 
 Package: libbind9-160
 Source: bind9
@@ -3293,6 +3532,28 @@ Description: Basic Linear Algebra Reference implementations, shared library
  This package contains a shared version of the library.
 Original-Maintainer: Debian Science Team <debian-science-maintainers@lists.alioth.debian.org>
 
+Package: libblkid1
+Source: util-linux
+Version: 2.31.1-0.4ubuntu3.7
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 436
+Depends: libc6 (>= 2.25), libuuid1 (>= 2.16)
+Filename: ./libblkid1_2.31.1-0.4ubuntu3.7_i386.deb
+Size: 139580
+MD5sum: a649fdf84e09c395c78210195f6a2886
+SHA1: 0e56dbc4de5b99f744d34365f3f7d24f11e208fd
+SHA256: 4e842b50e84186702187de26ebe7ffd792a31192c610793d1fa020ae5ca35f6d
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: block device ID library
+ The blkid library allows system programs such as fsck and mount to
+ quickly and easily find block devices by filesystem UUID or label.
+ This allows system administrators to avoid specifying filesystems by
+ hard-coded device names and use a logical naming system instead.
+Original-Maintainer: LaMont Jones <lamont@debian.org>
+
 Package: libbluetooth3
 Source: bluez
 Version: 5.48-0ubuntu3.9
@@ -3315,6 +3576,30 @@ Description: Library to use the BlueZ Linux Bluetooth stack
  BlueZ is the official Linux Bluetooth protocol stack. It is an Open Source
  project distributed under GNU General Public License (GPL).
 Original-Maintainer: Debian Bluetooth Maintainers <pkg-bluetooth-maintainers@lists.alioth.debian.org>
+
+Package: libbsd0
+Source: libbsd
+Version: 0.8.7-1ubuntu0.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 193
+Depends: libc6 (>= 2.25)
+Filename: ./libbsd0_0.8.7-1ubuntu0.1_i386.deb
+Size: 44740
+MD5sum: ad1188782ee5ea4cf8f822c1c71f0976
+SHA1: fe1178ab5f9ae634540707ec14774f766d221831
+SHA256: a538cd05e57fd37f8ab30151be91091ed447e778cef4b0bc24ac34574c626798
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://libbsd.freedesktop.org/
+Description: utility functions from BSD systems - shared library
+ This library provides some C functions such as strlcpy() that are commonly
+ available on BSD systems but not on others like GNU systems.
+ .
+ For a detailed list of the provided functions, please see the libbsd-dev
+ package description.
+Original-Maintainer: Guillem Jover <guillem@debian.org>
 
 Package: libc-bin
 Source: glibc
@@ -3474,6 +3759,109 @@ Description: colour ASCII art library
  .
  This package contains the shared library for libcaca.
 Original-Maintainer: Sam Hocevar <sho@debian.org>
+
+Package: libcairo2
+Source: cairo
+Version: 1.15.10-2ubuntu0.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 1504
+Depends: libc6 (>= 2.11), libfontconfig1 (>= 2.12), libfreetype6 (>= 2.7.1), libpixman-1-0 (>= 0.30.0), libpng16-16 (>= 1.6.2-1), libx11-6, libxcb-render0, libxcb-shm0, libxcb1 (>= 1.6), libxext6, libxrender1, zlib1g (>= 1:1.1.4)
+Breaks: libwebkit2gtk-3.0-25 (<< 2.4.5-2~), libwebkitgtk-1.0-0 (<< 2.4.5-2~), libwebkitgtk-3.0-0 (<< 2.4.5-2~), weston (<< 1.5.0-3~)
+Filename: ./libcairo2_1.15.10-2ubuntu0.1_i386.deb
+Size: 636068
+MD5sum: b4e9f12dac8c494e100a1908e4a9791d
+SHA1: 87031daf353467ec3875268fd0e9ab327a2410ce
+SHA256: f67f35091db618b07559606d697c4baed957968f7863ab1fd52758216a18c4ed
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://cairographics.org/
+Description: Cairo 2D vector graphics library
+ Cairo is a multi-platform library providing anti-aliased
+ vector-based rendering for multiple target backends. Paths consist
+ of line segments and cubic splines and can be rendered at any width
+ with various join and cap styles. All colors may be specified with
+ optional translucence (opacity/alpha) and combined using the
+ extended Porter/Duff compositing algebra as found in the X Render
+ Extension.
+ .
+ Cairo exports a stateful rendering API similar in spirit to the path
+ construction, text, and painting operators of PostScript, (with the
+ significant addition of translucence in the imaging model). When
+ complete, the API is intended to support the complete imaging model of
+ PDF 1.4.
+ .
+ This package contains the shared libraries.
+Original-Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
+
+Package: libcap2
+Version: 1:2.25-1.2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 41
+Depends: libc6 (>= 2.4)
+Filename: ./libcap2_1%3a2.25-1.2_i386.deb
+Size: 13392
+MD5sum: 473a8b9361565eedb7711f7d8663f7f4
+SHA1: bc5dcd57f817cdf2d1068ed29fb990ac712203be
+SHA256: 019b66d2b201df7be661d9ec556f09cb5aeb9c399a8b5002bb770915c5960c95
+Section: libs
+Priority: important
+Multi-Arch: same
+Homepage: http://sites.google.com/site/fullycapable/
+Description: POSIX 1003.1e capabilities (library)
+ Libcap implements the user-space interfaces to the POSIX 1003.1e capabilities
+ available in Linux kernels. These capabilities are a partitioning of the all
+ powerful root privilege into a set of distinct privileges.
+ .
+ This package contains the shared library.
+Original-Maintainer: Christian Kastner <ckk@debian.org>
+
+Package: libcapi20-3
+Version: 1:3.27-3
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 117
+Depends: libc6 (>= 2.15)
+Filename: ./libcapi20-3_1%3a3.27-3_amd64.deb
+Size: 28440
+MD5sum: 723120714bfa534ac28d420971332648
+SHA1: 6b656fcb70a95d651c5c47c8829775665de87b71
+SHA256: 5f6db63e7b2a119c513f6b457730f03d56e130b2a06db2c42631a42752af6765
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.isdn4linux.de
+Description: ISDN utilities - CAPI support libraries
+ Handle requests from CAPI-driven applications such as fax systems via active
+ and passive ISDN cards.
+Original-Maintainer: Rolf Leggewie <foss@rolf.leggewie.biz>
+
+Package: libcdparanoia0
+Source: cdparanoia
+Version: 3.10.2+debian-13
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 152
+Depends: libc6 (>= 2.15)
+Filename: ./libcdparanoia0_3.10.2+debian-13_i386.deb
+Size: 53440
+MD5sum: 7f6fcb32e52d2f3e20d425be0e367d9e
+SHA1: ed4e0c293b0f2d32df1ff1ad9f1fb60ffd981159
+SHA256: caacdb92f19b716ff86659b63fa7fcf7703286765f85a037271071017ced52e8
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.xiph.org/paranoia/
+Description: audio extraction tool for sampling CDs (library)
+ An audio extraction tool for sampling CDs. Unlike similar programs such as
+ cdda2wav, cdparanoia goes to great lengths to try to extract the audio
+ information without any artifacts such as jitter.
+ .
+ This package contains the library of cdparanoia, so that its routines
+ can be used by other programs.
+Original-Maintainer: Optical Media Tools Team <pkg-opt-media-team@lists.alioth.debian.org>
 
 Package: libcilkrts5
 Source: gcc-7
@@ -3711,6 +4099,27 @@ Description: easy-to-use client-side URL transfer library (GnuTLS flavour)
  SSL support is provided by GnuTLS.
 Original-Maintainer: Alessandro Ghedini <ghedo@debian.org>
 
+Package: libdb5.3
+Source: db5.3
+Version: 5.3.28-13.1ubuntu1.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 1980
+Depends: libc6 (>= 2.17)
+Filename: ./libdb5.3_5.3.28-13.1ubuntu1.1_i386.deb
+Size: 737720
+MD5sum: b015b81b523ad48905f665a11e8b83c1
+SHA1: 2b9fa549385f01b3bd5b79697ea55320778cfb78
+SHA256: b6fceaffaa9744c3a0a9c6ad483af8f602bedfe2e06c121f5d0836d54fb15a56
+Section: libs
+Priority: standard
+Multi-Arch: same
+Homepage: http://www.oracle.com/technetwork/database/database-technologies/berkeleydb/overview/index.html
+Description: Berkeley v5.3 Database Libraries [runtime]
+ This is the runtime package for programs that use the v5.3 Berkeley
+ database library.
+Original-Maintainer: Debian Berkeley DB Group <pkg-db-devel@lists.alioth.debian.org>
+
 Package: libdbus-1-3
 Source: dbus
 Version: 1.12.2-1ubuntu1.4
@@ -3857,6 +4266,176 @@ Description: Dpkg perl modules
  modules.
 Original-Maintainer: Dpkg Developers <debian-dpkg@lists.debian.org>
 
+Package: libdrm-amdgpu1
+Source: libdrm
+Version: 2.4.101-2~18.04.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 82
+Depends: libc6 (>= 2.17), libdrm2 (>= 2.4.101)
+Filename: ./libdrm-amdgpu1_2.4.101-2~18.04.1_i386.deb
+Size: 21272
+MD5sum: 48f4e69739adce253c94d174b2dda099
+SHA1: 4a406bdd4372b78b52b37a56c6dc01ccad6998fb
+SHA256: 2130d9c413d8f22299e8135bb7b1c83dcd6df1b1075fd372ebc15a25a3c5c6ac
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://cgit.freedesktop.org/mesa/drm/
+Description: Userspace interface to amdgpu-specific kernel DRM services -- runtime
+ This library implements the userspace interface to the kernel DRM
+ services.  DRM stands for "Direct Rendering Manager", which is the
+ kernelspace portion of the "Direct Rendering Infrastructure" (DRI).
+ The DRI is currently used on Linux to provide hardware-accelerated
+ OpenGL drivers.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libdrm-intel1
+Source: libdrm
+Version: 2.4.101-2~18.04.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 192
+Depends: libc6 (>= 2.17), libdrm2 (>= 2.4.38), libpciaccess0
+Filename: ./libdrm-intel1_2.4.101-2~18.04.1_i386.deb
+Size: 63700
+MD5sum: d89b64f717bf6290639c9fe84ad5576e
+SHA1: 8ea5303dc08102b6a6a1fa19ac54b3af08be2fbc
+SHA256: 45340b2b28aaaf7b8fb5da14519dc5045f70453395f62727972ae486ab8e92ea
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://cgit.freedesktop.org/mesa/drm/
+Description: Userspace interface to intel-specific kernel DRM services -- runtime
+ This library implements the userspace interface to the kernel DRM
+ services.  DRM stands for "Direct Rendering Manager", which is the
+ kernelspace portion of the "Direct Rendering Infrastructure" (DRI).
+ The DRI is currently used on Linux to provide hardware-accelerated
+ OpenGL drivers.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libdrm-nouveau2
+Source: libdrm
+Version: 2.4.101-2~18.04.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 76
+Depends: libc6 (>= 2.4), libdrm2 (>= 2.4.38)
+Filename: ./libdrm-nouveau2_2.4.101-2~18.04.1_i386.deb
+Size: 18244
+MD5sum: dd4713088e8ed5322650954ef39a0afc
+SHA1: 213c64da4c4ccc9b256f1c933343398a70aa54e9
+SHA256: e5dbb8b4d3642781d07f25883af492a6c6b13d9a3694cff907ead553e9dccf78
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://cgit.freedesktop.org/mesa/drm/
+Description: Userspace interface to nouveau-specific kernel DRM services -- runtime
+ This library implements the userspace interface to the kernel DRM
+ services.  DRM stands for "Direct Rendering Manager", which is the
+ kernelspace portion of the "Direct Rendering Infrastructure" (DRI).
+ The DRI is currently used on Linux to provide hardware-accelerated
+ OpenGL drivers.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libdrm-radeon1
+Source: libdrm
+Version: 2.4.101-2~18.04.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 89
+Depends: libc6 (>= 2.4), libdrm2 (>= 2.4.38)
+Filename: ./libdrm-radeon1_2.4.101-2~18.04.1_i386.deb
+Size: 23112
+MD5sum: a4c4f4d434f198009a57518f46f0c71a
+SHA1: 16ddd5626a4d5db70c9387a95885236d3cb56113
+SHA256: c5a7fff7a0fd26b28d7bd7ea6bb30a57794a53275d722c5c29a5f957bede7256
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://cgit.freedesktop.org/mesa/drm/
+Description: Userspace interface to radeon-specific kernel DRM services -- runtime
+ This library implements the userspace interface to the kernel DRM
+ services.  DRM stands for "Direct Rendering Manager", which is the
+ kernelspace portion of the "Direct Rendering Infrastructure" (DRI).
+ The DRI is currently used on Linux to provide hardware-accelerated
+ OpenGL drivers.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libdrm2
+Source: libdrm
+Version: 2.4.101-2~18.04.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 122
+Depends: libdrm-common (>= 2.4.101-2~18.04.1), libc6 (>= 2.17)
+Filename: ./libdrm2_2.4.101-2~18.04.1_i386.deb
+Size: 35184
+MD5sum: 62fe7df187d908a8e0c9d86ecb4168a8
+SHA1: 094d624af1ea6b6ca8dc15156ce55a392977419f
+SHA256: 8f23c2872c8135ef9d5279b74327d4e2ffa937a6902301bde06999fed79827ff
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://cgit.freedesktop.org/mesa/drm/
+Description: Userspace interface to kernel DRM services -- runtime
+ This library implements the userspace interface to the kernel DRM
+ services.  DRM stands for "Direct Rendering Manager", which is the
+ kernelspace portion of the "Direct Rendering Infrastructure" (DRI).
+ The DRI is currently used on Linux to provide hardware-accelerated
+ OpenGL drivers.
+ .
+ This package provides the runtime environment for libdrm.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libedit2
+Source: libedit
+Version: 3.1-20170329-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 237
+Depends: libc6 (>= 2.17), libtinfo5 (>= 6)
+Filename: ./libedit2_3.1-20170329-1_i386.deb
+Size: 80422
+MD5sum: 443ad3161c74b6340a93526c890f3fc1
+SHA1: 254507b63d8aef6dfd6dcca5e39fdee1c59168ff
+SHA256: 36e8167031bca190a14a3f0fab227cb0ec3374186f78ca1e5094fcb5285f5c83
+Section: libs
+Priority: standard
+Multi-Arch: same
+Homepage: http://www.thrysoee.dk/editline/
+Description: BSD editline and history libraries
+ Command line editor library provides generic line editing,
+ history, and tokenization functions.
+ .
+ It slightly resembles GNU readline.
+Original-Maintainer: LLVM Packaging Team <pkg-llvm-team@lists.alioth.debian.org>
+
+Package: libelf1
+Source: elfutils
+Version: 0.170-0.4ubuntu0.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 192
+Depends: libc6 (>= 2.4), zlib1g (>= 1:1.1.4)
+Filename: ./libelf1_0.170-0.4ubuntu0.1_i386.deb
+Size: 51400
+MD5sum: ae262397a310c441b6850d7e4becf0f1
+SHA1: 116ffb7617229a9400cdd72e7a6f19b4b87d4130
+SHA256: f0913c2b677afff6b6701dd884da0df254cf9e231fca65190233a80a423433e0
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://sourceware.org/elfutils/
+Description: library to read and write ELF files
+ The libelf1 package provides a shared library which allows reading and
+ writing ELF files on a high level.  Third party programs depend on
+ this package to read internals of ELF files.  The programs of the
+ elfutils package use it also to generate new ELF files.
+ .
+ This library is part of elfutils.
+Original-Maintainer: Kurt Roeckx <kurt@roeckx.be>
+
 Package: liberror-perl
 Version: 0.17025-1
 Architecture: all
@@ -3939,6 +4518,28 @@ Description: library to parse XMP metadata (Library)
  using a subset of RDF. Most notably XMP supports embedding metadata in PDF
  and many image formats, though it is designed to support nearly any file type.
 Original-Maintainer: Michael Biebl <biebl@debian.org>
+
+Package: libexif12
+Source: libexif
+Version: 0.6.21-4ubuntu0.6
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 312
+Depends: libc6 (>= 2.4)
+Filename: ./libexif12_0.6.21-4ubuntu0.6_i386.deb
+Size: 76956
+MD5sum: 9694c6d4ea6191a5a179ae49be53979b
+SHA1: 7a86b5c068f28887d12e74811b1ef0b991b37f31
+SHA256: d5d153a17f34feff317869d8271355bd86bb0d802a1a87462aa39fa63cb9e0f9
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://libexif.sourceforge.net/
+Description: library to parse EXIF files
+ Most digital cameras produce EXIF files, which are JPEG files with
+ extra tags that contain information about the image. The EXIF library
+ allows you to parse an EXIF file and read the data from those tags.
+Original-Maintainer: Debian PhotoTools Maintainers <pkg-phototools-devel@lists.alioth.debian.org>
 
 Package: libexpat1
 Source: expat
@@ -4049,6 +4650,27 @@ Description: tool for simulating superuser privileges - shared libraries
  This package contains the LD_PRELOAD libraries.
 Original-Maintainer: Clint Adams <clint@debian.org>
 
+Package: libffi6
+Source: libffi
+Version: 3.2.1-8
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 51
+Depends: libc6 (>= 2.7)
+Filename: ./libffi6_3.2.1-8_i386.deb
+Size: 17228
+MD5sum: e816b176f70d3d1922ba2424b5cc8371
+SHA1: 2ab8102e27b709d21a6975920543e1d5ba84b474
+SHA256: 7ad8bafe680503f215109469ec5a95db8506015d04ad4f99902d40c29c6f3172
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: Foreign Function Interface library runtime
+ A foreign function interface is the popular name for the interface that
+ allows code written in one language to call code written in another
+ language.
+Original-Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+
 Package: libflac8
 Source: flac
 Version: 1.3.2-1ubuntu0.1
@@ -4079,6 +4701,55 @@ Description: Free Lossless Audio Codec - runtime C library
  .
  This package contains the runtime library libFLAC.
 Original-Maintainer: Debian Multimedia Maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
+
+Package: libfont-ttf-perl
+Version: 1.06-1
+Architecture: all
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 1008
+Depends: perl, libio-string-perl
+Suggests: libxml-parser-perl
+Filename: ./libfont-ttf-perl_1.06-1_all.deb
+Size: 312880
+MD5sum: 422779442d359022b75c8b1c7a94ee48
+SHA1: 091e1bdda3eb08f29160ac3d9c1165b37b66564f
+SHA256: 48a853e7660c09a3cf66829f0d9b1ed761b16da8f669f088f19f802c9167fdff
+Section: perl
+Priority: optional
+Homepage: https://metacpan.org/release/Font-TTF
+Description: Perl module for TrueType font hacking
+ Font::TTF module supports reading, processing and writing many different
+ table formats for TrueType fonts. You can do almost anything with a
+ TrueType font with this module.
+Original-Maintainer: Debian Perl Group <pkg-perl-maintainers@lists.alioth.debian.org>
+
+Package: libfontconfig1
+Source: fontconfig
+Version: 2.12.6-0ubuntu2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 572
+Depends: libc6 (>= 2.7), libexpat1 (>= 2.0.1), libfreetype6 (>= 2.2.1), fontconfig-config (>= 2.12.6-0ubuntu2)
+Breaks: xpdf (<= 3.03-11)
+Provides: libfontconfig
+Filename: ./libfontconfig1_2.12.6-0ubuntu2_i386.deb
+Size: 145880
+MD5sum: ce675b01c6ed5389ec04e20f2fbdafac
+SHA1: 9e5b603803c98a94bb790320dceb83b477bdf912
+SHA256: f4324b87b99f1750241d9b61d2a0658ccc76ff8d85e539d4f7f4a07723941119
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://www.freedesktop.org/wiki/Software/fontconfig/
+Description: generic font configuration library - runtime
+ Fontconfig is a font configuration and customization library, which
+ does not depend on the X Window System. It is designed to locate
+ fonts within the system and select them according to requirements
+ specified by applications.
+ .
+ This package contains the runtime library needed to launch applications
+ using fontconfig.
+Original-Maintainer: Keith Packard <keithp@debian.org>
 
 Package: libfontconfig1-dev
 Source: fontconfig
@@ -4327,6 +4998,29 @@ Description: GCC support library (development files)
  building C programs which use libgcc, libgomp, libquadmath, libssp or libitm.
 Original-Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
 
+Package: libgcc1
+Source: gcc-8 (8.4.0-1ubuntu1~18.04)
+Version: 1:8.4.0-1ubuntu1~18.04
+Architecture: i386
+Maintainer: Ubuntu Core developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 131
+Depends: gcc-8-base (= 8.4.0-1ubuntu1~18.04), libc6 (>= 2.2.4)
+Breaks: gcc-4.3 (<< 4.3.6-1), gcc-4.4 (<< 4.4.6-4), gcc-4.5 (<< 4.5.3-2)
+Filename: ./libgcc1_1%3a8.4.0-1ubuntu1~18.04_i386.deb
+Size: 48308
+MD5sum: e5164d56114a604adc06b1391d061140
+SHA1: 13f1a5ee1458bd711df066044f7e58b309e3ab94
+SHA256: ee616604c668fbcf6e014c49668cb44cd19cc6f8dc57297a09d7fcd93f662117
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://gcc.gnu.org/
+Description: GCC support library
+ Shared version of the support library, a library of internal subroutines
+ that GCC uses to overcome shortcomings of particular machines, or
+ special needs for some languages.
+Original-Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+
 Package: libgcrypt20
 Version: 1.8.1-4ubuntu1.3
 Architecture: amd64
@@ -4354,6 +5048,33 @@ Description: LGPL Crypto library - runtime library
  SHAKE128, SHAKE256, Tiger, Whirlpool, DSA, DSA2, ElGamal, RSA, ECC
  (Curve25519, sec256k1, GOST R 34.10-2001 and GOST R 34.10-2012, etc.)
 Original-Maintainer: Debian GnuTLS Maintainers <pkg-gnutls-maint@lists.alioth.debian.org>
+
+Package: libgd3
+Source: libgd2
+Version: 2.2.5-4ubuntu0.5
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 445
+Depends: libc6 (>= 2.11), libfontconfig1 (>= 2.12), libfreetype6 (>= 2.2.1), libjpeg8 (>= 8c), libpng16-16 (>= 1.6.2-1), libtiff5 (>= 4.0.3), libwebp6 (>= 0.5.1), libxpm4, zlib1g (>= 1:1.1.4)
+Suggests: libgd-tools
+Filename: ./libgd3_2.2.5-4ubuntu0.5_i386.deb
+Size: 123048
+MD5sum: 04caf079803d65ef9f9b128e92ce9dfb
+SHA1: 41eeddf0436ed1dd539b6c0c72434a03e6d9dba8
+SHA256: 3eb513ace9e8c28b3dde1cd94047468c03b8b9fa85aa9c4f50becec99e96ea2b
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.libgd.org/
+Description: GD Graphics Library
+ GD is a graphics library. It allows your code to quickly draw images
+ complete with lines, arcs, text, multiple colours, cut and paste from
+ other images, flood fills, and write out the result as a PNG file.
+ This is particularly useful in World Wide Web applications, where PNG is
+ one of the formats accepted for inline images by most browsers.
+ .
+ This is the runtime package of the library.
+Original-Maintainer: GD team <pkg-gd-devel@lists.alioth.debian.org>
 
 Package: libgif-dev
 Source: giflib
@@ -4399,6 +5120,101 @@ Description: library for GIF images (library)
  .
  This package contains the library.
 Original-Maintainer: Debian QA Group <packages@qa.debian.org>
+
+Package: libgl1
+Source: libglvnd
+Version: 1.0.0-2ubuntu2.3
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 498
+Depends: libc6 (>= 2.4), libglvnd0 (= 1.0.0-2ubuntu2.3), libglx0 (= 1.0.0-2ubuntu2.3)
+Breaks: glx-diversions (<< 0.8), libgl1-mesa-glx (<< 18.0.5-0ubuntu0~18.04), libglvnd0 (<< 0.2.999+git20170201-1)
+Replaces: libgl1-mesa-glx (<< 18.0.5-0ubuntu0~18.04), libglvnd0 (<< 0.2.999+git20170201-1)
+Filename: ./libgl1_1.0.0-2ubuntu2.3_i386.deb
+Size: 78560
+MD5sum: bc3e0719b189fea0f9aea0194b3234c2
+SHA1: eebdec2e07c36c10798aa6fda9136109a5a92bef
+SHA256: 27aa70d4ba55f8ea15c07022454408c4f02a6188ec326be02c8d28dd210b6ac0
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://github.com/NVIDIA/libglvnd
+Description: Vendor neutral GL dispatch library -- legacy GL support
+ This is an implementation of the vendor-neutral dispatch layer for
+ arbitrating OpenGL API calls between multiple vendors on a per-screen basis.
+ .
+ This package contains support for old libGL for compatibility reasons.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libgl1-mesa-dri
+Source: mesa
+Version: 20.0.8-0ubuntu1~18.04.1
+Architecture: i386
+Maintainer: Ubuntu X-SWAT <ubuntu-x@lists.ubuntu.com>
+Installed-Size: 261334
+Depends: libc6 (>= 2.27), libdrm-amdgpu1 (>= 2.4.100), libdrm-intel1 (>= 2.4.38), libdrm-nouveau2 (>= 2.4.66), libdrm-radeon1 (>= 2.4.31), libdrm2 (>= 2.4.75), libelf1 (>= 0.142), libexpat1 (>= 2.0.1), libgcc1 (>= 1:4.2), libglapi-mesa (= 20.0.8-0ubuntu1~18.04.1), libllvm10 (>= 1:9~svn298832-1~), libsensors4 (>= 1:3.0.0), libstdc++6 (>= 5.2), libzstd1 (>= 1.3.2), zlib1g (>= 1:1.1.4)
+Filename: ./libgl1-mesa-dri_20.0.8-0ubuntu1~18.04.1_i386.deb
+Size: 9890468
+MD5sum: d6e20c54abbe03e751fbecbfa8234a0d
+SHA1: 24d23138b351ec560fc3c9bbd266b5af52efb2f6
+SHA256: a98b3bee2fbcc624450e51196bb8dffa23eb21b8328c4b7b32e35dba4ae4554b
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://mesa3d.org/
+Description: free implementation of the OpenGL API -- DRI modules
+ This version of Mesa provides GLX and DRI capabilities: it is capable of
+ both direct and indirect rendering.  For direct rendering, it can use DRI
+ modules from the libgl1-mesa-dri package to accelerate drawing.
+ .
+ This package does not include the OpenGL library itself, only the DRI
+ modules for accelerating direct rendering.
+ .
+ For a complete description of Mesa, please look at the
+ libglx-mesa0 package.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libgl1-mesa-glx
+Source: mesa
+Version: 20.0.8-0ubuntu1~18.04.1
+Architecture: i386
+Maintainer: Ubuntu X-SWAT <ubuntu-x@lists.ubuntu.com>
+Installed-Size: 78
+Depends: libgl1, libglx-mesa0
+Filename: ./libgl1-mesa-glx_20.0.8-0ubuntu1~18.04.1_i386.deb
+Size: 5532
+MD5sum: 40cac6ff4f623fe9a8d363758286fe9d
+SHA1: 36cac1af4ffd155e6523b1beee66ca27bbb2850b
+SHA256: 7b0db4f26c4d19a535bced392c3c43e1be09a162df37008c277eedd495c9b17c
+Section: oldlibs
+Priority: optional
+Multi-Arch: same
+Homepage: https://mesa3d.org/
+Description: transitional dummy package
+ This is a transitional dummy package, it can be safely removed.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libglapi-mesa
+Source: mesa
+Version: 20.0.8-0ubuntu1~18.04.1
+Architecture: i386
+Maintainer: Ubuntu X-SWAT <ubuntu-x@lists.ubuntu.com>
+Installed-Size: 238
+Depends: libc6 (>= 2.4)
+Filename: ./libglapi-mesa_20.0.8-0ubuntu1~18.04.1_i386.deb
+Size: 26668
+MD5sum: ace17df435067082caf8dadcc39bfbdf
+SHA1: 99d63bd848172c6b1eb320a8319bb44d61629867
+SHA256: 1bcea2ce65f56edbbf64d6fa90d1672d50f7c01db1b4cdd540b37c2031f499c4
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://mesa3d.org/
+Description: free implementation of the GL API -- shared library
+ The Mesa GL API module is responsible for dispatching all the gl*
+ functions. It is intended to be mainly used by both the libgles1-mesa
+ and libgles2-mesa packages.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 
 Package: libglib2.0-0
 Source: glib2.0
@@ -4474,6 +5290,123 @@ Description: Common files for GLib library
  languages other than English.
 Original-Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
 
+Package: libglu1-mesa
+Source: libglu
+Version: 9.0.0-2.1build1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 502
+Depends: libc6 (>= 2.11), libgcc1 (>= 1:3.0), libgl1-mesa-glx | libgl1, libstdc++6 (>= 4.1.1)
+Conflicts: libglu1, mesag3 (<< 5.0.0-1), xlibmesa3
+Replaces: libglu1
+Provides: libglu1
+Filename: ./libglu1-mesa_9.0.0-2.1build1_i386.deb
+Size: 177818
+MD5sum: 55f534f78faa03d57624e88a83216156
+SHA1: 8c7eb60697a80e51d938bc7f9aecd2ae0f248e3e
+SHA256: 8d4b3f583a9334f3c715afb8bec1f2e4d49504fd8f981118be7c162d694e2cbf
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: Mesa OpenGL utility library (GLU)
+ GLU offers simple interfaces for building mipmaps; checking for the
+ presence of extensions in the OpenGL (or other libraries which follow
+ the same conventions for advertising extensions); drawing
+ piecewise-linear curves, NURBS, quadrics and other primitives
+ (including, but not limited to, teapots); tesselating surfaces; setting
+ up projection matrices and unprojecting screen coordinates to world
+ coordinates.
+ .
+ On Linux, this library is also known as libGLU or libGLU.so.1.
+ .
+ This package provides the SGI implementation of GLU provided by the
+ Mesa project (ergo the "-mesa" suffix).
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libglvnd0
+Source: libglvnd
+Version: 1.0.0-2ubuntu2.3
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 335
+Depends: libc6 (>= 2.8)
+Breaks: libgldispatch0-nvidia
+Replaces: libgldispatch0-nvidia
+Filename: ./libglvnd0_1.0.0-2ubuntu2.3_i386.deb
+Size: 40420
+MD5sum: 8b3e141e9e5ce359ab0a9ae5c10b58c4
+SHA1: a6a5094d0871c55d3cb5b9c953013142511e481e
+SHA256: 575abb3d03f1f21c8db08c6701ceb91ebfffe91997c58a6997b5e4a9e0093af6
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://github.com/NVIDIA/libglvnd
+Description: Vendor neutral GL dispatch library
+ This is an implementation of the vendor-neutral dispatch layer for
+ arbitrating OpenGL API calls between multiple vendors on a per-screen basis.
+ .
+ This package contains the GL dispatch library.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libglx-mesa0
+Source: mesa
+Version: 20.0.8-0ubuntu1~18.04.1
+Architecture: i386
+Maintainer: Ubuntu X-SWAT <ubuntu-x@lists.ubuntu.com>
+Installed-Size: 610
+Depends: libc6 (>= 2.8), libdrm2 (>= 2.4.75), libexpat1 (>= 2.0.1), libglapi-mesa (= 20.0.8-0ubuntu1~18.04.1), libx11-6 (>= 2:1.4.99.1), libx11-xcb1, libxcb-dri2-0 (>= 1.8), libxcb-dri3-0 (>= 1.13), libxcb-glx0 (>= 1.8), libxcb-present0, libxcb-sync1, libxcb1 (>= 1.9.2), libxdamage1 (>= 1:1.1), libxext6, libxfixes3, libxshmfence1, libxxf86vm1, libgl1-mesa-dri
+Breaks: glx-diversions (<< 0.8.4~), libopengl-perl (<< 0.6704+dfsg-2), nvidia-304, nvidia-340 (<= 340.106-0ubuntu1), nvidia-384 (<< 390.25)
+Provides: libglx-vendor
+Filename: ./libglx-mesa0_20.0.8-0ubuntu1~18.04.1_i386.deb
+Size: 147856
+MD5sum: 948e0a36f035c02e251d71c29cbad411
+SHA1: c8715c5c490b39bfdd1694dbc004b2e1ef399225
+SHA256: 71d060be0ad8808b7bc31fa0d814f1a8272013833940c3b27d77fec0943788b5
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://mesa3d.org/
+Description: free implementation of the OpenGL API -- GLX vendor library
+ Mesa is a 3-D graphics library with an API which is very similar to
+ that of OpenGL.  To the extent that Mesa utilizes the OpenGL command
+ syntax or state machine, it is being used with authorization from
+ Silicon Graphics, Inc.  However, the authors make no claim that Mesa
+ is in any way a compatible replacement for OpenGL or associated with
+ Silicon Graphics, Inc.
+ .
+ This version of Mesa provides GLX and DRI capabilities: it is capable of
+ both direct and indirect rendering.  For direct rendering, it can use DRI
+ modules from the libgl1-mesa-dri package to accelerate drawing.
+ .
+ This package does not include the modules themselves: these can be found
+ in the libgl1-mesa-dri package.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libglx0
+Source: libglvnd
+Version: 1.0.0-2ubuntu2.3
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 93
+Depends: libc6 (>= 2.8), libglvnd0 (= 1.0.0-2ubuntu2.3), libx11-6 (>= 2:1.4.99.1), libglx-mesa0
+Breaks: libgl1-mesa-glx (<< 18.0.5-0ubuntu0~18.04), libglvnd0 (<< 0.2.999+git20170201-1)
+Replaces: libgl1-mesa-glx (<< 18.0.5-0ubuntu0~18.04), libglvnd0 (<< 0.2.999+git20170201-1)
+Filename: ./libglx0_1.0.0-2ubuntu2.3_i386.deb
+Size: 29572
+MD5sum: f1e6ef4a747222a993e94b8553d9f538
+SHA1: a1e5061b8cf1077f5c619771a08ae88a56286300
+SHA256: 7100ee74d3d134a3cb5bf748d19ded23aaf2e88974b984d933c05caaf6623717
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://github.com/NVIDIA/libglvnd
+Description: Vendor neutral GL dispatch library -- GLX support
+ This is an implementation of the vendor-neutral dispatch layer for
+ arbitrating OpenGL API calls between multiple vendors on a per-screen basis.
+ .
+ This package contains support for GLX.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
 Package: libgmp10
 Source: gmp
 Version: 2:6.1.2+dfsg-2ubuntu0.1
@@ -4536,6 +5469,107 @@ Description: GNU TLS library - main runtime library
  This package contains the main runtime library.
 Original-Maintainer: Debian GnuTLS Maintainers <pkg-gnutls-maint@lists.alioth.debian.org>
 
+Package: libgpg-error0
+Source: libgpg-error
+Version: 1.27-6
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 172
+Depends: libc6 (>= 2.15)
+Filename: ./libgpg-error0_1.27-6_i386.deb
+Size: 41420
+MD5sum: 50852c984eee85cae78481e7c4d94326
+SHA1: 558cd90e45d41db94385ffee1cea7ba0725d09f2
+SHA256: 1a4d9152fc0ac9c66220c37b9b6375165ff9844c81baa152cb1ba39d9b0fbe57
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://www.gnupg.org/related_software/libgpg-error/
+Description: library for common error values and messages in GnuPG components
+ Library that defines common error values for all GnuPG
+ components.  Among these are GPG, GPGSM, GPGME, GPG-Agent, libgcrypt,
+ pinentry, SmartCard Daemon and possibly more in the future.
+Original-Maintainer: Debian GnuPG Maintainers <pkg-gnupg-maint@lists.alioth.debian.org>
+
+Package: libgphoto2-6
+Source: libgphoto2
+Version: 2.5.16-2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 3727
+Depends: libc6 (>= 2.15), libexif12 (>= 0.6.21-1~), libgd3 (>= 2.1.0~alpha~), libgphoto2-port12 (>= 2.5.10), libjpeg8 (>= 8c), libltdl7 (>= 2.4.6), libxml2 (>= 2.7.4)
+Recommends: libgphoto2-l10n (>= 2.5.16-2)
+Suggests: gphoto2 (>= 2.5.7)
+Filename: ./libgphoto2-6_2.5.16-2_i386.deb
+Size: 860140
+MD5sum: 36e6d52ee86c5d52b3b8ef63d8eaf1d5
+SHA1: c02e9722556a6f85af061486796cafbbff2d31ad
+SHA256: 42d133518e2cdd02f799b063fd65889d0582b136800cc3c527ee7ae55a76cc07
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://github.com/gphoto/libgphoto2/
+Description: gphoto2 digital camera library
+ The gphoto2 library can be used by applications to access various
+ digital camera models, via standard protocols such as USB Mass Storage
+ and PTP, or vendor-specific protocols.
+ .
+ This package contains the library.
+ .
+ The gphoto2 command-line frontend is shipped separately, in the gphoto2
+ package.
+Original-Maintainer: Debian PhotoTools Maintainers <pkg-phototools-devel@lists.alioth.debian.org>
+
+Package: libgphoto2-port12
+Source: libgphoto2
+Version: 2.5.16-2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 304
+Depends: libc6 (>= 2.15), libltdl7 (>= 2.4.6), libusb-1.0-0 (>= 2:1.0.8)
+Suggests: gphoto2 (>= 2.5.7)
+Breaks: libgphoto2-port10 (>= 2.5.7)
+Replaces: libgphoto2-port10 (>= 2.5.7)
+Filename: ./libgphoto2-port12_2.5.16-2_i386.deb
+Size: 51976
+MD5sum: 7f3c0fb89247833046431f5f0bc170bb
+SHA1: 7f62a7815e43eca9e84da570609fbbfaafc6aa46
+SHA256: 9de7d51b6fe9a8f91217189ad32b6d40406e4da56ee09533984def3b342b2fd1
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://github.com/gphoto/libgphoto2/
+Description: gphoto2 digital camera port library
+ The gphoto2 library can be used by applications to access various
+ digital camera models, via standard protocols such as USB Mass Storage
+ and PTP, or vendor-specific protocols.
+ .
+ This package contains the runtime code for port access.
+Original-Maintainer: Debian PhotoTools Maintainers <pkg-phototools-devel@lists.alioth.debian.org>
+
+Package: libgpm2
+Source: gpm
+Version: 1.20.7-5
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 59
+Depends: libc6 (>= 2.15)
+Suggests: gpm
+Filename: ./libgpm2_1.20.7-5_i386.deb
+Size: 15788
+MD5sum: 06266364e6d7ce0200d7d5c4c5958ce5
+SHA1: 2b60485d544b019f5ad8e689bae3e0f439616389
+SHA256: b9fd5310002a3d33e65f0fcd3f7ad70edee1decc1a9da495c9427a599deb5afc
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://nico.schottelius.org/software/gpm/
+Description: General Purpose Mouse - shared library
+ This package provides a library that handles mouse requests
+ and delivers them to applications. See the description for the 'gpm'
+ package for more information.
+Original-Maintainer: Axel Beckert <abe@debian.org>
+
 Package: libgs9
 Source: ghostscript
 Version: 9.26~dfsg+0-0ubuntu0.18.04.18
@@ -4591,6 +5625,42 @@ Description: interpreter for the PostScript language and for PDF - common files
  will be rendered as bullets.
 Original-Maintainer: Debian Printing Team <debian-printing@lists.debian.org>
 
+Package: libgsm1
+Source: libgsm
+Version: 1.0.13-4build1
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 72
+Depends: libc6 (>= 2.4)
+Conflicts: libgsm-dev
+Filename: ./libgsm1_1.0.13-4build1_amd64.deb
+Size: 22396
+MD5sum: 3990e06cd86d3bbdd5cbed67d3727d9c
+SHA1: da5f24ad5eee406d4d3a370342278ddbfec1115d
+SHA256: 05c74b04465e54f1b5cceb68bc7fb1620b8edce995fd6ad269f53f22254127cc
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: Shared libraries for GSM speech compressor
+ This package contains runtime shared libraries for libgsm, an
+ implementation of the European GSM 06.10 provisional standard for
+ full-rate speech transcoding, prI-ETS 300 036, which uses RPE/LTP
+ (residual pulse excitation/long term prediction) coding at 13 kbit/s.
+ .
+ GSM 06.10 compresses frames of 160 13-bit samples (8 kHz sampling
+ rate, i.e. a frame rate of 50 Hz) into 260 bits; for compatibility
+ with typical UNIX applications, our implementation turns frames of 160
+ 16-bit linear samples into 33-byte frames (1650 Bytes/s).
+ The quality of the algorithm is good enough for reliable speaker
+ recognition; even music often survives transcoding in recognizable
+ form (given the bandwidth limitations of 8 kHz sampling rate).
+ .
+ The interfaces offered are a front end modelled after compress(1), and
+ a library API.  Compression and decompression run faster than realtime
+ on most SPARCstations.  The implementation has been verified against the
+ ETSI standard test patterns.
+Original-Maintainer: Jochen Friedrich <jochen@scram.de>
+
 Package: libgssapi-krb5-2
 Source: krb5
 Version: 1.16-2ubuntu0.4
@@ -4645,6 +5715,38 @@ Description: Heimdal Kerberos - GSSAPI support library
  This package contains the library for GSSAPI support.
 Original-Maintainer: Brian May <bam@debian.org>
 
+Package: libgstreamer-plugins-base1.0-0
+Source: gst-plugins-base1.0
+Version: 1.14.5-0ubuntu1~18.04.3
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 2496
+Depends: libc6 (>= 2.7), libglib2.0-0 (>= 2.40), libgstreamer1.0-0 (>= 1.14.5), liborc-0.4-0 (>= 1:0.4.25), zlib1g (>= 1:1.1.4), iso-codes
+Recommends: gstreamer1.0-plugins-base
+Suggests: libvisual-0.4-plugins
+Conflicts: libgstreamer-plugins-bad1.0-0 (<< 1.13.1)
+Breaks: gstreamer1.0-plugins-bad (<< 1.7.1), libgstreamer-plugins-bad1.0-0 (<< 1.13.1), totem-gstreamer (<= 2.17.92-0ubuntu1)
+Filename: ./libgstreamer-plugins-base1.0-0_1.14.5-0ubuntu1~18.04.3_i386.deb
+Size: 712612
+MD5sum: 6ba8c92e6ddc56575bbcbf73f6146975
+SHA1: 8b14279cbe05266fad65be21c1da8dca74fcbc7d
+SHA256: 067dac066b363b986169f6cecf76e425a20140517778cd7857e5a0767cde6e44
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://gstreamer.freedesktop.org
+Description: GStreamer libraries from the "base" set
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Applications using this library can do
+ anything from real-time sound processing to playing videos, and just
+ about anything else media-related.  Its plugin-based architecture means
+ that new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains libraries from the "base" set, an essential
+ exemplary set of elements.
+Original-Maintainer: Maintainers of GStreamer packages <gst-plugins-base1.0@packages.debian.org>
+
 Package: libgstreamer-plugins-good1.0-0
 Source: gst-plugins-good1.0
 Version: 1.14.5-0ubuntu1~18.04.3
@@ -4674,6 +5776,35 @@ Description: GStreamer development files for libraries from the "good" set
  This package contains shared GStreamer libraries from the "good" set. The API
  is not guaranteed to be stable.
 Original-Maintainer: Maintainers of GStreamer packages <gst-plugins-good1.0@packages.debian.org>
+
+Package: libgstreamer1.0-0
+Source: gstreamer1.0
+Version: 1.14.5-0ubuntu1~18.04.2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 4072
+Depends: libc6 (>= 2.15), libcap2 (>= 1:2.10), libglib2.0-0 (>= 2.41.1), libcap2-bin
+Suggests: gstreamer1.0-tools
+Breaks: gstreamer1.0-plugins-bad (<< 1.11.1), gstreamer1.0-plugins-base (<< 1.8.0), libgstreamer-plugins-bad1.0-0 (<< 1.13.1)
+Filename: ./libgstreamer1.0-0_1.14.5-0ubuntu1~18.04.2_i386.deb
+Size: 898884
+MD5sum: ba9be25cf1dc3a3cdafdb0342f15917a
+SHA1: c9625b2e7009008b5c4b2d8b8cb6648381a1f047
+SHA256: e07a88382185c8f72a33d523f45c9d1b50389deda37592ba5fcaadb5308d1e34
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://gstreamer.freedesktop.org
+Description: Core GStreamer libraries and elements
+ GStreamer is a streaming media framework, based on graphs of filters
+ which operate on media data.  Applications using this library can do
+ anything from real-time sound processing to playing videos, and just
+ about anything else media-related.  Its plugin-based architecture means
+ that new data types or processing capabilities can be added simply by
+ installing new plug-ins.
+ .
+ This package contains the core library and elements.
+Original-Maintainer: Maintainers of GStreamer packages <gstreamer1.0@packages.debian.org>
 
 Package: libhcrypto4-heimdal
 Source: heimdal
@@ -4743,6 +5874,40 @@ Description: Heimdal Kerberos - NTLM support library
  .
  This package contains the NTLM support library.
 Original-Maintainer: Brian May <bam@debian.org>
+
+Package: libhogweed4
+Source: nettle
+Version: 3.4.1-0ubuntu0.18.04.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 239
+Depends: libc6 (>= 2.4), libgmp10 (>= 2:6.0.0), libnettle6 (= 3.4.1-0ubuntu0.18.04.1)
+Filename: ./libhogweed4_3.4.1-0ubuntu0.18.04.1_i386.deb
+Size: 141852
+MD5sum: 533aea1f411728ed0ffb34d936fa588a
+SHA1: 612b59f804dbc62346bff22cdee71c525dda9415
+SHA256: 67b36e59557c6c17c5092833973f4521e7180153053b8adf1e37b6bc6f25a1c0
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.lysator.liu.se/~nisse/nettle/
+Description: low level cryptographic library (public-key cryptos)
+ Nettle is a cryptographic library that is designed to fit easily in more or
+ less any context: In crypto toolkits for object-oriented languages (C++,
+ Python, Pike, ...), in applications like LSH or GNUPG, or even in kernel
+ space.
+ .
+ It tries to solve a problem of providing a common set of cryptographic
+ algorithms for higher-level applications by implementing a
+ context-independent set of cryptographic algorithms. In that light, Nettle
+ doesn't do any memory allocation or I/O, it simply provides the
+ cryptographic algorithms for the application to use in any environment and
+ in any way it needs.
+ .
+ This package contains the asymmetric cryptographic algorithms, which,
+ require the GNU multiple precision arithmetic library (libgmp) for
+ their large integer computations.
+Original-Maintainer: Magnus Holmgren <holmgren@debian.org>
 
 Package: libhttp-daemon-perl
 Version: 6.01-1ubuntu0.1
@@ -4877,6 +6042,54 @@ Description: International Components for Unicode
  ICU is a C++ and C library that provides robust and full-featured
  Unicode and locale support.  This package contains the runtime
  libraries for ICU.
+Original-Maintainer: Laszlo Boszormenyi (GCS) <gcs@debian.org>
+
+Package: libidn2-0
+Source: libidn2
+Version: 2.0.4-1.1ubuntu0.2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 150
+Depends: libc6 (>= 2.4), libunistring2 (>= 0.9.7)
+Filename: ./libidn2-0_2.0.4-1.1ubuntu0.2_i386.deb
+Size: 49724
+MD5sum: 4be910a50959651eb696bb2a3f976297
+SHA1: 42d071fa02d957def702d1e6248d6e63118f9007
+SHA256: 730228c9926de355dbb6549d4d3e56c16b71cb9ce02fa67116dc7f8e92bcd24f
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://www.gnu.org/software/libidn/#libidn2
+Description: Internationalized domain names (IDNA2008/TR46) library
+ Libidn2 implements the revised algorithm for internationalized domain
+ names called IDNA2008/TR46.
+ .
+ This package contains runtime libraries.
+Original-Maintainer: Debian Libidn team <help-libidn@gnu.org>
+
+Package: libieee1284-3
+Source: libieee1284
+Version: 0.2.11-13
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 77
+Depends: libc6 (>= 2.15)
+Filename: ./libieee1284-3_0.2.11-13_i386.deb
+Size: 22782
+MD5sum: 5ed6e78115e405b3c9603956b89b6f62
+SHA1: d0f98c2ca370e31efc473a8fb53712ecbd41599f
+SHA256: 2013c5fac032a99257e91c472bb8ae062221593e54c1740c6d42b10838f252b3
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://cyberelk.net/tim/software/libieee1284/
+Description: cross-platform library for parallel port access
+ This library was designed to ease the use of the parallel port. It will
+ automatically figure out which access method is available, depending on the
+ running kernel and the permissions of the process.
+ .
+ It handles particular queries to the devices, like fetching the Device ID of
+ a device.
 Original-Maintainer: Laszlo Boszormenyi (GCS) <gcs@debian.org>
 
 Package: libinput-bin
@@ -5184,6 +6397,33 @@ Description: GNU Transactional Memory Library
  accesses to shared memory by several threads.
 Original-Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
 
+Package: libjack-jackd2-0
+Source: jackd2
+Version: 1.9.12~dfsg-2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 1145
+Depends: libc6 (>= 2.27), libgcc1 (>= 1:4.2), libsamplerate0 (>= 0.1.7), libstdc++6 (>= 5.2)
+Suggests: jackd2 (= 1.9.12~dfsg-2)
+Conflicts: jackd2 (>> 1.9.12~dfsg-2), jackd2 (<< 1.9.12~dfsg-2), libjack-0.116, libjack-0.125, libjack0
+Replaces: jackd2 (<< 1.9.10+20150825git1ed50c92~dfsg-5), libjack-0.116, libjack-0.125
+Provides: libjack-0.116, libjack-0.125
+Filename: ./libjack-jackd2-0_1.9.12~dfsg-2_i386.deb
+Size: 290348
+MD5sum: 5ddb11e1f048ab2c8c765859abe325f0
+SHA1: 5e184fc7df8109f08879dcd1ff71d6e63e3da54e
+SHA256: 7047e333ff4e43a0cfa0ce0476e8c83f02895765a44d9357e4aa7bd6807cac91
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://jackaudio.org/
+Description: JACK Audio Connection Kit (libraries)
+ JACK is a low-latency sound server, allowing multiple applications to
+ connect to one audio device, and to share audio between themselves.
+ .
+ This package contains the shared libraries.
+Original-Maintainer: Debian Multimedia Maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
+
 Package: libjavascriptcoregtk-4.0-18
 Source: webkit2gtk
 Version: 2.32.4-0ubuntu0.18.04.1
@@ -5261,6 +6501,24 @@ Description: IJG JPEG compliant runtime library.
  This package contains the shared library which is a drop in
  replacement for libjpeg8, which has better performance than
  standard libjpeg by use of SIMD and other optimizations.
+
+Package: libjpeg8
+Source: libjpeg8-empty
+Version: 8c-2ubuntu8
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 26
+Depends: libjpeg-turbo8 (>= 1.1.90+svn722-1ubuntu6)
+Filename: ./libjpeg8_8c-2ubuntu8_i386.deb
+Size: 2188
+MD5sum: fabd39bf2821265a696997063673fcea
+SHA1: 03fc89ee811401581c5cf49912961d88c41a66b7
+SHA256: cf2395d1fc1882f2b0afc7f20449712afc195f259288f5dba0489ddbcbe71f47
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: Independent JPEG Group's JPEG runtime library (dependency package)
+ libjpeg8 dependency package, depending on libjpeg-turbo8.
 
 Package: libk5crypto3
 Source: krb5
@@ -5472,6 +6730,34 @@ Description: X.509 and CMS support library
  This package contains the runtime library files.
 Original-Maintainer: Debian GnuTLS Maintainers <pkg-gnutls-maint@lists.alioth.debian.org>
 
+Package: liblcms2-2
+Source: lcms2
+Version: 2.9-1ubuntu0.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 415
+Depends: libc6 (>= 2.7)
+Suggests: liblcms2-utils
+Filename: ./liblcms2-2_2.9-1ubuntu0.1_i386.deb
+Size: 149956
+MD5sum: 8839b123115b76d99849ba352c1c00dc
+SHA1: d362288b2f96fd0feb8c32c8d191a25e13f8e8cf
+SHA256: 2a208a683de2e777d8d5a79e67eeeb43d2bcdd40ecf20aab4bc15dd81e6c20f7
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.littlecms.com/
+Description: Little CMS 2 color management library
+ LittleCMS 2 intends to be a small-footprint color management engine, with
+ special focus on accuracy and performance. It uses the International Color
+ Consortium standard (ICC) of color management. LittleCMS 2 is a full
+ implementation of ICC specification 4.2 plus all addendums. It fully supports
+ all V2 and V4 profiles, including abstract, devicelink and named color
+ profiles.
+ .
+ This package contains the shared library of liblcms2.
+Original-Maintainer: Thomas Weber <tweber@debian.org>
+
 Package: libldap-2.4-2
 Source: openldap
 Version: 2.4.45+dfsg-1ubuntu1.11
@@ -5543,6 +6829,30 @@ Description: Library for Large Linear Classification
  .
  This package contains the shared libraries.
 Original-Maintainer: Christian Kastner <ckk@debian.org>
+
+Package: libllvm10
+Source: llvm-toolchain-10
+Version: 1:10.0.0-4ubuntu1~18.04.2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 67320
+Depends: libatomic1 (>= 4.8), libc6 (>= 2.27), libedit2 (>= 2.11-20080614), libffi6 (>= 3.0.4), libgcc1 (>= 1:4.2), libstdc++6 (>= 6), libtinfo5 (>= 6), zlib1g (>= 1:1.2.0)
+Filename: ./libllvm10_1%3a10.0.0-4ubuntu1~18.04.2_i386.deb
+Size: 15441684
+MD5sum: 67354c9c175080737582c6b52d7a5cd5
+SHA1: e22d5ad62e947bedb71baaab512e3c55ebf083bf
+SHA256: a558157d39304dae4edd7b05bb789aaaa6d473a6c0042ac25fd7f18b692f61d6
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://www.llvm.org/
+Description: Modular compiler and toolchain technologies, runtime library
+ LLVM is a collection of libraries and tools that make it easy to build
+ compilers, optimizers, just-in-time code generators, and many other
+ compiler-related programs.
+ .
+ This package contains the LLVM runtime library.
+Original-Maintainer: LLVM Packaging Team <pkg-llvm-team@lists.alioth.debian.org>
 
 Package: liblouis-data
 Source: liblouis
@@ -5654,6 +6964,38 @@ Description: System independent dlopen wrapper for GNU libtool
    * libtool's dlpreopen
 Original-Maintainer: Kurt Roeckx <kurt@roeckx.be>
 
+Package: libltdl7
+Source: libtool
+Version: 2.4.6-2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 420
+Depends: libc6 (>= 2.4)
+Filename: ./libltdl7_2.4.6-2_i386.deb
+Size: 40460
+MD5sum: 309cd0799bdde1297c2d2ff0ec954ce4
+SHA1: 0767b0af6873f1b9b6bf0da31f969393f71a3abe
+SHA256: a494eddbb54f6658ca57fbbfce524e1239f3a7769f12b89c913557e7ed18a6bd
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.gnu.org/software/libtool/
+Description: System independent dlopen wrapper for GNU libtool
+ This package contains the run-time libltdl library.
+ .
+ A small library that aims at hiding the various difficulties of
+ dlopening libraries from programmers.  It is a system independent
+ dlopen wrapper for GNU libtool.
+ .
+ It supports the following dlopen interfaces:
+   * dlopen (Solaris, Linux and various BSD flavors)
+   * shl_load (HP-UX)
+   * LoadLibrary (Win16 and Win32)
+   * load_add_on (BeOS)
+   * GNU DLD (emulates dynamic linking for static libraries)
+   * libtool's dlpreopen
+Original-Maintainer: Kurt Roeckx <kurt@roeckx.be>
+
 Package: liblwres160
 Source: bind9
 Version: 1:9.11.3+dfsg-1ubuntu1.18
@@ -5678,6 +7020,31 @@ Description: Lightweight Resolver Library used by BIND
  This package delivers the liblwres shared library used by BIND's daemons
  and clients.
 Original-Maintainer: Debian DNS Packaging <pkg-dns-devel@lists.alioth.debian.org>
+
+Package: liblz4-1
+Source: lz4
+Version: 0.0~r131-2ubuntu3.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 103
+Depends: libc6 (>= 2.4)
+Filename: ./liblz4-1_0.0~r131-2ubuntu3.1_i386.deb
+Size: 39264
+MD5sum: 601e8d434e53cbda2523c784de66f782
+SHA1: 1d7cfb1efe0e7920e54e5cf6db79266628bab4bb
+SHA256: ee8e63661208b76faee838c9707adb5b47a3abcf970f67f3ca9a4260d2ef83bb
+Section: libs
+Priority: extra
+Multi-Arch: same
+Homepage: https://github.com/Cyan4973/lz4
+Description: Fast LZ compression algorithm library - runtime
+ LZ4 is a very fast lossless compression algorithm, providing compression speed
+ at 400 MB/s per core, scalable with multi-cores CPU. It also features an
+ extremely fast decoder, with speed in multiple GB/s per core, typically
+ reaching RAM speed limits on multi-core systems.
+ .
+ This package includes the shared library.
+Original-Maintainer: Nobuhiro Iwamatsu <iwamatsu@debian.org>
 
 Package: liblzma5
 Source: xz-utils
@@ -5843,6 +7210,49 @@ Description: Motif - development files
  applications, including header files, static libraries and the API
  manual pages.
 Original-Maintainer: Graham Inggs <ginggs@debian.org>
+
+Package: libmount1
+Source: util-linux
+Version: 2.31.1-0.4ubuntu3.7
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 487
+Depends: libblkid1 (>= 2.17.2), libc6 (>= 2.25), libselinux1 (>= 2.6-3~)
+Filename: ./libmount1_2.31.1-0.4ubuntu3.7_i386.deb
+Size: 149016
+MD5sum: b17d0d2619481b63912c7b119d452208
+SHA1: e5d2d61a897cb07d4e0f4490f420d063460fc1b6
+SHA256: 1a5aeed415303a81c410db08b7aab5a1eeec5d4278655d906e3c5d35035b58b8
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: device mounting library
+ This device mounting library is used by mount and umount helpers.
+Original-Maintainer: LaMont Jones <lamont@debian.org>
+
+Package: libmpg123-0
+Source: mpg123
+Version: 1.25.10-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 392
+Depends: libc6 (>= 2.15)
+Filename: ./libmpg123-0_1.25.10-1_i386.deb
+Size: 128520
+MD5sum: 19ffec6b29bf738fa3d44e263aafb219
+SHA1: c07a62e2a982f14c33746daa9c1b55c936bd9bf9
+SHA256: 87311bb0b64515d9361999e5e6ff3cc33d0000945bb8798b81dbebc21e4c8048
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://mpg123.org/
+Description: MPEG layer 1/2/3 audio decoder (shared library)
+ mpg123 is a real time MPEG 1.0/2.0/2.5 audio player/decoder for layers
+ 1, 2 and 3 (MPEG 1.0 layer 3 also known as MP3).
+ .
+ This package contains the C libraries needed to run executables that use
+ the mpg123 library.
+Original-Maintainer: Debian Multimedia Maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
 
 Package: libmpx2
 Source: gcc-8
@@ -6022,6 +7432,40 @@ Description: YAML network configuration abstraction runtime library
  This package contains the necessary runtime library files.
 Original-Maintainer: Debian netplan Maintainers <team+netplan@tracker.debian.org>
 
+Package: libnettle6
+Source: nettle
+Version: 3.4.1-0ubuntu0.18.04.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 399
+Depends: libc6 (>= 2.4)
+Filename: ./libnettle6_3.4.1-0ubuntu0.18.04.1_i386.deb
+Size: 128380
+MD5sum: 1a26888cf7c74271e5e0eb87945fb732
+SHA1: 3d22df51e798cd01eb9c8487f6031bf827b7eaf9
+SHA256: b67c2447b978bca3df2fe0e15a3dd1f48925a19be61a553c4c96efb73fdbf85b
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.lysator.liu.se/~nisse/nettle/
+Description: low level cryptographic library (symmetric and one-way cryptos)
+ Nettle is a cryptographic library that is designed to fit easily in more or
+ less any context: In crypto toolkits for object-oriented languages (C++,
+ Python, Pike, ...), in applications like LSH or GNUPG, or even in kernel
+ space.
+ .
+ It tries to solve a problem of providing a common set of cryptographic
+ algorithms for higher-level applications by implementing a
+ context-independent set of cryptographic algorithms. In that light, Nettle
+ doesn't do any memory allocation or I/O, it simply provides the
+ cryptographic algorithms for the application to use in any environment and
+ in any way it needs.
+ .
+ This package contains the symmetric and one-way cryptographic
+ algorithms. To avoid having this package depend on libgmp, the
+ asymmetric cryptos reside in a separate library, libhogweed.
+Original-Maintainer: Magnus Holmgren <holmgren@debian.org>
+
 Package: libnotify-bin
 Source: libnotify
 Version: 0.7.7-3ubuntu0.18.04.1
@@ -6175,6 +7619,126 @@ Description: read/write NTFS driver for FUSE (runtime library)
  This package contains the actual library.
 Original-Maintainer: Laszlo Boszormenyi (GCS) <gcs@debian.org>
 
+Package: libodbc1
+Source: unixodbc
+Version: 2.3.4-1.1ubuntu3
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 587
+Depends: libc6 (>= 2.14), libltdl7 (>= 2.4.6)
+Suggests: libmyodbc, odbc-postgresql, tdsodbc, unixodbc-bin
+Breaks: unixodbc (<< 2.2.14p2-3)
+Replaces: unixodbc (<< 2.2.14p2-3)
+Filename: ./libodbc1_2.3.4-1.1ubuntu3_amd64.deb
+Size: 182560
+MD5sum: d78a05cbbcb1e0f168d5613d65e03b6a
+SHA1: 1d0cd01d224a7b60b796405c12784ffc06f4f863
+SHA256: 11dbf10eb1acc06f8966d9a538fde432ba0d73ca439c0375fa5f4ad226387dc2
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.unixodbc.org/
+Description: ODBC library for Unix
+ UnixODBC is an implementation of the Open DataBase Connectivity standard,
+ a database abstraction layer that allows applications to be used with
+ many different relational databases by way of a single library.
+ .
+ This package provides the UnixODBC shared library, libodbc; and
+ libodbctxt.so, a sample driver that reads from and writes to flat text
+ files.
+Original-Maintainer: Steve Langasek <vorlon@debian.org>
+
+Package: libogg0
+Source: libogg
+Version: 1.3.2-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 72
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.4)
+Filename: ./libogg0_1.3.2-1_i386.deb
+Size: 16244
+MD5sum: 3a1ab1db2c391ffa53695bf6d91d290c
+SHA1: ee910539c3e0757282487d398b5b2e66464f9dec
+SHA256: 8ce2fbb257062e7a946580d7194b45ed070413e000db0b80ae717e3d6dbb2522
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://xiph.org/ogg/
+Description: Ogg bitstream library
+ Libogg is a library for manipulating ogg bitstreams.  It handles
+ both making ogg bitstreams and getting packets from ogg bitstreams.
+Original-Maintainer: Ron Lee <ron@debian.org>
+
+Package: libopenal-data
+Source: openal-soft
+Version: 1:1.18.2-2
+Architecture: all
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 153
+Breaks: libopenal1 (<< 1:1.14-5)
+Replaces: libopenal1 (<< 1:1.14-5)
+Filename: ./libopenal-data_1%3a1.18.2-2_all.deb
+Size: 102220
+MD5sum: 3b316ed1c73bf512052b49acfd39b636
+SHA1: 53c788be4cf929937d0260469da7613f66d28fc3
+SHA256: aaad4a31873a9b08a071cb2d7683cba0736d7711a03d81a451726ffc4d5815a0
+Section: libs
+Priority: optional
+Multi-Arch: foreign
+Homepage: http://kcat.strangesoft.net/openal.html
+Description: Software implementation of the OpenAL audio API (data files)
+ OpenAL, the Open Audio Library, is a joint effort to create an open,
+ vendor-neutral, cross-platform API for interactive, primarily spatialized
+ audio. OpenAL's primary audience are application developers and desktop
+ users that rely on portable standards like OpenGL, for games and other
+ multimedia applications.
+ .
+ This package installs data files used by the OpenAL Soft shared library.
+Original-Maintainer: Debian Games Team <pkg-games-devel@lists.alioth.debian.org>
+
+Package: libopenal1
+Source: openal-soft
+Version: 1:1.18.2-2
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 677
+Depends: libopenal-data (= 1:1.18.2-2), libc6 (>= 2.16), libsndio6.1 (>= 1.1.0)
+Recommends: libasound2 (>= 1.0.16), libpulse0 (>= 0.99.1)
+Suggests: libportaudio2 (>= 19+svn20101113)
+Filename: ./libopenal1_1%3a1.18.2-2_amd64.deb
+Size: 265648
+MD5sum: c3c744fe228f146f7ebd0eba48ff44b7
+SHA1: 78ee58a500ebd67370ae4b70413d91addccff3ee
+SHA256: 58dc50797fcb5b8951d8d039ef16253a768e99db269161b8080847741d4460a7
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://kcat.strangesoft.net/openal.html
+Description: Software implementation of the OpenAL audio API (shared library)
+ OpenAL, the Open Audio Library, is a joint effort to create an open,
+ vendor-neutral, cross-platform API for interactive, primarily spatialized
+ audio. OpenAL's primary audience are application developers and desktop
+ users that rely on portable standards like OpenGL, for games and other
+ multimedia applications.
+ .
+ This library is meant as a compatible update/replacement to the OpenAL Sample
+ Implementation (the SI). The SI has been unmaintained for quite a while, and
+ would require a lot of work to clean up. This is a fork the old Windows version
+ to attempt an accelerated ALSA version of an OpenAL implementation.
+ .
+ OpenAL Soft supports mono, stereo, 4-channel, 5.1, 6.1, and 7.1 output, as
+ opposed to the SI's 4-channel max (though it did have some provisions for 6
+ channel, this was not 5.1, and was seemingly a "late" addition). OpenAL Soft
+ does not support the Vorbis and MP3 extensions, however those were considered
+ deprecated even in the SI. It does, though, support some of the newer
+ extensions like AL_EXT_FLOAT32 and AL_EXT_MCFORMATS for multi-channel and
+ floating-point formats, as well as ALC_EXT_EFX for environmental audio effects,
+ and others.
+ .
+ This package installs the OpenAL Soft shared library.
+Original-Maintainer: Debian Games Team <pkg-games-devel@lists.alioth.debian.org>
+
 Package: libopenexr22
 Source: openexr
 Version: 2.2.0-11.1ubuntu1.9
@@ -6212,6 +7776,128 @@ Description: runtime files for the OpenEXR image library
  This package contains the following shared library:
     * IlmImf - a library that reads and writes OpenEXR images.
 Original-Maintainer: Debian PhotoTools Maintainers <pkg-phototools-devel@lists.alioth.debian.org>
+
+Package: libopus0
+Source: opus
+Version: 1.1.2-1ubuntu1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 313
+Depends: libc6 (>= 2.4)
+Suggests: opus-tools
+Filename: ./libopus0_1.1.2-1ubuntu1_i386.deb
+Size: 157612
+MD5sum: 23a60f8dbfe30ef8b1ef6976d9179a55
+SHA1: b90bb6aa32df7e104c222edc7ba015a2a3423589
+SHA256: 890d7b1adfbbcbe86dd2be9420a992cc038d1c79d62b4eca9515df2c4d950c81
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.opus-codec.org
+Description: Opus codec runtime library
+ The Opus codec is designed for interactive speech and audio transmission over
+ the Internet. It is designed by the IETF Codec Working Group and incorporates
+ technology from Skype's SILK codec and Xiph.Org's CELT codec.
+ .
+ It is intended to suit a wide range of interactive audio applications,
+ including Voice over IP, videoconferencing, in-game chat, and even remote live
+ music performances.  It can scale from low bit-rate narrowband speech to very
+ high quality stereo music. The current features are:
+ .
+  Bit-rates from 6 kb/s 510 kb/s
+  Sampling rates from 8 to 48 kHz
+  Frame sizes from 2.5 ms to 60 ms
+  Support for both constant bit-rate (CBR) and variable bit-rate (VBR)
+  Audio bandwidth from narrowband to full-band
+  Support for speech and music
+  Support for mono and stereo
+  Support for up to 255 channels (multistream frames)
+  Dynamically adjustable bitrate, audio bandwidth, and frame size
+  Good loss robustness and packet loss concealment (PLC)
+  Floating point and fixed-point implementation
+ .
+ This package provides the Opus runtime library.
+Original-Maintainer: Ron Lee <ron@debian.org>
+
+Package: liborc-0.4-0
+Source: orc
+Version: 1:0.4.28-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 627
+Depends: libc6 (>= 2.4)
+Filename: ./liborc-0.4-0_1%3a0.4.28-1_i386.deb
+Size: 147820
+MD5sum: 25084b25542922abcaa955a162d947e0
+SHA1: 6762d0b0b379daa845e0ff3894fe4d47f0d986fe
+SHA256: 4237e500a6a4a3980a11457058387c14f8aa53a1ed11d05233f7a1d917b369b5
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://cgit.freedesktop.org/gstreamer/orc
+Description: Library of Optimized Inner Loops Runtime Compiler
+ Orc is a library and set of tools for compiling and executing
+ very simple programs that operate on arrays of data.  The "language"
+ is a generic assembly language that represents many of the features
+ available in SIMD architectures, including saturated addition and
+ subtraction, and many arithmetic operations.
+ .
+ This package contains the orc shared libraries.  It is typically
+ installed automatically when an application or library requires it.
+Original-Maintainer: Maintainers of GStreamer packages <pkg-gstreamer-maintainers@lists.alioth.debian.org>
+
+Package: libosmesa6
+Source: mesa
+Version: 20.0.8-0ubuntu1~18.04.1
+Architecture: amd64
+Maintainer: Ubuntu X-SWAT <ubuntu-x@lists.ubuntu.com>
+Installed-Size: 10223
+Depends: libc6 (>= 2.27), libgcc1 (>= 1:3.4), libglapi-mesa (= 20.0.8-0ubuntu1~18.04.1), libllvm10 (>= 1:9~svn298832-1~), libstdc++6 (>= 5.2), libzstd1 (>= 1.3.2), zlib1g (>= 1:1.1.4)
+Filename: ./libosmesa6_20.0.8-0ubuntu1~18.04.1_amd64.deb
+Size: 2641340
+MD5sum: 67bf894066a7f8e06c0a732e1b0b03e7
+SHA1: d3de2fb642171ac16429cee26f2df2c875f8cb5d
+SHA256: 4ebf20281df80a3096be60034333c9b50e0565c5344900a81cbd0658e57f17e3
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://mesa3d.org/
+Description: Mesa Off-screen rendering extension
+ OSmesa is a Mesa extension that allows programs to render to an
+ off-screen buffer using the OpenGL API without having to create a
+ rendering context on an X Server.  It uses a pure software renderer.
+ .
+ This package provides both 16-bit and 32-bit versions of the off-screen
+ renderer which do not require external libraries to work.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libp11-kit0
+Source: p11-kit
+Version: 0.23.9-2ubuntu0.1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 1367
+Depends: libc6 (>= 2.26), libffi6 (>= 3.0.4)
+Breaks: opencryptoki (<= 3.6.1+dfsg-1)
+Filename: ./libp11-kit0_0.23.9-2ubuntu0.1_i386.deb
+Size: 186288
+MD5sum: e53bbf2dc6f5db7742f9cfdbd3ca89c1
+SHA1: e4af6453ae71e6755bb7ff521080a79829912de4
+SHA256: f15cd29b8b5df7863d6704f817437e47eb3eb790a42c19f924469ee014ee83be
+Section: libs
+Priority: standard
+Multi-Arch: same
+Homepage: http://p11-glue.freedesktop.org/p11-kit.html
+Description: library for loading and coordinating access to PKCS#11 modules - runtime
+ The p11-kit library provides a way to load and enumerate Public-Key
+ Cryptography Standard #11 modules, along with a standard configuration
+ setup for installing PKCS#11 modules so that they're discoverable. It
+ also solves problems with coordinating the use of PKCS#11 by different
+ components or libraries living in the same process.
+ .
+ This package contains the shared library required for applications loading
+ and accessing PKCS#11 modules.
+Original-Maintainer: Debian GnuTLS Maintainers <pkg-gnutls-maint@lists.alioth.debian.org>
 
 Package: libpam-modules
 Source: pam
@@ -6335,6 +8021,56 @@ Description: Pluggable Authentication Modules library
  One may entirely upgrade the local authentication system without touching
  the applications themselves.
 Original-Maintainer: Steve Langasek <vorlon@debian.org>
+
+Package: libpcap0.8
+Source: libpcap
+Version: 1.8.1-6ubuntu1.18.04.2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 323
+Depends: libc6 (>= 2.11)
+Replaces: libpcap0.8-dev (<< 1.0.0-2)
+Filename: ./libpcap0.8_1.8.1-6ubuntu1.18.04.2_i386.deb
+Size: 123908
+MD5sum: 1681f32c76481e446e2d3b259e151cbf
+SHA1: 70a46d8abcb8e344f07b53f5bf0129d5a19dcd42
+SHA256: 8320e0ddb439d588543406dacd294dadd6ddb2cd7a5223cc120e0bbfc9722c91
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.tcpdump.org/
+Description: system interface for user-level packet capture
+ libpcap (Packet CAPture) provides a portable framework for low-level
+ network monitoring.  Applications include network statistics collection,
+ security monitoring, network debugging, etc.
+ .
+ Since almost every system vendor provides a different interface for
+ packet capture, and since there are several tools that require this
+ functionality, the libpcap authors created this system-independent API
+ to ease in porting and to alleviate the need for several
+ system-dependent packet capture modules in each application.
+Original-Maintainer: Romain Francoise <rfrancoise@debian.org>
+
+Package: libpciaccess0
+Source: libpciaccess
+Version: 0.14-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 64
+Depends: libc6 (>= 2.7), zlib1g (>= 1:1.2.3.3)
+Suggests: pciutils
+Filename: ./libpciaccess0_0.14-1_i386.deb
+Size: 20188
+MD5sum: 2cbac6d5c0936700b3578af63c1c58c8
+SHA1: fd4696bffd753f4ab26be6a938cef394e95601ef
+SHA256: 9d20b74de4f7cb700fa8023a8ec03eff1ed9e4cdda3959c44b66ef7523d0f03c
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: Generic PCI access library for X
+ Provides functionality for X to access the PCI bus and devices
+ in a platform-independent way.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 
 Package: libpcre3
 Source: pcre3
@@ -6466,6 +8202,30 @@ Description: PNG library - tools (version 1.6)
  .
  This package contains a program to interact with libpng from the
  command line.
+Original-Maintainer: Anibal Monsalve Salazar <anibal@debian.org>
+
+Package: libpng16-16
+Source: libpng1.6
+Version: 1.6.34-1ubuntu0.18.04.2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 347
+Depends: libc6 (>= 2.11), zlib1g (>= 1:1.2.11)
+Filename: ./libpng16-16_1.6.34-1ubuntu0.18.04.2_i386.deb
+Size: 183736
+MD5sum: bb38f30ea7941f9475e78dab5937b59d
+SHA1: 2fb9604b13eab94c4c179807bc46301d9fa34254
+SHA256: b6a69458978413ce00215e540648118ce9c8a1cd58abad1e28bef9c8bb67ac6b
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://libpng.org/pub/png/libpng.html
+Description: PNG library - runtime (version 1.6)
+ libpng is a library implementing an interface for reading and writing
+ PNG (Portable Network Graphics) format files.
+ .
+ This package contains the runtime library files needed to run software
+ using libpng.
 Original-Maintainer: Anibal Monsalve Salazar <anibal@debian.org>
 
 Package: libpolkit-agent-1-0
@@ -6641,6 +8401,33 @@ Description: pthread stubs not provided by native libc, development files
  libraries to unconditionally express a dependency on pthread-stubs and
  still obtain correct behavior.
 Original-Maintainer: XCB Developers <xcb@lists.freedesktop.org>
+
+Package: libpulse0
+Source: pulseaudio
+Version: 1:11.1-1ubuntu7.11
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 1091
+Depends: libapparmor1 (>= 2.7.0~beta1+bzr1772), libasyncns0 (>= 0.3), libc6 (>= 2.27), libdbus-1-3 (>= 1.9.14), libsndfile1 (>= 1.0.20), libsystemd0, libwrap0 (>= 7.6-4~), libxcb1
+Suggests: pulseaudio
+Breaks: pavucontrol (<< 0.9.8)
+Filename: ./libpulse0_1%3a11.1-1ubuntu7.11_i386.deb
+Size: 270644
+MD5sum: 567d0cf652121d7f20165707bf706b09
+SHA1: f3465672c2fbe206800bb1787031f35f51c8669b
+SHA256: 639437d5e91a02acc46a6c7799cdc13c1933dd5e7e79446c39b43056af64c9f3
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.pulseaudio.org
+Description: PulseAudio client libraries
+ PulseAudio, previously known as Polypaudio, is a sound server for POSIX and
+ WIN32 systems. It is a drop in replacement for the ESD sound server with
+ much better latency, mixing/re-sampling quality and overall architecture.
+ .
+ Client libraries used by applications that access a PulseAudio sound server
+ via PulseAudio's native interface.
+Original-Maintainer: Pulseaudio maintenance team <pkg-pulseaudio-devel@lists.alioth.debian.org>
 
 Package: libpython2.7
 Source: python2.7
@@ -7513,6 +9300,81 @@ Description: Heimdal Kerberos - roken support library
  This package contains the library for roken support.
 Original-Maintainer: Brian May <bam@debian.org>
 
+Package: libsamplerate0
+Source: libsamplerate
+Version: 0.1.9-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 1468
+Depends: libc6 (>= 2.4)
+Replaces: samplerate-programs (<< 0.1.8-3)
+Filename: ./libsamplerate0_0.1.9-1_i386.deb
+Size: 937652
+MD5sum: 57b621f664f9a1b5966763063940d629
+SHA1: 47cc9e9a16ad26dda4fc2e2500f0a11af6a389d6
+SHA256: 4648df5123a86d4b8ca639cee169c05f19dadc99e6edb4331f3c68dc4a5cd6bf
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.mega-nerd.com/SRC/
+Description: Audio sample rate conversion library
+ libsamplerate (aka Secret Rabbit Code) is a library for audio rate conversion.
+ .
+ libsamplerate currently provides three different sample rate conversion
+ algorithms; zero order hold, linear interpolation and FIR filter interpolation
+ (using filters derived from the mathematical SINC function). The first two
+ algorithms (zero order hold and linear) are included for completeness and are
+ not recommended for any application where high quality sample rate conversion
+ is required. For the FIR/Sinc algorithm, three converters are provided;
+ SRC_SINC_FASTEST, SRC_SINC_MEDIUM_QUALITY and SRC_SINC_BEST_QUALITY to allow a
+ trade off between conversion speed and conversion quality.
+ .
+ libsamplerate is capable of downsampling to 1/256 of the original sample rate
+ and upsampling to 256 times the original sample rate. It is also capable of
+ time varying conversions for vary speed effects and synchronising of two
+ unlocked sample rates.
+Original-Maintainer: Debian Multimedia Maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
+
+Package: libsane1
+Source: sane-backends
+Version: 1.0.27-1~experimental3ubuntu2.4
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 10572
+Depends: acl, adduser, libsane-common (= 1.0.27-1~experimental3ubuntu2.4), udev | makedev, libavahi-client3 (>= 0.6.16), libavahi-common3 (>= 0.6.16), libc6 (>= 2.15), libgphoto2-6 (>= 2.5.10), libgphoto2-port12 (>= 2.5.10), libieee1284-3, libjpeg8 (>= 8c), libtiff5 (>= 4.0.3), libusb-1.0-0 (>= 2:1.0.8)
+Recommends: sane-utils (>= 1.0.27-1~experimental3ubuntu2.4)
+Suggests: avahi-daemon, hplip
+Conflicts: libsane (<< 1.0.27-1~)
+Replaces: libsane (<< 1.0.27-1~)
+Provides: libsane (= 1.0.27-1~experimental3ubuntu2.4)
+Filename: ./libsane1_1.0.27-1~experimental3ubuntu2.4_i386.deb
+Size: 2179128
+MD5sum: 08ab226b9eddb34d24f98caf9fdaacf8
+SHA1: 4dc3a389bba42410579a0ce5b948ddb280359218
+SHA256: 68c17da3473c74ccc6841aaf83b0b569b71274c6e472d9fa4e74c4522cae35f5
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.sane-project.org
+Description: API library for scanners
+ SANE stands for "Scanner Access Now Easy" and is an application
+ programming interface (API) that provides standardized access to any
+ raster image scanner hardware (flatbed scanner, hand-held scanner,
+ video- and still-cameras, frame-grabbers, etc.). The SANE standard is
+ free and its discussion and development are open to everybody. The
+ current source code is written to support several operating systems,
+ including GNU/Linux, OS/2, Win32 and various Unices and is available
+ under the GNU General Public License (commercial applications and
+ backends are welcome, too, however).
+ .
+ This package includes the backends for many scanners. A libsane-extras
+ package containing some not-yet-included backends is available separately.
+ .
+ Graphical frontends for sane are available in the packages sane and
+ xsane. Command line frontend scanimage, saned and sane-find-scanner are
+ available in the sane-utils package.
+Original-Maintainer: Jörg Frings-Fürst <debian@jff-webhosting.net>
+
 Package: libsasl2-2
 Source: cyrus-sasl2
 Version: 2.1.27~101-g0780600+dfsg-3ubuntu2.4
@@ -7617,6 +9479,44 @@ Description: high level interface to Linux seccomp filter
  and installing seccomp filters via a BPF passed to the Linux Kernel's
  prctl() syscall.
 Original-Maintainer: Kees Cook <kees@debian.org>
+
+Package: libselinux1
+Source: libselinux
+Version: 2.7-2build2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 207
+Depends: libc6 (>= 2.8), libpcre3
+Filename: ./libselinux1_2.7-2build2_i386.deb
+Size: 72896
+MD5sum: 8baa6f3a125958816260aaa9e1da360b
+SHA1: 550077175804a954791d2d94ebb9a5c1d854df54
+SHA256: 3ac0934269d96c88e1a138030e66ab85287e9d048ab14f58a2c4e391ad46f04a
+Section: libs
+Priority: required
+Multi-Arch: same
+Homepage: http://userspace.selinuxproject.org/
+Description: SELinux runtime shared libraries
+ This package provides the shared libraries for Security-enhanced
+ Linux that provides interfaces (e.g. library functions for the
+ SELinux kernel APIs like getcon(), other support functions like
+ getseuserbyname()) to SELinux-aware applications. Security-enhanced
+ Linux is a patch of the Linux kernel and a number of utilities with
+ enhanced security functionality designed to add mandatory access
+ controls to Linux.  The Security-enhanced Linux kernel contains new
+ architectural components originally developed to improve the security
+ of the Flask operating system. These architectural components provide
+ general support for the enforcement of many kinds of mandatory access
+ control policies, including those based on the concepts of Type
+ Enforcement, Role-based Access Control, and Multi-level Security.
+ .
+ libselinux1 provides an API for SELinux applications to get and set
+ process and file security contexts and to obtain security policy
+ decisions.  Required for any applications that use the SELinux
+ API. libselinux may use the shared libsepol to manipulate the binary
+ policy if necessary (e.g. to downgrade the policy format to an older
+ version supported by the kernel) when loading policy.
+Original-Maintainer: Debian SELinux maintainers <selinux-devel@lists.alioth.debian.org>
 
 Package: libsensors4
 Source: lm-sensors
@@ -7756,6 +9656,61 @@ Description: shared library for communication with SMB/CIFS servers
  to talk to Microsoft Windows and Samba servers using the SMB/CIFS
  protocol.
 Original-Maintainer: Debian Samba Maintainers <pkg-samba-maint@lists.alioth.debian.org>
+
+Package: libsndfile1
+Source: libsndfile
+Version: 1.0.28-4ubuntu0.18.04.2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 589
+Depends: libc6 (>= 2.4), libflac8 (>= 1.3.0), libogg0 (>= 1.0rc3), libvorbis0a (>= 1.2.3), libvorbisenc2 (>= 1.1.2)
+Filename: ./libsndfile1_1.0.28-4ubuntu0.18.04.2_i386.deb
+Size: 191684
+MD5sum: 776239d29fb939435ba23eb29a5382c8
+SHA1: 68b5c9051867935c2916f493e69e9eaef66aa88b
+SHA256: 42db997c91772439f8fe75d8d311058fd6aabdb397415cfc71794668be3a4d1b
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.mega-nerd.com/libsndfile/
+Description: Library for reading/writing audio files
+ libsndfile is a library of C routines for reading and writing files containing
+ sampled audio data.
+ .
+ Various versions of WAV (integer, floating point, GSM, and compressed formats);
+ Microsoft PCM, A-law and u-law formats; AIFF, AIFC and RIFX; various AU/SND
+ formats (Sun/NeXT, Dec AU, G721 and G723 ADPCM); RAW header-less PCM files;
+ Amiga IFF/8SVX/16SV PCM files; Ensoniq PARIS  (.PAF); Apple's Core Audio Format
+ (CAF) and others.
+Original-Maintainer: Debian Multimedia Maintainers <pkg-multimedia-maintainers@lists.alioth.debian.org>
+
+Package: libsndio6.1
+Source: sndio
+Version: 1.1.0-3
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 72
+Depends: libasound2 (>= 1.0.17), libbsd0 (>= 0.0), libc6 (>= 2.16)
+Suggests: sndiod
+Filename: ./libsndio6.1_1.1.0-3_amd64.deb
+Size: 23440
+MD5sum: 7437e9f6c7e8d6b0e3c5dd3bcc93178f
+SHA1: dce2a092bab365dedec5d2c87bb098d2d8c5979e
+SHA256: 45dfd9118423df71b9da7817586b67e126cac945bca9205d5fdd8678d1edb4e3
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.sndio.org/
+Description: Small audio and MIDI framework from OpenBSD, runtime libraries
+ Sndio is a small, simple audio and MIDI framework, developed by the OpenBSD
+ project. It provides a lightweight audio and MIDI server and a well-documented
+ userspace API to access the server or audio hardware in a uniform way. Sndio is
+ designed to work well for both desktop and professional music applications, and
+ supports features found in more complex sound systems such as per-application
+ volume control, software mixing, and network transparency.
+ .
+ This package contains the sndio userspace libraries.
+Original-Maintainer: Peter Piwowarski <peterjpiwowarski@gmail.com>
 
 Package: libsnmp-base
 Source: net-snmp
@@ -7996,6 +9951,34 @@ Description: GNU Standard C++ Library v3 (development files)
  in g++-3.0.
 Original-Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
 
+Package: libstdc++6
+Source: gcc-8
+Version: 8.4.0-1ubuntu1~18.04
+Architecture: i386
+Maintainer: Ubuntu Core developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 2026
+Depends: gcc-8-base (= 8.4.0-1ubuntu1~18.04), libc6 (>= 2.18), libgcc1 (>= 1:4.2)
+Conflicts: scim (<< 1.4.2-1)
+Breaks: blockattack (<= 1.4.1+ds1-2.1build2), boo (<= 0.9.5~git20110729.r1.202a430-2), c++-annotations (<= 10.2.0-1), chromium-browser (<= 43.0.2357.130-0ubuntu2), clustalx (<= 2.1+lgpl-2), dff (<= 1.3.0+dfsg.1-4.1build2), emscripten (<= 1.22.1-1), ergo (<= 3.4.0-1), fceux (<= 2.2.2+dfsg0-1), flush (<= 0.9.12-3.1ubuntu1), freeorion (<= 0.4.4+git20150327-2), fslview (<= 4.0.1-4), fwbuilder (<= 5.1.0-4), gcc-4.3 (<< 4.3.6-1), gcc-4.4 (<< 4.4.6-4), gcc-4.5 (<< 4.5.3-2), gnote (<= 3.16.2-1), gnudatalanguage (<= 0.9.5-2build1), innoextract (<= 1.4-1build1), libantlr-dev (<= 2.7.7+dfsg-6), libapache2-mod-passenger (<= 4.0.53-1), libaqsis1 (<= 1.8.2-1), libassimp3 (<= 3.0~dfsg-4), libboost-date-time1.55.0, libcpprest2.2 (<= 2.2.0-1), libdap17 (<= 3.14.0-2), libdapclient6 (<= 3.14.0-2), libdapserver7 (<= 3.14.0-2), libdavix0 (<= 0.4.0-1build1), libdballe6 (<= 6.8-1), libdiet-admin2.8 (<= 2.8.0-1build3), libdiet-client2.8 (<= 2.8.0-1build3), libdiet-sed2.8 (<= 2.8.0-1build3), libfreefem++ (<= 3.37.1-1), libgazebo5 (<= 5.0.1+dfsg-2.1), libgetfem4++ (<= 4.2.1~beta1~svn4482~dfsg-3ubuntu3), libgmsh2 (<= 2.8.5+dfsg-1.1ubuntu1), libinsighttoolkit4.6 (<= 4.6.0-3ubuntu3), libkgeomap2 (<= 4:15.04.2-0ubuntu1), libkolabxml1 (<= 1.1.0-3), libkvkontakte1 (<= 1.0~digikam4.10.0-0ubuntu2), libmarisa0 (<= 0.2.4-8build1), libmediawiki1 (<= 1.0~digikam4.10.0-0ubuntu2), libogre-1.8.0 (<= 1.8.1+dfsg-0ubuntu5), libogre-1.9.0 (<= 1.9.0+dfsg1-4), libopenwalnut1 (<= 1.4.0~rc1+hg3a3147463ee2-1ubuntu2), libpqxx-4.0 (<= 4.0.1+dfsg-3ubuntu1), libreoffice-core (<= 1:4.4.4~rc3-0ubuntu1), librime1 (<= 1.2+dfsg-2), libwibble-dev (<= 1.1-1), libwreport2 (<= 2.14-1), libxmltooling6 (<= 1.5.3-2.1), lightspark (<= 0.7.2+git20150512-2), mira-assembler (<= 4.9.5-1), mongodb (<= 1:2.6.3-0ubuntu7), mongodb-server (<= 1:2.6.3-0ubuntu7), ncbi-blast+ (<= 2.2.30-4), openscad (<= 2014.03+dfsg-1build1), passepartout (<= 0.7.1-1.1), pdf2djvu (<= 0.7.19-1ubuntu2), photoprint (<= 0.4.2~pre2-2.3), plastimatch (<= 1.6.2+dfsg-1), plee-the-bear (<= 0.6.0-3.1), povray (<= 1:3.7.0.0-8), powertop (<= 2.6.1-1), printer-driver-brlaser (<= 3-3), psi4 (<= 4.0~beta5+dfsg-2build1), python-healpy (<= 1.8.1-1), python3-taglib (<= 0.3.6+dfsg-2build2), realtimebattle (<= 1.0.8-14), ruby-passenger (<= 4.0.53-1), sqlitebrowser (<= 3.5.1-3), tecnoballz (<= 0.93.1-6), wesnoth-1.12-core (<= 1:1.12.4-1), widelands (<= 1:18-3build1), xflr5 (<= 6.09.06-2)
+Replaces: libstdc++6-8-dbg (<< 4.9.0-3)
+Filename: ./libstdc++6_8.4.0-1ubuntu1~18.04_i386.deb
+Size: 431544
+MD5sum: 3c798d6c9ceca2f1e11655fe21ca80f0
+SHA1: ff6eb05e5dd36e33fb2e5c345367e2c434ad7acc
+SHA256: 62387b024e9c514d2242e016d2b3e8d438d36e2e71eb51d067e6198c50fedb2a
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://gcc.gnu.org/
+Description: GNU Standard C++ Library v3
+ This package contains an additional runtime library for C++ programs
+ built with the GNU compiler.
+ .
+ libstdc++-v3 is a complete rewrite from the previous libstdc++-v2, which
+ was included up to g++-2.95. The first version of libstdc++-v3 appeared
+ in g++-3.0.
+Original-Maintainer: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+
 Package: libsystemd0
 Source: systemd
 Version: 237-3ubuntu10.57
@@ -8015,6 +9998,57 @@ Homepage: https://www.freedesktop.org/wiki/Software/systemd
 Description: systemd utility library
  The libsystemd0 library provides interfaces to various systemd components.
 Original-Maintainer: Debian systemd Maintainers <pkg-systemd-maintainers@lists.alioth.debian.org>
+
+Package: libtasn1-6
+Version: 4.13-2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 116
+Depends: libc6 (>= 2.4)
+Filename: ./libtasn1-6_4.13-2_i386.deb
+Size: 38848
+MD5sum: b7512b7f064d3205c1d8bbedb5451480
+SHA1: 00fe31e8703221e3088506c83984864607e3655b
+SHA256: efa7c817612c8b1a9a404a53836dc8535fb763cde89e875662ee764600794447
+Section: libs
+Priority: standard
+Multi-Arch: same
+Homepage: http://www.gnu.org/software/libtasn1/
+Description: Manage ASN.1 structures (runtime)
+ Manage ASN1 (Abstract Syntax Notation One) structures.
+ The main features of this library are:
+   * on-line ASN1 structure management that doesn't require any C code
+     file generation.
+   * off-line ASN1 structure management with C code file generation
+     containing an array.
+   * DER (Distinguish Encoding Rules) encoding
+   * no limits for INTEGER and ENUMERATED values
+ .
+ This package contains runtime libraries.
+Original-Maintainer: Debian GnuTLS Maintainers <pkg-gnutls-maint@lists.alioth.debian.org>
+
+Package: libtheora0
+Source: libtheora
+Version: 1.1.1+dfsg.1-14
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 747
+Depends: libc6 (>= 2.4), libcairo2 (>= 1.2.4), libogg0 (>= 1.1.0)
+Filename: ./libtheora0_1.1.1+dfsg.1-14_i386.deb
+Size: 164460
+MD5sum: e91d07e48322976548059751775de927
+SHA1: 4cf58e41a1f4e390e8c139ab3858184a435c12dc
+SHA256: 686e3b11e8b26712503c9b124edc7d5243b60fa1434afbf14ccd16117f651d49
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.theora.org/
+Description: Theora Video Compression Codec
+ Theora is an open video codec being developed by the Xiph.org Foundation as
+ part of their Ogg project. Theora is originally derived from On2's VP3 codec,
+ and has improved on it significantly with the merging of code from the
+ Thusnelda branch.
+Original-Maintainer: Debian Xiph.org Maintainers <pkg-xiph-maint@lists.alioth.debian.org>
 
 Package: libtiff5
 Source: tiff
@@ -8207,6 +10241,33 @@ Description: Motif - UIL (User Interface Language) shared library
  This package contains the UIL (User Interface Language) shared library.
 Original-Maintainer: Graham Inggs <ginggs@debian.org>
 
+Package: libunistring2
+Source: libunistring
+Version: 0.9.9-0ubuntu2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 1576
+Depends: libc6 (>= 2.4)
+Filename: ./libunistring2_0.9.9-0ubuntu2_i386.deb
+Size: 376328
+MD5sum: 8686d9b242a41c8e8eaee26ab7ca68fe
+SHA1: 7899ef7c2dcfe40b5ec8a22dd75d83d48c90f900
+SHA256: 3c79e65651eaa3317acc9a68b462cf441b642fb12b3060d9c04e14a93a114d9a
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.gnu.org/software/libunistring/
+Description: Unicode string library for C
+ The 'libunistring' library implements Unicode strings (in the UTF-8,
+ UTF-16, and UTF-32 encodings), together with functions for Unicode
+ characters (character names, classifications, properties) and
+ functions for string processing (formatted output, width, word
+ breaks, line breaks, normalization, case folding, regular
+ expressions).
+ .
+ This package contains the shared library.
+Original-Maintainer: Jörg Frings-Fürst <debian@jff.email>
+
 Package: libunwind8
 Source: libunwind
 Version: 1.2.1-8ubuntu0.1
@@ -8236,6 +10297,197 @@ Description: library to determine the call-chain of a program - runtime
  .
  This package includes the shared libraries
 Original-Maintainer: Adrian Bunk <bunk@debian.org>
+
+Package: libusb-1.0-0
+Source: libusb-1.0
+Version: 2:1.0.21-2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 131
+Depends: libc6 (>= 2.17), libudev1 (>= 183)
+Filename: ./libusb-1.0-0_2%3a1.0.21-2_i386.deb
+Size: 46666
+MD5sum: 6d89873dfdb59464f57851c68bf7aa89
+SHA1: 2d061bbca493ca6d0056e730633e85a35511ff03
+SHA256: 27d606ef30f5be54a36bfdbf249fdd3b3b97daf86c326fd3c3124def0ace1d7a
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.libusb.info
+Description: userspace USB programming library
+ Library for programming USB applications without the knowledge
+ of Linux kernel internals.
+ .
+ This package contains what you need to run programs that use this
+ library.
+Original-Maintainer: Aurelien Jarno <aurel32@debian.org>
+
+Package: libuuid1
+Source: util-linux
+Version: 2.31.1-0.4ubuntu3.7
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 119
+Depends: libc6 (>= 2.25)
+Recommends: uuid-runtime
+Replaces: e2fsprogs (<< 1.34-1)
+Filename: ./libuuid1_2.31.1-0.4ubuntu3.7_i386.deb
+Size: 20852
+MD5sum: dc2dc20ae8ceb99138027be30297ddc2
+SHA1: d251f15319fc06d8cb97a5201beb1d25cce31934
+SHA256: 8741d422158c04aa4b8612846b0e09f8d2253fe799e1dcb82417314c1486f4bb
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: Universally Unique ID library
+ The libuuid library generates and parses 128-bit Universally Unique
+ IDs (UUIDs). A UUID is an identifier that is unique within the space
+ of all such identifiers across both space and time. It can be used for
+ multiple purposes, from tagging objects with an extremely short lifetime
+ to reliably identifying very persistent objects across a network.
+ .
+ See RFC 4122 for more information.
+Original-Maintainer: LaMont Jones <lamont@debian.org>
+
+Package: libv4l-0
+Source: v4l-utils
+Version: 1.14.2-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 189
+Depends: libv4lconvert0 (= 1.14.2-1), libc6 (>= 2.4)
+Filename: ./libv4l-0_1.14.2-1_i386.deb
+Size: 41872
+MD5sum: cc40f2eec253a0956fc55ac293d5a16d
+SHA1: b49777ee85e7427b5c84c61594f38572133d2050
+SHA256: 5db216af93f44d147a5884652f25f7039a2a44575f2642996b9d2ef741387985
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://linuxtv.org/downloads/v4l-utils/
+Description: Collection of video4linux support libraries
+ libv4l is a collection of libraries which adds a thin abstraction layer on
+ top of video4linux2 devices. The purpose of this (thin) layer is to make it
+ easy for application writers to support a wide variety of devices without
+ having to write separate code for different devices in the same class. libv4l
+ consists of 3 different libraries: libv4lconvert, libv4l1 and libv4l2.
+ .
+ libv4l1 offers the (deprecated) v4l1 API on top of v4l2 devices, independent
+ of the drivers for those devices supporting v4l1 compatibility (which many
+ v4l2 drivers do not).
+ .
+ libv4l2 offers the v4l2 API on top of v4l2 devices, while adding for the
+ application transparent libv4lconvert conversion where necessary.
+ .
+ This package contains the shared libraries.
+Original-Maintainer: Gregor Jasny <gjasny@googlemail.com>
+
+Package: libv4lconvert0
+Source: v4l-utils
+Version: 1.14.2-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 274
+Depends: libc6 (>= 2.11), libjpeg8 (>= 8c)
+Breaks: libv4l-0 (<< 0.8.5-4)
+Replaces: libv4l-0 (<< 0.8.5-4)
+Filename: ./libv4lconvert0_1.14.2-1_i386.deb
+Size: 76844
+MD5sum: 48d3a94e23354cb3e82d84f28c0c4b20
+SHA1: 1444613d8bcb061a63b80047b6590bb6c197c4b6
+SHA256: 59a5e5669159246284289d573624b5f4f24b73fa85befcd0d50e7e454f193a34
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://linuxtv.org/downloads/v4l-utils/
+Description: Video4linux frame format conversion library
+ libv4lconvert offers functions to convert from any (known) pixelformat
+ to BGR24, RGB24, YUV420 and YVU420.
+ .
+ This package contains the shared library.
+Original-Maintainer: Gregor Jasny <gjasny@googlemail.com>
+
+Package: libvisual-0.4-0
+Source: libvisual
+Version: 0.4.0-11
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 400
+Depends: libc6 (>= 2.4)
+Suggests: libvisual-0.4-plugins
+Breaks: libvisual-0.4-plugins (<< 0.4.0.dfsg.1-5)
+Filename: ./libvisual-0.4-0_0.4.0-11_i386.deb
+Size: 106796
+MD5sum: 0ef306e0c7138abc15f2a4cef4f9eb03
+SHA1: 5b40e8b901debb8c46d7398453d85af9e21db1de
+SHA256: 84bf1dd122d1226d410351c9759fa7830864683ef2071dcff5cb912497073b9b
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://sf.net/projects/libvisual
+Description: audio visualization framework
+ Libvisual is a generic visualization framework that allows applications
+ to easily access and manage visualization plugins.
+ .
+ Audio visualization is the process of making pretty moving images that
+ are correlated in some way to the audio currently being played by a media
+ player. Most audio visualization is tied to a specific application or media
+ player, making it difficult to share code. Libvisual allows applications
+ to use existing visualization plugins written for the libvisual framework.
+ .
+ This package provides the runtime libraries for libvisual. Libvisual is not
+ very useful without visualization plugins, so it is highly recommended to
+ install the libvisual-0.4-plugins package.
+Original-Maintainer: Joao Eriberto Mota Filho <eriberto@debian.org>
+
+Package: libvorbis0a
+Source: libvorbis
+Version: 1.3.5-4.2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 196
+Depends: libc6 (>= 2.15), libogg0 (>= 1.1.0)
+Filename: ./libvorbis0a_1.3.5-4.2_i386.deb
+Size: 84372
+MD5sum: 7cb82855f57143697d7d3da688d677ed
+SHA1: 4b33d6dd0972073125698b28746d3b5924b3a9ec
+SHA256: 090102a8281c619d8e6311a68b582b79c6f3616f6f444efbe1f36f07206efd68
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.xiph.org/vorbis/
+Description: decoder library for Vorbis General Audio Compression Codec
+ Ogg Vorbis is a fully open, non-proprietary, patent-and-royalty-free,
+ general-purpose compressed audio format for audio and music at fixed
+ and variable bitrates from 16 to 128 kbps/channel.
+ .
+ The Vorbis library is the primary Ogg Vorbis library.
+Original-Maintainer: Debian Xiph.org Maintainers <pkg-xiph-maint@lists.alioth.debian.org>
+
+Package: libvorbisenc2
+Source: libvorbis
+Version: 1.3.5-4.2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 578
+Depends: libc6 (>= 2.4), libvorbis0a (= 1.3.5-4.2)
+Filename: ./libvorbisenc2_1.3.5-4.2_i386.deb
+Size: 64464
+MD5sum: 85f04fce6a6fd0f810ebf01ff26cf981
+SHA1: 848150bf1a6b81cf3006400ae0914c22ecf22d5c
+SHA256: 4151e9c8e2cc17802b8b4357884cab3ff8d3a563f1cb348540c1a426f3c6c679
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: http://www.xiph.org/vorbis/
+Description: encoder library for Vorbis General Audio Compression Codec
+ Ogg Vorbis is a fully open, non-proprietary, patent-and-royalty-free,
+ general-purpose compressed audio format for audio and music at fixed
+ and variable bitrates from 16 to 128 kbps/channel.
+ .
+ The Vorbisenc library provides a convenient API for setting up an encoding
+ environment using libvorbis.
+Original-Maintainer: Debian Xiph.org Maintainers <pkg-xiph-maint@lists.alioth.debian.org>
 
 Package: libwayland-client0
 Source: wayland
@@ -8511,6 +10763,34 @@ Description: Heimdal Kerberos - stringprep implementation
  This package contains the stringprep library.
 Original-Maintainer: Brian May <bam@debian.org>
 
+Package: libwine
+Source: wine
+Version: 3.0-1ubuntu1
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 187570
+Depends: libc6 (>= 2.23), libfontconfig1 (>= 2.12), libfreetype6 (>= 2.2.1), libncurses5 (>= 6), libtinfo5 (>= 6), libasound2 (>= 1.0.16), libgcc1 (>= 1:3.0), libglib2.0-0 (>= 2.12.0), libgphoto2-6 (>= 2.5.10), libgphoto2-port12 (>= 2.5.10), libgstreamer-plugins-base1.0-0 (>= 1.0.0), libgstreamer1.0-0 (>= 1.4.0), liblcms2-2 (>= 2.2+git20110628), libldap-2.4-2 (>= 2.4.7), libmpg123-0 (>= 1.6.2), libopenal1 (>= 1.14), libpcap0.8 (>= 0.9.8), libpulse0 (>= 0.99.1), libudev1 (>= 183), libx11-6, libxext6, libxml2 (>= 2.9.0), ocl-icd-libopencl1 | libopencl1, ocl-icd-libopencl1 (>= 1.0) | libopencl-1.1-1, zlib1g (>= 1:1.1.4)
+Recommends: libcapi20-3, libcups2 (>= 1.4.0), libdbus-1-3 (>= 1.9.14), libgl1-mesa-glx | libgl1, libglu1-mesa | libglu1, libgnutls30 (>= 3.5.0), libgsm1 (>= 1.0.13), libjpeg8 (>= 8c), libkrb5-3 (>= 1.6.dfsg.2), libodbc1 (>= 2.3.1), libosmesa6 (>= 10.2~), libpng16-16 (>= 1.6.2-1), libsane1 (>= 1.0.24), libtiff5 (>= 4.0.3), libv4l-0 (>= 0.5.0), libxcomposite1 (>= 1:0.3-1), libxcursor1 (>> 1.1.2), libxfixes3, libxi6, libxinerama1, libxrandr2, libxrender1, libxslt1.1 (>= 1.1.25), libxxf86vm1, libgl1-mesa-dri, libasound2-plugins, fonts-liberation, fonts-wine (>= 1.8.2-1~)
+Suggests: cups-bsd, ttf-mscorefonts-installer
+Breaks: wine1.6-amd64 (<< 1:1.8.4ubuntu1~), wine1.6-i386 (<< 1:1.8.4ubuntu1~)
+Replaces: wine1.6-amd64 (<< 1:1.8.4ubuntu1~), wine1.6-i386 (<< 1:1.8.4ubuntu1~)
+Built-Using: khronos-api (= 0~svn33340-0.1), unicode-data (= 10.0.0-3)
+Filename: ./libwine_3.0-1ubuntu1_amd64.deb
+Size: 20241600
+MD5sum: 9a78b805b5bae979af93e5a0ad5b7ba9
+SHA1: f9aadcf437923b7ac7b14ab2d5420e2ae22459d5
+SHA256: 25975c4d313ff4a94244d07fe1e54ce7933d6e06a176288ac68fa70c1f264df7
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://www.winehq.org
+Description: Windows API implementation - library
+ Wine is a free MS-Windows API implementation.
+ This is still a work in progress and many applications may still not work.
+ .
+ This package provides the Wine library.
+Original-Maintainer: Debian Wine Party <pkg-wine-party@lists.alioth.debian.org>
+
 Package: libwinpr2-2
 Source: freerdp2
 Version: 2.2.0+dfsg1-0ubuntu0.18.04.4
@@ -8542,6 +10822,60 @@ Description: Windows Portable Runtime library
  .
  This package contains the WinPR shared library.
 Original-Maintainer: Debian Remote Maintainers <pkg-remote-team@lists.alioth.debian.org>
+
+Package: libwrap0
+Source: tcp-wrappers
+Version: 7.6.q-27
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 103
+Depends: libc6 (>= 2.11)
+Filename: ./libwrap0_7.6.q-27_i386.deb
+Size: 47240
+MD5sum: a70dcea24c7c61c1e820238ef071c8a4
+SHA1: 331745705e74562f8cf4c5d92210e00a6b6da86a
+SHA256: d91d257a5e20c380346ceca369ad32085a3ff1d5b42574d67175c5a3ef28f299
+Section: libs
+Priority: standard
+Multi-Arch: same
+Description: Wietse Venema's TCP wrappers library
+ Wietse Venema's network logger, also known as TCPD or LOG_TCP.
+ .
+ These programs log the client host name of incoming telnet,
+ ftp, rsh, rlogin, finger etc. requests.
+ .
+ Security options are:
+  - access control per host, domain and/or service;
+  - detection of host name spoofing or host address spoofing;
+  - booby traps to implement an early-warning system.
+Original-Maintainer: Marco d'Itri <md@linux.it>
+
+Package: libx11-6
+Source: libx11
+Version: 2:1.6.4-3ubuntu0.4
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 1423
+Depends: libc6 (>= 2.15), libxcb1 (>= 1.11.1), libx11-data
+Filename: ./libx11-6_2%3a1.6.4-3ubuntu0.4_i386.deb
+Size: 593544
+MD5sum: 03614f1378a0ffaa37ab1808197bfe1c
+SHA1: aeb1c3b3a4cdc5c54afdcae370de02154a4ee8a5
+SHA256: 1250785f03c6ed9df3973abb1183f7a510243aa578276e94beec220352b20b09
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X11 client-side library
+ This package provides a client interface to the X Window System, otherwise
+ known as 'Xlib'.  It provides a complete API for the basic functions of the
+ window system.
+ .
+ More information about X.Org can be found at:
+ <URL:https://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libX11
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 
 Package: libx11-dev
 Source: libx11
@@ -8605,6 +10939,34 @@ Description: X11 client-side library (development documentation)
  git://anongit.freedesktop.org/git/xorg/lib/libX11
 Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 
+Package: libx11-xcb1
+Source: libx11
+Version: 2:1.6.4-3ubuntu0.4
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 76
+Filename: ./libx11-xcb1_2%3a1.6.4-3ubuntu0.4_i386.deb
+Size: 9704
+MD5sum: 80e5df39ba75a3701d22ec23d5226c89
+SHA1: 5d1222244bd061e5b96723ca98bdb58c60bc2c98
+SHA256: cce8ab7a1618671a4330a8c68f50901a1682c96a535fd115c96ad305c2d0955d
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: Xlib/XCB interface library
+ libX11-xcb provides functions needed by clients which take advantage of
+ Xlib/XCB to mix calls to both Xlib and XCB over the same X connection.
+ .
+ More information about X.Org can be found at:
+ <URL:https://www.X.org>
+ .
+ More information about XCB can be found at:
+ <URL:https://xcb.freedesktop.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libX11
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
 Package: libxau-dev
 Source: libxau
 Version: 1:1.0.8-1ubuntu1
@@ -8633,6 +10995,290 @@ Description: X11 authorisation library (development headers)
  .
  This module can be found at
  git://anongit.freedesktop.org/git/xorg/lib/libXau
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxau6
+Source: libxau
+Version: 1:1.0.8-1ubuntu1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 30
+Depends: libc6 (>= 2.4)
+Filename: ./libxau6_1%3a1.0.8-1ubuntu1_i386.deb
+Size: 7860
+MD5sum: b93fcdbfa3623e003cc9d16bcf781f4f
+SHA1: e37c6f9a9b58650d934485e6a855f990e975231e
+SHA256: b365463c52e8ac0264685f6055453593075a2ed3832a0f99d8dbc5624eb25e04
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X11 authorisation library
+ This package provides the main interface to the X11 authorisation handling,
+ which controls authorisation for X connections, both client-side and
+ server-side.
+ .
+ More information about X.Org can be found at:
+ <URL:http://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXau
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxcb-dri2-0
+Source: libxcb
+Version: 1.13-2~ubuntu18.04
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 41
+Depends: libc6 (>= 2.4), libxcb1
+Filename: ./libxcb-dri2-0_1.13-2~ubuntu18.04_i386.deb
+Size: 7308
+MD5sum: 4406ddfc4585840a14e85c75785c5227
+SHA1: 1d18c0dc7f411a27a43241ab9c412567bbec75b2
+SHA256: 30d976938c85107d49378e1f49d607943c931266c2ccf331f0889ab6b70cbc85
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://xcb.freedesktop.org
+Description: X C Binding, dri2 extension
+ This package contains the library files needed to run software using
+ libxcb-dri2, the dri2 extension for the X C Binding.
+ .
+ The XCB library provides an interface to the X Window System protocol,
+ designed to replace the Xlib interface.  XCB provides several advantages over
+ Xlib:
+ .
+  * Size: small library and lower memory footprint
+  * Latency hiding: batch several requests and wait for the replies later
+  * Direct protocol access: one-to-one mapping between interface and protocol
+  * Thread support: access XCB from multiple threads, with no explicit locking
+  * Easy creation of new extensions: automatically generates interface from
+    machine-parsable protocol descriptions
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxcb-dri3-0
+Source: libxcb
+Version: 1.13-2~ubuntu18.04
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 37
+Depends: libc6 (>= 2.4), libxcb1 (>= 1.12)
+Filename: ./libxcb-dri3-0_1.13-2~ubuntu18.04_i386.deb
+Size: 6956
+MD5sum: 0ae4d9dac3ad114dcba4c7c3d826e31f
+SHA1: c334b6b32c5933cacc554885207414b3c588fcf2
+SHA256: 3275a9c5876f6fcc463759dfe17221f2cbc48f65ca82dc3982bf2e0e8fb14151
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://xcb.freedesktop.org
+Description: X C Binding, dri3 extension
+ This package contains the library files needed to run software using
+ libxcb-dri3, the dri3 extension for the X C Binding.
+ .
+ The XCB library provides an interface to the X Window System protocol,
+ designed to replace the Xlib interface.  XCB provides several advantages over
+ Xlib:
+ .
+  * Size: small library and lower memory footprint
+  * Latency hiding: batch several requests and wait for the replies later
+  * Direct protocol access: one-to-one mapping between interface and protocol
+  * Thread support: access XCB from multiple threads, with no explicit locking
+  * Easy creation of new extensions: automatically generates interface from
+    machine-parsable protocol descriptions
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxcb-glx0
+Source: libxcb
+Version: 1.13-2~ubuntu18.04
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 153
+Depends: libc6 (>= 2.4), libxcb1
+Filename: ./libxcb-glx0_1.13-2~ubuntu18.04_i386.deb
+Size: 23716
+MD5sum: 07e6b2ae64e93f90deb9917f945eb9d5
+SHA1: e9d3924ceb85b7c78a5d9eb6f3a299fe802efecf
+SHA256: b7b4233624174cbfc0c8cbc033c6948e3306c10ad22e63bc50689d1c636feb3a
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://xcb.freedesktop.org
+Description: X C Binding, glx extension
+ This package contains the library files needed to run software using
+ libxcb-glx, the glx extension for the X C Binding.
+ .
+ The XCB library provides an interface to the X Window System protocol,
+ designed to replace the Xlib interface.  XCB provides several advantages over
+ Xlib:
+ .
+  * Size: small library and lower memory footprint
+  * Latency hiding: batch several requests and wait for the replies later
+  * Direct protocol access: one-to-one mapping between interface and protocol
+  * Thread support: access XCB from multiple threads, with no explicit locking
+  * Easy creation of new extensions: automatically generates interface from
+    machine-parsable protocol descriptions
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxcb-present0
+Source: libxcb
+Version: 1.13-2~ubuntu18.04
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 31
+Depends: libc6 (>= 2.4), libxcb1
+Filename: ./libxcb-present0_1.13-2~ubuntu18.04_i386.deb
+Size: 5696
+MD5sum: c0aa43c4f4d73e774835846541b92437
+SHA1: 50641651b2d3822b591dbb2eaafb9711fc2ce2e0
+SHA256: 7420643684d4ab71dc22f737226eaab14fe94561ed221729c705cd0ace475bd9
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://xcb.freedesktop.org
+Description: X C Binding, present extension
+ This package contains the library files needed to run software using
+ libxcb-present, the present extension for the X C Binding.
+ .
+ The XCB library provides an interface to the X Window System protocol,
+ designed to replace the Xlib interface.  XCB provides several advantages over
+ Xlib:
+ .
+  * Size: small library and lower memory footprint
+  * Latency hiding: batch several requests and wait for the replies later
+  * Direct protocol access: one-to-one mapping between interface and protocol
+  * Thread support: access XCB from multiple threads, with no explicit locking
+  * Easy creation of new extensions: automatically generates interface from
+    machine-parsable protocol descriptions
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxcb-render0
+Source: libxcb
+Version: 1.13-2~ubuntu18.04
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 85
+Depends: libc6 (>= 2.4), libxcb1 (>= 1.8)
+Filename: ./libxcb-render0_1.13-2~ubuntu18.04_i386.deb
+Size: 15928
+MD5sum: 0cf1cd10ce23d08e2c352f90fd6acb8e
+SHA1: b3e1157f75d9852e2ca450d74ed7584c6b7ee20a
+SHA256: f778e4e458ccb6c9e5287b7872b857fffcb2251eeeb1f21583f47bf143d17168
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://xcb.freedesktop.org
+Description: X C Binding, render extension
+ This package contains the library files needed to run software using
+ libxcb-render, the render extension for the X C Binding.
+ .
+ The XCB library provides an interface to the X Window System protocol,
+ designed to replace the Xlib interface.  XCB provides several advantages over
+ Xlib:
+ .
+  * Size: small library and lower memory footprint
+  * Latency hiding: batch several requests and wait for the replies later
+  * Direct protocol access: one-to-one mapping between interface and protocol
+  * Thread support: access XCB from multiple threads, with no explicit locking
+  * Easy creation of new extensions: automatically generates interface from
+    machine-parsable protocol descriptions
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxcb-shm0
+Source: libxcb
+Version: 1.13-2~ubuntu18.04
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 31
+Depends: libc6 (>= 2.4), libxcb1 (>= 1.12)
+Filename: ./libxcb-shm0_1.13-2~ubuntu18.04_i386.deb
+Size: 5736
+MD5sum: d9c7d0cf00e0829eed016c8bf50a215b
+SHA1: 186a982a8c68062813df05ae6d3917f366689a74
+SHA256: 3ebb86ce6aeb497abeee6cfaeb3e02bfdc9ebe47cc62c94ef90a77281e160d98
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://xcb.freedesktop.org
+Description: X C Binding, shm extension
+ This package contains the library files needed to run software using
+ libxcb-shm, the shm extension for the X C Binding.
+ .
+ The XCB library provides an interface to the X Window System protocol,
+ designed to replace the Xlib interface.  XCB provides several advantages over
+ Xlib:
+ .
+  * Size: small library and lower memory footprint
+  * Latency hiding: batch several requests and wait for the replies later
+  * Direct protocol access: one-to-one mapping between interface and protocol
+  * Thread support: access XCB from multiple threads, with no explicit locking
+  * Easy creation of new extensions: automatically generates interface from
+    machine-parsable protocol descriptions
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxcb-sync1
+Source: libxcb
+Version: 1.13-2~ubuntu18.04
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 50
+Depends: libc6 (>= 2.4), libxcb1
+Filename: ./libxcb-sync1_1.13-2~ubuntu18.04_i386.deb
+Size: 9152
+MD5sum: 9a208a3fc4e3764d520a9c04260c3599
+SHA1: cc93d1a8d47b7063394f6cb11a363874fb6321da
+SHA256: a6052d640598919ded50f02d1c9b97071d1c5bffd1756db6fecf66540506b649
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://xcb.freedesktop.org
+Description: X C Binding, sync extension
+ This package contains the library files needed to run software using
+ libxcb-sync, the sync extension for the X C Binding.
+ .
+ The XCB library provides an interface to the X Window System protocol,
+ designed to replace the Xlib interface.  XCB provides several advantages over
+ Xlib:
+ .
+  * Size: small library and lower memory footprint
+  * Latency hiding: batch several requests and wait for the replies later
+  * Direct protocol access: one-to-one mapping between interface and protocol
+  * Thread support: access XCB from multiple threads, with no explicit locking
+  * Easy creation of new extensions: automatically generates interface from
+    machine-parsable protocol descriptions
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxcb1
+Source: libxcb
+Version: 1.13-2~ubuntu18.04
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 213
+Depends: libc6 (>= 2.4), libxau6, libxdmcp6
+Breaks: alsa-utils (<< 1.0.24.2-5)
+Filename: ./libxcb1_1.13-2~ubuntu18.04_i386.deb
+Size: 49872
+MD5sum: 971b07f222001f9f48bbd53ba3281d49
+SHA1: 4b05e6047da3b1013b5e297635e749305e09464c
+SHA256: 078f141aff4b6b86022e3107c29650087c1a641cab9597f95fb57454252b3be1
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://xcb.freedesktop.org
+Description: X C Binding
+ This package contains the library files needed to run software using libxcb,
+ the X C Binding.
+ .
+ The XCB library provides an interface to the X Window System protocol,
+ designed to replace the Xlib interface.  XCB provides several advantages over
+ Xlib:
+ .
+  * Size: small library and lower memory footprint
+  * Latency hiding: batch several requests and wait for the replies later
+  * Direct protocol access: one-to-one mapping between interface and protocol
+  * Thread support: access XCB from multiple threads, with no explicit locking
+  * Easy creation of new extensions: automatically generates interface from
+    machine-parsable protocol descriptions
 Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 
 Package: libxcb1-dev
@@ -8668,6 +11314,91 @@ Description: X C Binding, development files
     machine-parsable protocol descriptions
 Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 
+Package: libxcomposite1
+Source: libxcomposite
+Version: 1:0.4.4-2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 27
+Depends: libc6 (>= 2.4), libx11-6 (>= 2:1.4.99.1)
+Filename: ./libxcomposite1_1%3a0.4.4-2_i386.deb
+Size: 7184
+MD5sum: 8469dff89a905a1b3cdd62be7d161798
+SHA1: 7b08f86fcda89d0146120cb9c99eaf8a977f0d0b
+SHA256: d2d64a65b8285de3d3e2f9f3164caf8935f0c91eb05750307002e30e8cc93ae3
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X11 Composite extension library
+ libXcomposite provides an X Window System client interface to the Composite
+ extension to the X protocol.
+ .
+ The Composite extension allows clients called compositing managers to control
+ the final drawing of the screen.  Rendering is done into an off-screen buffer.
+ .
+ More information about X.Org can be found at:
+ <URL:http://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXcomposite
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxcursor1
+Source: libxcursor
+Version: 1:1.1.15-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 62
+Depends: libc6 (>= 2.4), libx11-6 (>= 2:1.4.99.1), libxfixes3, libxrender1
+Filename: ./libxcursor1_1%3a1.1.15-1_i386.deb
+Size: 21460
+MD5sum: 766b01479369836e16defe00c38d448e
+SHA1: 2cc6c8fce7460b7b00767f7b54735fd5729f0cc5
+SHA256: d159cde95edd2908335c85f1d2a20b25d911a3782926bab27cd3901123eef5c3
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://www.x.org
+Description: X cursor management library
+ Xcursor is a simple library designed to help locate and load cursors for the
+ X Window System.  Cursors can be loaded from files or memory and can exist in
+ several sizes; the library automatically picks the best size.  When using
+ images loaded from files, Xcursor prefers to use the Render extension's
+ CreateCursor request for rendering cursors.  Where the Render extension is
+ not supported, Xcursor maps the cursor image to a standard X cursor and uses
+ the core X protocol CreateCursor request.
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxdamage1
+Source: libxdamage
+Version: 1:1.1.4-3
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 26
+Depends: libc6 (>= 2.4), libx11-6 (>= 2:1.4.99.1)
+Filename: ./libxdamage1_1%3a1.1.4-3_i386.deb
+Size: 7090
+MD5sum: 3a02f675342d791efe1f29a98711d0b4
+SHA1: fc4da13245d3d07b29281c0b64180bebaaf6bb68
+SHA256: c6cf823838e9a02286ad7b4455e71bf997619f94023512e724b394378261fbc0
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://www.x.org
+Description: X11 damaged region extension library
+ libXdamage provides an X Window System client interface to the DAMAGE
+ extension to the X protocol.
+ .
+ The Damage extension provides for notification of when on-screen regions have
+ been 'damaged' (altered).
+ .
+ More information about X.Org can be found at:
+ <URL:http://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXdamage
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
 Package: libxdmcp-dev
 Source: libxdmcp
 Version: 1:1.1.2-3
@@ -8689,6 +11420,32 @@ Description: X11 authorisation library (development headers)
  .
  This package contains the development headers for the library found in
  libxdmcp6. Non-developers likely have little use for this package.
+ .
+ More information about X.Org can be found at:
+ <URL:http://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXdmcp
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxdmcp6
+Source: libxdmcp
+Version: 1:1.1.2-3
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 38
+Depends: libbsd0 (>= 0.2.0), libc6 (>= 2.4)
+Filename: ./libxdmcp6_1%3a1.1.2-3_i386.deb
+Size: 11066
+MD5sum: 4fa61711abeedd0db76dd44b2b2c2342
+SHA1: 7cb491dbe34e374d714f98bb24b02b621a204797
+SHA256: 86a3816cd045f43bfd2681b1101bfdaddc8ec775ed6fbfaab74ca346e2246a87
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X11 Display Manager Control Protocol library
+ This package provides the main interface to the X11 display manager control
+ protocol library, which allows for remote logins to display managers.
  .
  More information about X.Org can be found at:
  <URL:http://www.X.org>
@@ -8749,6 +11506,55 @@ Description: X11 miscellaneous extensions library (development headers)
  git://anongit.freedesktop.org/git/xorg/lib/libXext
 Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 
+Package: libxext6
+Source: libxext
+Version: 2:1.3.3-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 128
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.4), libx11-6 (>= 2:1.6.0)
+Filename: ./libxext6_2%3a1.3.3-1_i386.deb
+Size: 31594
+MD5sum: d82e662f17a1ad06c920ce144e5d1907
+SHA1: f7ee8e770088d0e348df06a18b636026bf9f38f7
+SHA256: 61857f80b1a4a4d2e6f8b47e1feb104635b01556b79c4846557c773728e8e924
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X11 miscellaneous extension library
+ libXext provides an X Window System client interface to several extensions to
+ the X protocol.
+ .
+ The supported protocol extensions are:
+  - DOUBLE-BUFFER (DBE), the Double Buffer extension;
+  - DPMS, the VESA Display Power Management System extension;
+  - Extended-Visual-Information (EVI), an extension for gathering extra
+    information about the X server's visuals;
+  - LBX, the Low Bandwidth X extension;
+  - MIT-SHM, the MIT X client/server shared memory extension;
+  - MIT-SUNDRY-NONSTANDARD, a miscellaneous extension by MIT;
+  - Multi-Buffering, the multi-buffering and stereo display extension;
+  - SECURITY, the X security extension;
+  - SHAPE, the non-rectangular shaped window extension;
+  - SYNC, the X synchronization extension;
+  - TOG-CUP, the Open Group's Colormap Utilization extension;
+  - XC-APPGROUP, the X Consortium's Application Group extension;
+  - XC-MISC, the X Consortium's resource ID querying extension;
+  - XTEST, the X test extension (this is one of two client-side
+    implementations; the other is in the libXtst library, provided by the
+    libxtst6 package);
+ .
+ libXext also provides a small set of utility functions to aid authors of
+ client APIs for X protocol extensions.
+ .
+ More information about X.Org can be found at:
+ <URL:http://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXext
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
 Package: libxfixes-dev
 Source: libxfixes
 Version: 1:5.0.3-1
@@ -8772,6 +11578,34 @@ Description: X11 miscellaneous 'fixes' extension library (development headers)
  .
  This package contains the development headers for the library found in
  libxfixes3.  Non-developers likely have little use for this package.
+ .
+ More information about X.Org can be found at:
+ <URL:https://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXfixes
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxfixes3
+Source: libxfixes
+Version: 1:5.0.3-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 42
+Depends: libc6 (>= 2.4), libx11-6 (>= 2:1.6.0)
+Filename: ./libxfixes3_1%3a5.0.3-1_i386.deb
+Size: 11218
+MD5sum: 0d44939408b7c1736235de6d6c3f96ab
+SHA1: fa8020a3d6d01170bb599afaad0fa7ec280fd209
+SHA256: 2a2ed86b6f0b760c8f7797a6f478339ffe4478920e9f08140e3b7011a88fabb8
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X11 miscellaneous 'fixes' extension library
+ libXfixes provides an X Window System client interface to the 'XFIXES'
+ extension to the X protocol.
+ .
+ It provides support for Region types, and some cursor functions.
  .
  More information about X.Org can be found at:
  <URL:https://www.X.org>
@@ -8836,6 +11670,67 @@ Description: X11 Input extension library (development headers)
  .
  This module can be found at
  git://anongit.freedesktop.org/git/xorg/lib/libXi
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxi6
+Source: libxi
+Version: 2:1.7.9-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 95
+Depends: libc6 (>= 2.4), libx11-6 (>= 2:1.6.0), libxext6
+Filename: ./libxi6_2%3a1.7.9-1_i386.deb
+Size: 31716
+MD5sum: 62dd3d75aa61531cf48d9f8198fbac48
+SHA1: 9ed360a5d3c6b3ef14d6b2eb6624e0a29ee21e8f
+SHA256: fd9dfd721686438deaf08b07f833577ab2f909898fceda0b51d8b9ff5a76890c
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://www.x.org/
+Description: X11 Input extension library
+ libXi provides an X Window System client interface to the XINPUT
+ extension to the X protocol.
+ .
+ The Input extension allows setup and configuration of multiple input devices,
+ and hotplugging of input devices (to be added and removed on the fly).
+ .
+ More information about X.Org can be found at:
+ <URL:https://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXi
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxinerama1
+Source: libxinerama
+Version: 2:1.1.3-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 48
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.1.3), libx11-6 (>= 2:1.4.99.1), libxext6
+Filename: ./libxinerama1_2%3a1.1.3-1_i386.deb
+Size: 7900
+MD5sum: e590212314255945274190f669efc2f5
+SHA1: fa51e783ab62ab7fe08da0e0a6dc4fccea49e3d7
+SHA256: acbc483ce97574da5c224f9f9d54fc933edc15e68a0867de8712b0686caf6d9e
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X11 Xinerama extension library
+ libXinerama provides an X Window System client interface to the XINERAMA
+ extension to the X protocol.
+ .
+ The Xinerama (also known as panoramiX) extension allows for multiple screens
+ attached to a single display to be treated as belonging together, and to give
+ desktop applications a better idea of the monitor layout.
+ .
+ More information about X.Org can be found at:
+ <URL:http://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXinerama
 Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 
 Package: libxm4
@@ -9028,6 +11923,35 @@ Description: X11 pixmap library
  This package provides runtime support for XPM format.
 Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 
+Package: libxrandr2
+Source: libxrandr
+Version: 2:1.5.1-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 68
+Depends: libc6 (>= 2.4), libx11-6 (>= 2:1.6.0), libxext6, libxrender1
+Filename: ./libxrandr2_2%3a1.5.1-1_i386.deb
+Size: 19936
+MD5sum: bd5cc5228b4372ed84f96b48ff0ab4a9
+SHA1: 1a89075053e25b708d835c798dde0c60855835a1
+SHA256: d04b21a29cedbf1a9ced8b147482799e429191b633c8fe609478ef9da497508e
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X11 RandR extension library
+ libXrandr provides an X Window System client interface to the RandR
+ extension to the X protocol.
+ .
+ The RandR extension allows for run-time configuration of display attributes
+ such as resolution, rotation, and reflection.
+ .
+ More information about X.Org can be found at:
+ <URL:https://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXrandr
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
 Package: libxrender-dev
 Source: libxrender
 Version: 1:0.9.10-1
@@ -9058,6 +11982,58 @@ Description: X Rendering Extension client library (development files)
  .
  This module can be found at
  git://anongit.freedesktop.org/git/xorg/lib/libXrender
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxrender1
+Source: libxrender
+Version: 1:0.9.10-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 63
+Depends: libc6 (>= 2.4), libx11-6 (>= 2:1.6.0)
+Filename: ./libxrender1_1%3a0.9.10-1_i386.deb
+Size: 19856
+MD5sum: 507018d94bc9a4ebf4be80e55b47e468
+SHA1: 7516a97de3a7a017a5bf48f28b4e995511652f1f
+SHA256: 0a6c4e2b4e0ef89a26c03fc8df50fdab4aa76960285e1a42b4154d327ffec03f
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X Rendering Extension client library
+ The X Rendering Extension (Render) introduces digital image composition as
+ the foundation of a new rendering model within the X Window System.
+ Rendering geometric figures is accomplished by client-side tessellation into
+ either triangles or trapezoids.  Text is drawn by loading glyphs into the
+ server and rendering sets of them.  The Xrender library exposes this
+ extension to X clients.
+ .
+ More information about X.Org can be found at:
+ <URL:https://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXrender
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxshmfence1
+Source: libxshmfence
+Version: 1.3-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 21
+Depends: libc6 (>= 2.27)
+Filename: ./libxshmfence1_1.3-1_i386.deb
+Size: 5180
+MD5sum: 7c079d35a5c9cca58490024e652f9631
+SHA1: 5e0580a02eaf6e15cd10dc263ec2de06fa00b67c
+SHA256: 2a0b83435514ce9ff7d29348066572f7d8cca6f5208aeebe7bbfd3cd988b3907
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X shared memory fences - shared library
+ This library provides an interface to shared-memory fences for
+ synchronization between the X server and direct-rendering clients.
+ .
+ This package contains the xshmfence shared library.
 Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
 
 Package: libxslt1.1
@@ -9171,6 +12147,58 @@ Description: X11 Record extension library (development headers)
  This module can be found at
  git://anongit.freedesktop.org/git/xorg/lib/libXtst
 Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libxxf86vm1
+Source: libxxf86vm
+Version: 1:1.1.4-1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 58
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.4), libx11-6 (>= 2:1.6.0), libxext6
+Filename: ./libxxf86vm1_1%3a1.1.4-1_i386.deb
+Size: 11252
+MD5sum: 81a2aecf99f130ec892ee98cdd460483
+SHA1: 8c8520d2a34d5a937564c7f8f231fe8d25338c42
+SHA256: 6f53c1439f74b66690b0f936223ef2df007541c5118e4b6bf301b182c9b02e5b
+Section: libs
+Priority: optional
+Multi-Arch: same
+Description: X11 XFree86 video mode extension library
+ libXxf86vm provides an interface to the XFree86-VidModeExtension
+ extension, which allows client applications to get and set video mode
+ timings in extensive detail.  It is used by the xvidtune program in
+ particular.
+ .
+ More information about X.Org can be found at:
+ <URL:http://www.X.org>
+ .
+ This module can be found at
+ git://anongit.freedesktop.org/git/xorg/lib/libXxf86vm
+Original-Maintainer: Debian X Strike Force <debian-x@lists.debian.org>
+
+Package: libzstd1
+Source: libzstd
+Version: 1.3.3+dfsg-2ubuntu1.2
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 531
+Depends: libc6 (>= 2.4)
+Filename: ./libzstd1_1.3.3+dfsg-2ubuntu1.2_i386.deb
+Size: 197248
+MD5sum: 741ffe7540a13171dbb9e53245a8d9c5
+SHA1: d7be673e526d47016d6d529ca49491f1a04496e5
+SHA256: aca63895c0f73bb5d0b4815a6f6e22fcf264a792190c8b9342a5608c7170e0cc
+Section: libs
+Priority: optional
+Multi-Arch: same
+Homepage: https://github.com/facebook/zstd
+Description: fast lossless compression algorithm
+ Zstd, short for Zstandard, is a fast lossless compression algorithm, targeting
+ real-time compression scenarios at zlib-level compression ratio.
+ .
+ This package contains the shared library.
+Original-Maintainer: Debian Med Packaging Team <debian-med-packaging@lists.alioth.debian.org>
 
 Package: linux-base
 Version: 4.5ubuntu1.7
@@ -9666,6 +12694,37 @@ Description: read/write NTFS driver for FUSE
  NTFS-3G uses FUSE (Filesystem in Userspace) to provide support for the NTFS
  filesystem used by Microsoft Windows.
 Original-Maintainer: Laszlo Boszormenyi (GCS) <gcs@debian.org>
+
+Package: ocl-icd-libopencl1
+Source: ocl-icd
+Version: 2.2.11-1ubuntu1
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 114
+Depends: libc6 (>= 2.4)
+Suggests: opencl-icd
+Conflicts: amd-app, libopencl1, nvidia-libopencl1-dev
+Replaces: amd-app, libopencl1, nvidia-libopencl1-dev
+Provides: libopencl-1.1-1, libopencl-1.2-1, libopencl-2.0-1, libopencl-2.1-1, libopencl1
+Filename: ./ocl-icd-libopencl1_2.2.11-1ubuntu1_amd64.deb
+Size: 30338
+MD5sum: 9880780bcfa5aabf7805d5dad6fcd5fa
+SHA1: 4c1050bcb6ef1153e23f0c41715c2f025a017bde
+SHA256: 95b9c384d145f86e0f8b04035f35ea22d813a183f0d90fd84e59b4c5682376b3
+Section: libs
+Priority: extra
+Multi-Arch: same
+Homepage: https://forge.imag.fr/projects/ocl-icd/
+Description: Generic OpenCL ICD Loader
+ OpenCL (Open Computing Language) is a multivendor open standard for
+ general-purpose parallel programming of heterogeneous systems that include
+ CPUs, GPUs and other processors.
+ .
+ This package contains an installable client driver loader (ICD Loader)
+ library that can be used to load any (free or non-free) installable client
+ driver (ICD) for OpenCL. It acts as a demultiplexer so several ICD can
+ be installed and used together.
+Original-Maintainer: Vincent Danjean <vdanjean@debian.org>
 
 Package: openssh-client
 Source: openssh
@@ -11678,6 +14737,91 @@ Description: Vi IMproved - enhanced vi editor - compact version
  If a vim binary is wanted, try one of the following more featureful
  packages: vim, vim-nox, vim-athena, vim-gtk, or vim-gtk3.
 Original-Maintainer: Debian Vim Maintainers <pkg-vim-maintainers@lists.alioth.debian.org>
+
+Package: wine-stable
+Source: wine
+Version: 3.0-1ubuntu1
+Architecture: all
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 185
+Depends: wine64 (>= 3.0-1ubuntu1) | wine32 (>= 3.0-1ubuntu1), wine64 (<< 3.0-1ubuntu1.1~) | wine32 (<< 3.0-1ubuntu1.1~)
+Suggests: winbind, winetricks, playonlinux, wine-binfmt, dosbox (>= 0.74-4.2~)
+Conflicts: wine (>= 1:1)
+Breaks: wine1.6 (<< 1:1.8.4ubuntu1~), wine1.6-i386 (<< 1:1.8.4ubuntu1~)
+Replaces: wine1.6 (<< 1:1.8.4ubuntu1~), wine1.6-i386 (<< 1:1.8.4ubuntu1~)
+Provides: wine
+Built-Using: khronos-api (= 0~svn33340-0.1), unicode-data (= 10.0.0-3)
+Filename: ./wine-stable_3.0-1ubuntu1_all.deb
+Size: 51428
+MD5sum: d175d752fa5a95b9f24c9cff67390f82
+SHA1: 8aab135bb5679a77195c2eee886a9eabc2281aeb
+SHA256: acb9fb53e70df0ef30f016ae546d15a1ae3fad2d5377f697284267737434b292
+Section: otherosfs
+Priority: optional
+Multi-Arch: foreign
+Homepage: https://www.winehq.org
+Description: Windows API implementation - standard suite
+ Wine is a free MS-Windows API implementation.
+ This is still a work in progress and many applications may still not work.
+ .
+ This package provides essential wrappers and convenience tools for the
+ standard Wine components. It also employs the Debian alternatives system to
+ provide the usual command names, e.g. "wine" instead of "wine-stable".
+Original-Maintainer: Debian Wine Party <pkg-wine-party@lists.alioth.debian.org>
+
+Package: wine32
+Source: wine
+Version: 3.0-1ubuntu1
+Architecture: i386
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 613
+Depends: libc6 (>= 2.17), libwine (= 3.0-1ubuntu1)
+Recommends: wine-stable (= 3.0-1ubuntu1)
+Suggests: libwine-gecko-2.47, wine32-preloader (= 3.0-1ubuntu1)
+Built-Using: khronos-api (= 0~svn33340-0.1), unicode-data (= 10.0.0-3)
+Filename: ./wine32_3.0-1ubuntu1_i386.deb
+Size: 195520
+MD5sum: 9b05362a5909fba9c14f4c51c91d1c4f
+SHA1: a61329bfbdfb67627c777e8c1788a0155e9cc687
+SHA256: 7729b783d1e7f4debe953eb59227706ea491f1a02ba001149ee32f9d113389dd
+Section: otherosfs
+Priority: optional
+Multi-Arch: foreign
+Homepage: https://www.winehq.org
+Description: Windows API implementation - 32-bit binary loader
+ Wine is a free MS-Windows API implementation.
+ This is still a work in progress and many applications may still not work.
+ .
+ This package provides the binary loader for 32-bit Windows applications.
+Original-Maintainer: Debian Wine Party <pkg-wine-party@lists.alioth.debian.org>
+
+Package: wine64
+Source: wine
+Version: 3.0-1ubuntu1
+Architecture: amd64
+Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Installed-Size: 651
+Depends: libc6 (>= 2.17), libwine (= 3.0-1ubuntu1)
+Recommends: wine-stable (= 3.0-1ubuntu1), wine32 (= 3.0-1ubuntu1)
+Suggests: libwine-gecko-2.47, wine64-preloader (= 3.0-1ubuntu1)
+Breaks: wine1.6-amd64 (<< 1:1.8.4ubuntu1~)
+Replaces: wine1.6-amd64 (<< 1:1.8.4ubuntu1~)
+Built-Using: khronos-api (= 0~svn33340-0.1), unicode-data (= 10.0.0-3)
+Filename: ./wine64_3.0-1ubuntu1_amd64.deb
+Size: 200712
+MD5sum: 0a9673c6fb4333b98cbc624d70399cb2
+SHA1: 9d7f6ec7b82b291ca086162da6b4bcd5aebd3c5c
+SHA256: 932aebed9cd995112131d4d0523590dd1c6835bc1a9044dd0364e549e5d2f9ac
+Section: otherosfs
+Priority: optional
+Multi-Arch: foreign
+Homepage: https://www.winehq.org
+Description: Windows API implementation - 64-bit binary loader
+ Wine is a free MS-Windows API implementation.
+ This is still a work in progress and many applications may still not work.
+ .
+ This package provides the binary loader for 64-bit Windows applications.
+Original-Maintainer: Debian Wine Party <pkg-wine-party@lists.alioth.debian.org>
 
 Package: wireless-regdb
 Version: 2024.07.04-0ubuntu1~18.04.1

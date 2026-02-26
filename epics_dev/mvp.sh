@@ -8,10 +8,13 @@
 #this is charted to work only on Ubuntu 18.04, due to GUI dependencies on deprecated packages
 
 debugFlag=$1 #Boolean for verbose outputs & breakpoints, passed as arg
+debugFlag="True"
 
 set -euo pipefail
 
 trap 'echo "ERROR in function ${FUNCNAME[0]:-main}, file ${BASH_SOURCE[1]:${BASH_SOURCE[0]}}, line $LINENO"; exit 1' ERR
+caller="${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}"
+breakerStr="*******************************************"
 
 # ===================================================
 # Directory Management
@@ -32,6 +35,10 @@ EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
 EDM_DIR="$EPICS_EXTENSIONS/src/edm"
 EPICS_GUI="$EPICS_ROOT/gui"
 
+EDMBASE="$EPICS_EXTENSIONS/src/edm" #no underscore as this is imported from EDM installation script
+
+FONTS_DIR="$EPICS_GUI/fonts"
+
 LOCAL_GIT_CACHE="$FILES_DIR/localRepos" #enables offline downloads
 LOCAL_DEB_REPO="$FILES_DIR/$FILE_DIR_NAME"
 
@@ -43,9 +50,10 @@ exec > >(tee "$LOGFILE") 2>&1
 mkdir -p "$EPICS_ROOT"
 
 dependenciesList=( #used by apt install
-    dpkg-dev make wine-stable
+    dpkg-dev make wine-stable 
     build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
     libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi x11proto-print-dev autoconf libtool sshpass
+    libfont-ttf-perl
     )
 
 #region functions
@@ -70,7 +78,6 @@ breakpoint() {
     fi
 }
 
-
 cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "EPICS Base" "base"
     local githubLink="$1"
     local targetPath="$2"   # where it is to be cloned
@@ -84,6 +91,7 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
         if [ -d "$LOCAL_GIT_CACHE/${gitDirName}.git" ]; then 
             echo "Cloning $dirName from local cache..."
             git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
+            printf "Successfullly cloned repository: %s" "$gitDirName"
             return $? #most recent exit code; returns 0 on a success
         else
             if check_internet; then
@@ -97,9 +105,12 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
 
         echo "Error: Local cache empty and no internet connection. Cannot clone $dirName."
         exit 1
+    else
+        echo "Could not clone dir %s as directory not empty!" "$dirName"
     fi
 }
 #endregion
+
 
 #region user interaction; runtime environment / permissions
 
@@ -108,14 +119,16 @@ if [ -f /etc/os-release ]; then
     . /etc/os-release
     if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
         echo "The installer requires os version: *** Ubuntu 18.04 *** "
+        echo "Detected version: {$NAME}_{$VERSION_ID}"
         echo "EPICS will install properly, but the GUI will not work. Continue? [Y/n]" #edit for accuracy after release!!
 
-        ans=${answer:-Y}
-        if [[ "$ans" =~ ^[Yy]$ ]]; then 
-            :
-        else
+        read ans
+        ans=${ans,,}
+        if [ "$ans" == "n" || "$ans" == "no" ]; then 
             echo "Quitting"
             exit 1
+        else
+            :
         fi
 
     fi
@@ -133,9 +146,17 @@ fi
 
 #Detect/remove previous installations in $EPICS_ROOT
 if [ -d $EPICS_ROOT ] && [ -n "$EPICS_ROOT" ]; then
-    echo "Deleting previous epics install files"
-    printf "Previous epics install detected at $EPICS_ROOT \nDeleting prior epics files.\n"
-    rm -rf "$EPICS_ROOT"
+    printf "Existing EPICS installation detected at %s. Installation cannot proceed with existing files.\nRemove previous EPICS installation and reinstall? [Y/n]:" "$EPICS_ROOT"
+    read response
+
+    response=${response,,}
+    if [[ "$response" == "n" || "$response" == "no" ]]; then #default yes unless explicit No
+        echo "Installation aborted"
+        exit 1
+    else 
+        echo "Removing previous installation." 
+        rm -rf "$EPICS_ROOT"
+    fi
 fi
 
 
@@ -150,8 +171,8 @@ printf "Linux framework detected: %s. Is this correct? [Y/n]:" "$sysEnv"
 read response
 
 response=${response,,}
-if [[ "$response" == "n" || "$response" == "no" ]]; then
-    if [[ "$sysEnv" == "WSL" ]]; then
+if [ "$response" == "n" || "$response" == "no" ]; then
+    if [ "$sysEnv" == "WSL" ]; then
         sysEnv="Native Ubuntu"
     else
         sysEnv="WSL"
@@ -183,6 +204,7 @@ for pkg in "${dependenciesList[@]}"; do #identify missing files for dependencies
     if ! ls "$LOCAL_DEB_REPO"/"$pkg"_*.deb >/dev/null 2>&1; then
         missing_pkgs+=("$pkg")  # add to list 
         printf "Missing package: %s" "$pkg"
+        echo ""
     fi
 done
 
@@ -201,6 +223,11 @@ if [ "${#missing_pkgs[@]}" -ne 0 ]; then
         echo "No internet access: installation cannot proceed."
         exit 1
     fi
+
+#else #disable online apt repo --- WARNING: ensure they are re-enabled afterwards with: mv /etc/apt/sources.list.d/disabled/*.list /etc/apt/sources.list.d/
+    #echo "Disabling online repo"
+    #mkdir -p /etc/apt/sources.list.d/disabled
+    #mv /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/disabled/
 fi
 
 
@@ -257,6 +284,13 @@ if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
     dpkg-scanpackages . /dev/null > Packages #indexes files
     gzip -9c Packages > Packages.gz 
 
+
+    if [ "$sysEnv" == "WSL" ]; then #resync clock; else apt update/install break
+        echo "Resyncing time"
+        WIN_TIME=$(cmd.exe /c "powershell -Command Get-Date -Format 'yyyy-MM-dd HH:mm:ss'" | sed 's/\r//')
+        date -s "$WIN_TIME"
+    fi
+
     apt update #update cache
     apt install -y "${dependenciesList[@]}"
 fi
@@ -278,82 +312,18 @@ echo "Successfully installed dependencies"
 
 #region git
 
-#BASE
 baseLink='https://github.com/epics-base/epics-base'
 extensionsLink='https://github.com/epics-extensions/extensions'
 edmLink='https://github.com/epicsdeb/edm.git'
 guiLink='https://github.com/MattiasHenders/epics-gui-triumf.git'
+fontsLink='https://github.com/silnrsi/font-ttf'
 
 cloneGitRepo $baseLink $EPICS_BASE "EPICS Base" "base"
 cloneGitRepo $extensionsLink $EPICS_EXTENSIONS "EPICS Extensions" "extensions"
 cloneGitRepo $edmLink $EDM_DIR "EDM" "edm"
 cloneGitRepo $guiLink $EPICS_GUI "EPICS GUI" "epics-gui-triumf"
+cloneGitRepo $fontsLink $FONTS_DIR "FONTS" "font-ttf"
 
-#region deprecated git clones
-#if [ ! -d "$EPICS_BASE" ]; then #clone base.git
-    #if [ -d "$LOCAL_GIT_CACHE/base.git" ]; then
-        #echo "Cloning EPICS Base from local cache..."
-        #git clone --recursive "$LOCAL_GIT_CACHE/base.git" "$EPICS_BASE" 
-    #else
-        #if check_internet; then
-            #echo "Local cache not found, cloning EPICS Base from GitHub..."
-            #git clone --recursive https://github.com/epics-base/epics-base "$LOCAL_GIT_CACHE"
-            #git clone --recursive "$LOCAL_GIT_CACHE/base.git" "$EPICS_BASE"
-        #else
-            #echo "Error: Local cache empty and no internet connection. Cannot clone EPICS Base."
-            #exit 1
-        #fi
-    #fi
-#fi
-
-##EXTENSIONS
-#if [ ! -d "$EPICS_EXTENSIONS/.git" ]; then 
-    #if [ -d "$LOCAL_GIT_CACHE/extensions.git" ]; then
-        #echo "Cloning EPICS Extensions from local cache..."
-        #git clone --recursive "$LOCAL_GIT_CACHE/extensions.git" "$EPICS_EXTENSIONS"
-    #else
-        #if check_internet; then
-            #echo "Cloning EPICS Extensions from GitHub..."
-            #git clone --recursive https://github.com/epics-extensions/extensions "$LOCAL_GIT_CACHE"
-            #git clone --recursive "$LOCAL_GIT_CACHE/extensions.git" "$EPICS_EXTENSIONS"
-        #else
-            #echo "Error: Local cache empty and no internet connection. Cannot clone EPICS Extensions."
-            #exit 1
-    #fi
-#fi
-
-##EDM
-#if [ ! -d "$EDM_DIR/.git" ]; then 
-    #if [ -d "$LOCAL_GIT_CACHE/edm.git" ]; then
-        #echo "Cloning EPICS GUI from local cache..."
-        #git clone --recursive "$LOCAL_GIT_CACHE/edm.git" "$EPICS_GUI"
-    #else
-        #if check_internet; then
-            #echo "Cloning EDM from GitHub..."
-            #git clone --recursive https://github.com/epicsdeb/edm.git "$LOCAL_GIT_CACHE"
-            #git clone --recursive "$LOCAL_GIT_CACHE/edm.git" "$EPICS_GUI"
-        #else
-            #echo "Error: Local cache empty and no internet connection. Cannot clone EDM."
-            #exit 1
-    #fi
-#fi
-
-##EPICS GUI
-#if [ ! -d "$EPICS_GUI/.git" ]; then 
-    #if [ -d "$LOCAL_GIT_CACHE/epics-gui-triumf.git" ]; then
-        #echo "Cloning EPICS GUI from local cache..."
-        #git clone --recursive "$LOCAL_GIT_CACHE/epics-gui-triumf.git" "$EPICS_GUI"
-    #else
-        #if check_internet; then
-            #echo "Cloning EPICS GUI from GitHub..."
-            #git clone --recursive https://github.com/MattiasHenders/epics-gui-triumf.git "$LOCAL_GIT_CACHE"
-            #git clone --recursive "$LOCAL_GIT_CACHE/epics-gui-triumf.git" "$EPICS_GUI"
-        #else
-            #echo "Error: Local cache empty and no internet connection. Cannot clone EPICS GUI."
-            #exit 1
-    #fi
-#fi
-#endregion
 
 #endregion
 
@@ -374,16 +344,19 @@ tar xvzf $FILES_DIR/extensionsTop_20120904.tar.gz -C $EPICS_ROOT #creates extens
 export EPICS_BASE="$EPICS_BASE" 
 export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
 export EPICS_HOST_ARCH="$EPICS_HOST_ARCH"
+export HOST_ARCH="$EPICS_HOST_ARCH"
 
 export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH"
 export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
 
 export EPICS_CA_AUTO_ADDR_LIST=YES
 
-export EDMPVOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
-export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
-export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
-export EDMFILES="$EPICS_EXTENSIONS/src/edm/edmMain"
+export EDMBASE="$EDMBASE"
+export EDM="$EDM_DIR/edmMain/O.$EPICS_HOST_ARCH/edm"
+export EDMPVOBJECTS="$EDM_DIR/setup"
+export EDMOBJECTS="$EDM_DIR/setup"
+export EDMHELPFILES="$EDM_DIR/helpFiles"
+export EDMFILES="$EDM_DIR/edmMain"
 export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
 
 export LD_LIBRARY_PATH="$EDMLIBS:$EPICS_BASE/lib/$EPICS_HOST_ARCH"
@@ -408,17 +381,20 @@ $EPICS_MARKER
 export EPICS_BASE="$EPICS_BASE"
 export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
 export EPICS_GUI="$EPICS_GUI"
-export EPICS_HOST_ARCH=$EPICS_HOST_ARCH
+export EPICS_HOST_ARCH="$EPICS_HOST_ARCH"
+export HOST_ARCH="$EPICS_HOST_ARCH"
 
 export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:\$PATH"
 export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:\$PATH"
 
 export EPICS_CA_AUTO_ADDR_LIST=YES
 
-export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
-export EDMPVOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
-export EDMFILES="$EPICS_EXTENSIONS/src/edm/setup"
-export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
+export EDMBASE="$EDM_DIR"
+export EDM="$EDM_DIR/edmMain/O.$EPICS_HOST_ARCH/edm"
+export EDMOBJECTS="$EDM_DIR/setup"
+export EDMPVOBJECTS="$EDM_DIR/setup"
+export EDMFILES="$EDM_DIR/setup"
+export EDMHELPFILES="$EPICS_EXTENSIONSsrc/edm/helpFiles"
 export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
 export EDM_USE_SHARED_LIBS=YES
 
@@ -432,39 +408,6 @@ fi
 echo "Succesfully configured EPICS Base"
 
 #endregion
-
-
-# ---------------------------------------------------
-# Install EPICS Extensions -- deprecated
-# ---------------------------------------------------
-
-#region epics extensions - deprecated
-#cd "$EPICS_ROOT"
-#
-#mkdir -p "$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH"
-#mkdir -p "$EPICS_EXTENSIONS/configure"
-#
-#if ! grep -q '^EDM' "$EPICS_EXTENSIONS/configure/RELEASE" 2>/dev/null; then
-#    echo "EDM=\$(EPICS_EXTENSIONS)/src/edm" >> "$EPICS_EXTENSIONS/configure/RELEASE"
-#fi
-#
-#
-#if [ -e "$EPICS_ROOT/configure" ] && [ ! -L "$EPICS_ROOT/configure" ]; then #remove legacy '/epics/configure' dir if existing
-#    rm -rf "$EPICS_ROOT/configure"
-#fi
-#
-#
-#if [ ! -e "$EPICS_ROOT/configure" ]; then
-#    ln -s "$EPICS_BASE/configure" "$EPICS_ROOT/configure" #points /epics/configure to /epics/base/configure to 'fix' outdated pathing
-#fi
-#
-#
-#echo "Created symlink: $EPICS_ROOT/configure -> $EPICS_BASE/configure"
-#
-#echo "Successfully configured extensions!"
-
-#endregion
-
 
 # ---------------------------------------------------
 # Clone EDM into Extensions
@@ -487,6 +430,7 @@ sed -i -e 's| ungif||g' giflib/Makefile*
 
 echo "Making edm"
 make clean
+#make -j"$(nproc)" -C "$EDM_DIR"
 make
 echo "Successfully made edm"
 
@@ -494,85 +438,58 @@ cd setup
 
 sed -i -e '53cfor libdir in baselib lib epicsPv locPv calcPv util choiceButton pnglib diamondlib giflib videowidget' setup.sh
 sed -i -e '79d' setup.sh
-sed -i -e '81i\ \ \ \ $EDM -add $EDMBASE/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' setup.sh
-sed -i -e '82i\ \ \ \ $EDM -add $EDMBASE/diamondlib/O.$ODIR/libEdmDiamond.so' setup.sh
-sed -i -e '83i\ \ \ \ $EDM -add $EDMBASE/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
-sed -i -e '84i\ \ \ \ $EDM -add $EDMBASE/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
+sed -i -e '81i\ \ \ \ $EDM -add $EDM_DIR/pnglib/O.$ODIR/lib57d79238-2924-420b-ba67-dfbecdf03fcd.so' setup.sh
+sed -i -e '82i\ \ \ \ $EDM -add $EDM_DIR/diamondlib/O.$ODIR/libEdmDiamond.so' setup.sh
+sed -i -e '83i\ \ \ \ $EDM -add $EDM_DIR/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
+sed -i -e '84i\ \ \ \ $EDM -add $EDM_DIR/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
 HOST_ARCH=$EPICS_HOST_ARCH sh setup.sh
 
 echo "Successfully installed & configured EDM"
 
 #endregion
 
-#region edm spaghetti -- deprecated
-#if [ -d "localRepos/edm" ]; then 
-#    mkdir -p $EPICS_EXTENSIONS/src #/epics/base/extensions/src
-#    cp -r localRepos/edm/* $EPICS_EXTENSIONS/src
-#
-#    sudo find $EPICS_ROOT -type f -name Makefile -exec sed -i 's|\$top/configure|\$top/base/configure|g' {} +
-#    sudo find "$EPICS_ROOT" -type f -name Makefile -exec sed -i "s|^TOP = [./]\+|TOP = $EPICS_ROOT|" {} + #replace any combination of . / with absolute path
-#
-#
-#    #Edits config files 
-#    sed -i 's|^EPICS_BASE=$(TOP)/\.\./base|EPICS_BASE=$(TOP)|' /epics/extensions/configure/RELEASE
-#    sed -i -e 's| ungif||g' "$EPICS_EXTENSIONS/src/giflib/Makefile"
-#
-#    # edits all files in /epics:
-#    #   /epics/configure ---> /epics/base/configure
-#
-#    cd "$EPICS_EXTENSIONS/src"
-#
-#    echo "Preparing to make EDM"
-#
-#    #edit Makefile in /epics/extensions/src: 
-#    #change:
-#    #   include $(TOP)/configure/CONFIG
-#    # to 
-#    #   include $(TOP)/base/configure/CONFIG
-#    # sed -i 's|$(TOP)/configure/CONFIG|$(TOP)/base/configure/CONFIG|' /epics/extensions/src/Makefile
-#
-#    make -j"$(nproc)"
-#fi
-
-#endregion
-
-
 # ---------------------------------------------------
-# Modify environment variables -- deprecated
+# Install Fonts 
 # ---------------------------------------------------
 
-#region environment variables -- deprecated
-#ENV_SCRIPT="$EPICS_ROOT/epics_env.sh" #This should be redundant; the installer adds to path directly
-##however, should it be needed, this adds paths manually
-#
-#cat > "$ENV_SCRIPT" <<EOF
-#
-#export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH"
-#export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
-#
-#export EPICS_ROOT=$EPICS_ROOT
-#export EPICS_BASE=$EPICS_BASE
-#export EPICS_GUI="$EPICS_GUI"
-#export EPICS_EXTENSIONS=$EPICS_EXTENSIONS
-#
-#export EPICS_HOST_ARCH=$EPICS_HOST_ARCH
-#
-#export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
-#export EPICS_CA_AUTO_ADDR_LIST=YES
-#
-#export EDMOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
-#export EDMPVOBJECTS="$EPICS_EXTENSIONS/src/edm/setup"
-#export EDMFILES="$EPICS_EXTENSIONS/src/edm/setup"
-#export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
-#export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
-#export EDM_USE_SHARED_LIBS=YES
-#
-#EOF
-#
-## Make readable by all users
-#chmod 644 "$ENV_SCRIPT"
+#region fonts
 
-#sudo -u "$SUDO_USER" bash -c "source \"$EPICS_ROOT/epics_env.sh\""  #adds ENV_SCRIPT to active shell immediately
+if [ "$sysEnv" == "WSL" ]; then #WSL
+    xming_fileName="Xming-6-9-0-31-setup.exe"   
+    cp "{$FILES_DIR}/{$xming_fileName}" "$EPICS_GUI/"
+
+    WIN_PATH=$(wslpath -w "$EPICS_GUI/$xming_fileName") #convert to windows-appropriate path
+
+    #powershell.exe -NoProfile -NonInteractive -Command \
+    #"Start-Process -FilePath '$WIN_PATH' -ArgumentList '/VERYSILENT','/NORESTART' -Wait -PassThru | ForEach-Object { exit \$_.ExitCode }"
+
+    echo "$breakerStr" 
+    echo "$breakerStr" 
+    printf "\n\nManual interaction needed for Xming installation. \nProceed with all defaults suggested by Xming GUI.\nEnter any value to continue.\n"
+    read dummyVar
+
+    powershell.exe -NoProfile -Command "& '$WIN_PATH'" #runs xming_FileName
+
+    exit $?
+
+
+else #Ubuntu installation process
+    ffName="FontForge-2025-10-09-Linux-x86_64.AppImage"
+
+    cp "$FILES_DIR/$ffName" $FONTS_DIR/
+    chmod +x "$FONTS_DIR/$ffName"
+
+    if [ ! -e /usr/local/bin/fontforge ]; then
+        ln -s "$FONTS_DIR/$ffName" /usr/local/bin/fontforge #only create link if not exists
+    fi
+
+    perl Makefile.pl #this may be equivalent to libfont-ttf-perl.deb?
+    make -j"$(nproc)" -C "$FONTS_DIR" full-ttf #builds all fonts with all glyphs
+    make install -C "$FONTS_DIR"
+
+    echo "Prepared fonts"
+fi
+
 
 #endregion
 
@@ -580,7 +497,40 @@ echo "Successfully installed & configured EDM"
 # GUI -- Xming, for WSL instances 
 # ---------------------------------------------------
 
-echo "Skipping XMING install"
+
+if [ "$sysEnv" == "WSL" ]; then #WSL
+    xming_fonts_fileName="Xming-fonts-7-7-0-10-setup.exe"
+
+    cp "{$FILES_DIR}/{$xming_fonts_fileName}" "$EPICS_GUI/"
+
+    WIN_PATH=$(wslpath -w "$EPICS_GUI/$xming_fileName")
+    #powershell.exe -NoProfile -NonInteractive -Command \
+    #"Start-Process -FilePath '$WIN_PATH' -ArgumentList '/VERYSILENT','/NORESTART' -Wait -PassThru | ForEach-Object { exit \$_.ExitCode }"
+
+    echo "$breakerStr" 
+    echo "$breakerStr" 
+    printf "\n\nManual interaction needed for Xming installation. \n\nSELECT ALL FONTS IN CHECKBOX LIST.\nEnter any value to continue.\n"
+    read dummyVar
+
+    powershell.exe -NoProfile -Command "& '$WIN_PATH'" #runs xming_FileName
+
+    exit $?
+
+else    #Native Ubuntu; not necessary
+    echo "Xming not needed for Native Linux"
+    echo "Skipping Xming install"
+fi
+
+
+
+# ---------------------------------------------------
+# Matthias Henders GUI install // epics-gui-triumf.git
+# ---------------------------------------------------
+
+#region Matthias Henders GUI install
+
+#endregion
+
 
 # ---------------------------------------------------
 # End-script processes 
