@@ -143,6 +143,7 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 0 #exit original script after rerunning with sudo
 fi
 
+#-------------------------Better to run all prompts first, _then_ proceed with deletions
 
 #Detect/remove previous installations in $EPICS_ROOT
 if [ -d $EPICS_ROOT ] && [ -n "$EPICS_ROOT" ]; then
@@ -442,9 +443,12 @@ sed -i -e '81i\ \ \ \ $EDM -add $EDM_DIR/pnglib/O.$ODIR/lib57d79238-2924-420b-ba
 sed -i -e '82i\ \ \ \ $EDM -add $EDM_DIR/diamondlib/O.$ODIR/libEdmDiamond.so' setup.sh
 sed -i -e '83i\ \ \ \ $EDM -add $EDM_DIR/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
 sed -i -e '84i\ \ \ \ $EDM -add $EDM_DIR/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
+
 HOST_ARCH=$EPICS_HOST_ARCH sh setup.sh
 
 echo "Successfully installed & configured EDM"
+
+
 
 #endregion
 
@@ -454,49 +458,44 @@ echo "Successfully installed & configured EDM"
 
 #region fonts
 
-if [ "$sysEnv" == "WSL" ]; then #WSL
-    xming_fileName="Xming-6-9-0-31-setup.exe"   
-    cp "{$FILES_DIR}/{$xming_fileName}" "$EPICS_GUI/"
+sed -i '/-misc-liberation mono-medium-i-normal--0-80-75-75-m-0-*-*=-adobe-courier-medium-o-normal--*-80-75-75-m-*-*-*/a \
+-misc-liberation mono-bold-r-normal--0-90-75-75-m-0-*-*=-adobe-courier-bold-r-normal--*-100-75-75-m-*-*-*\
+-misc-liberation mono-bold-i-normal--0-90-75-75-m-0-*-*=-adobe-courier-bold-o-normal--*-100-75-75-m-*-*-*\
+-misc-liberation mono-medium-r-normal--0-90-75-75-m-0-*-*=-adobe-courier-medium-r-normal--*-100-75-75-m-*-*-*\
+-misc-liberation mono-medium-i-normal--0-90-75-75-m-0-*-*=-adobe-courier-medium-o-normal--*-100-75-75-m-*-*-*' "$EDMFILES/fonts.list"
 
-    WIN_PATH=$(wslpath -w "$EPICS_GUI/$xming_fileName") #convert to windows-appropriate path
+#update the x11 font cache
+xset +fp /usr/share/fonts/X11/misc
+xset +fp /usr/share/fonts/X11/75dpi
+xset +fp /usr/share/fonts/X11/100dpi
+xset +fp /usr/share/fonts/X11/Type1
 
-    #powershell.exe -NoProfile -NonInteractive -Command \
-    #"Start-Process -FilePath '$WIN_PATH' -ArgumentList '/VERYSILENT','/NORESTART' -Wait -PassThru | ForEach-Object { exit \$_.ExitCode }"
+mkfontscale
+mkfontdir
+xset fp rehash
 
-    echo "$breakerStr" 
-    echo "$breakerStr" 
-    printf "\n\nManual interaction needed for Xming installation. \nProceed with all defaults suggested by Xming GUI.\nEnter any value to continue.\n"
-    read dummyVar
+echo "Font cache updated"
 
-    powershell.exe -NoProfile -Command "& '$WIN_PATH'" #runs xming_FileName
+#ffName="FontForge-2025-10-09-Linux-x86_64.AppImage"
 
-    exit $?
+#cp "$FILES_DIR/$ffName" $FONTS_DIR/
+#chmod +x "$FONTS_DIR/$ffName"
 
+#if [ ! -e /usr/local/bin/fontforge ]; then
+    #ln -s "$FONTS_DIR/$ffName" /usr/local/bin/fontforge #only create link if not exists
+#fi
 
-else #Ubuntu installation process
-    ffName="FontForge-2025-10-09-Linux-x86_64.AppImage"
+#perl "$FONTS_DIR/Makefile.PL" #this may be equivalent to libfont-ttf-perl.deb?
+#make -j"$(nproc)" -C "$FONTS_DIR" full-ttf #builds all fonts with all glyphs
+#make install -C "$FONTS_DIR"
 
-    cp "$FILES_DIR/$ffName" $FONTS_DIR/
-    chmod +x "$FONTS_DIR/$ffName"
-
-    if [ ! -e /usr/local/bin/fontforge ]; then
-        ln -s "$FONTS_DIR/$ffName" /usr/local/bin/fontforge #only create link if not exists
-    fi
-
-    perl Makefile.pl #this may be equivalent to libfont-ttf-perl.deb?
-    make -j"$(nproc)" -C "$FONTS_DIR" full-ttf #builds all fonts with all glyphs
-    make install -C "$FONTS_DIR"
-
-    echo "Prepared fonts"
-fi
-
+#echo "Prepared fonts"
 
 #endregion
 
 # ---------------------------------------------------
 # GUI -- Xming, for WSL instances 
 # ---------------------------------------------------
-
 
 if [ "$sysEnv" == "WSL" ]; then #WSL
     xming_fonts_fileName="Xming-fonts-7-7-0-10-setup.exe"
@@ -520,7 +519,6 @@ else    #Native Ubuntu; not necessary
     echo "Xming not needed for Native Linux"
     echo "Skipping Xming install"
 fi
-
 
 
 # ---------------------------------------------------
