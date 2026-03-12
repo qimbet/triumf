@@ -18,8 +18,9 @@ trap 'echo "ERROR in function ${FUNCNAME[0]:-main}, file ${BASH_SOURCE[1]:${BASH
 # Directory Management
 # ===================================================
 
-#region paths, constants, functions
+#region paths, constants
 EPICS_HOST_ARCH="linux-x86_64"
+HOST_ARCH=$EPICS_HOST_ARCH
 
 # Root directory for EPICS installation
 EPICS_ROOT="/opt/epics"

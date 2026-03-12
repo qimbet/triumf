@@ -12,10 +12,13 @@
 *.pdf
 *.swp
 *.un~
+*.AppImage
+*.log
 
 #precompiled package directories (myriad extensions)
 localFiles/
 localRepos/
+installerFiles/
 training/
 installerFiles/
 condaFiles/

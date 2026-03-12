@@ -114,6 +114,7 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
 
 #region user interaction; runtime environment / permissions
 
+
 #ensure the os is the right version
 if [ -f /etc/os-release ]; then
     . /etc/os-release
@@ -133,6 +134,8 @@ if [ -f /etc/os-release ]; then
 
     fi
 fi
+
+
 
 
 #Ensure the script is run with sudo:
