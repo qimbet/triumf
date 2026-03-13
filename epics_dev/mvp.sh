@@ -362,6 +362,7 @@ export EDMOBJECTS="$EDM_DIR/setup"
 export EDMHELPFILES="$EDM_DIR/helpFiles"
 export EDMFILES="$EDM_DIR/edmMain"
 export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
+export EDMFONTFILE="$EDM_DIR/edmMain/fonts.list"
 
 export LD_LIBRARY_PATH="$EDMLIBS:$EPICS_BASE/lib/$EPICS_HOST_ARCH"
 
@@ -400,6 +401,7 @@ export EDMPVOBJECTS="$EDM_DIR/setup"
 export EDMFILES="$EDM_DIR/setup"
 export EDMHELPFILES="$EPICS_EXTENSIONSsrc/edm/helpFiles"
 export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
+export EDMFONTFILE="$EDM_DIR/edmMain/fonts.list"
 export EDM_USE_SHARED_LIBS=YES
 
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
@@ -461,21 +463,37 @@ echo "Successfully installed & configured EDM"
 
 #region fonts
 
-sed -i '/-misc-liberation mono-medium-i-normal--0-80-75-75-m-0-*-*=-adobe-courier-medium-o-normal--*-80-75-75-m-*-*-*/a \
--misc-liberation mono-bold-r-normal--0-90-75-75-m-0-*-*=-adobe-courier-bold-r-normal--*-100-75-75-m-*-*-*\
--misc-liberation mono-bold-i-normal--0-90-75-75-m-0-*-*=-adobe-courier-bold-o-normal--*-100-75-75-m-*-*-*\
--misc-liberation mono-medium-r-normal--0-90-75-75-m-0-*-*=-adobe-courier-medium-r-normal--*-100-75-75-m-*-*-*\
--misc-liberation mono-medium-i-normal--0-90-75-75-m-0-*-*=-adobe-courier-medium-o-normal--*-100-75-75-m-*-*-*' "$EDMFILES/fonts.list"
 
-#update the x11 font cache
-xset +fp /usr/share/fonts/X11/misc
-xset +fp /usr/share/fonts/X11/75dpi
-xset +fp /usr/share/fonts/X11/100dpi
-xset +fp /usr/share/fonts/X11/Type1
+touch "$FONTS_DIR/fonts.list" #write font configurations
+sed -i '1i\
+5 0 0\
+courier-bold-r-12.0\
+helvetica-bold-r-12.0\
+\
+substitutions {\
+}\
+\
+courier=-*-courier-medium-r-normal--*-*-75-75-m-*-*-* exact\
+helvetica=-*-helvetica-medium-r-normal--*-*-75-75-p-*-*-* exact
+' "$FONTS_DIR/fonts.list"
 
-mkfontscale
-mkfontdir
-xset fp rehash
+
+
+#sed -i '/-misc-liberation mono-medium-i-normal--0-80-75-75-m-0-*-*=-adobe-courier-medium-o-normal--*-80-75-75-m-*-*-*/a \
+#-misc-liberation mono-bold-r-normal--0-90-75-75-m-0-*-*=-adobe-courier-bold-r-normal--*-100-75-75-m-*-*-*\
+#-misc-liberation mono-bold-i-normal--0-90-75-75-m-0-*-*=-adobe-courier-bold-o-normal--*-100-75-75-m-*-*-*\
+#-misc-liberation mono-medium-r-normal--0-90-75-75-m-0-*-*=-adobe-courier-medium-r-normal--*-100-75-75-m-*-*-*\
+#-misc-liberation mono-medium-i-normal--0-90-75-75-m-0-*-*=-adobe-courier-medium-o-normal--*-100-75-75-m-*-*-*' "$EDMFILES/fonts.list"
+#
+##update the x11 font cache
+#xset +fp /usr/share/fonts/X11/misc
+#xset +fp /usr/share/fonts/X11/75dpi
+#xset +fp /usr/share/fonts/X11/100dpi
+#xset +fp /usr/share/fonts/X11/Type1
+#
+#mkfontscale
+#mkfontdir
+#xset fp rehash
 
 echo "Font cache updated"
 
