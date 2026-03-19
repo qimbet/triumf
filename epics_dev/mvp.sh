@@ -52,7 +52,7 @@ mkdir -p "$EPICS_ROOT"
 dependenciesList=( #used by apt install
     dpkg-dev make wine-stable 
     build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
-    libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi x11proto-print-dev autoconf libtool sshpass
+    libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
     libfont-ttf-perl
     )
 
@@ -463,19 +463,30 @@ echo "Successfully installed & configured EDM"
 
 #region fonts
 
+mkfontscale /usr/share/fonts/X11/misc
+mkfontdir /usr/share/fonts/X11/misc
+xset fp rehash
 
-touch "$FONTS_DIR/fonts.list" #write font configurations
-sed -i '1i\
-5 0 0\
-courier-bold-r-12.0\
-helvetica-bold-r-12.0\
-\
-substitutions {\
-}\
-\
-courier=-*-courier-medium-r-normal--*-*-75-75-m-*-*-* exact\
-helvetica=-*-helvetica-medium-r-normal--*-*-75-75-p-*-*-* exact
-' "$FONTS_DIR/fonts.list"
+#add to /usr/share/fonts/X11/misc/fonts.alias
+#-adobe-courier-medium-i-normal--0-*-75-75-m-0-iso8859-1 -adobe-courier-medium-i-normal--0-0-0-0-p-0-iso8859-1
+#-adobe-courier-medium-i-normal--*-*-75-75-m-*-iso8859-1 -adobe-courier-medium-i-normal--0-0-0-0-p-0-iso8859-1
+#-adobe-courier-medium-r-normal--*-*-75-75-m-*-iso8859-1 -adobe-courier-medium-r-normal--0-0-0-0-p-0-iso8859-1
+
+
+
+
+#touch "$FONTS_DIR/fonts.list" #write font configurations
+#sed -i '1i\
+#5 0 0\
+#courier-bold-r-12.0\
+#helvetica-bold-r-12.0\
+#\
+#substitutions {\
+#}\
+#\
+#courier=-*-courier-medium-r-normal--*-*-75-75-m-*-*-* exact\
+#helvetica=-*-helvetica-medium-r-normal--*-*-75-75-p-*-*-* exact
+#' "$FONTS_DIR/fonts.list"
 
 
 
