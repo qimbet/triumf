@@ -462,10 +462,24 @@ echo "Successfully installed & configured EDM"
 # ---------------------------------------------------
 
 #region fonts
+sed -i 's/\texact$//' $EDM_DIR/edmMain/fonts.list #allow some flexibility with fonts (necessary for compatibility with newer machines)
 
-mkfontscale /usr/share/fonts/X11/misc
-mkfontdir /usr/share/fonts/X11/misc
-xset fp rehash
+#mkdir -p "$FONTS_DIR/.fonts/misc"
+#cd "$FONTS_DIR/.fonts/misc"
+#touch fonts.alias
+#add the line:
+#font dirs: live in /usr/share/fonts/X11/[x]
+#-adobe-courier-medium-i-normal--0-90-75-75-m-0-iso8859-1 -adobe-courier-medium-i-normal--0-0-0-0-p-0-iso8859-1
+#-adobe-courier-medium-i-normal--0-100-75-75-m-0-*-* -misc-fixed-medium-r-normal--13-120-75-75-c-70-iso10646-1
+
+#mkfontscale #generate metadata
+#mkfontdir   #generate index file
+#mkfontscale /usr/share/fonts/X11/misc #add to font path
+#mkfontdir /usr/share/fonts/X11/misc     
+#
+#xset +fp . #register the font repo with the system 
+#
+#xset fp rehash #reload directories
 
 #add to /usr/share/fonts/X11/misc/fonts.alias
 #-adobe-courier-medium-i-normal--0-*-75-75-m-0-iso8859-1 -adobe-courier-medium-i-normal--0-0-0-0-p-0-iso8859-1
