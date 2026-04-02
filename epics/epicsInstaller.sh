@@ -416,6 +416,7 @@ export EDMFONTFILE="$EDM_DIR/edmMain/fonts.list"
 export EDM_USE_SHARED_LIBS=YES
 
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+source "$EDM_DIR/setup/setup.sh"
 
 EOF
 

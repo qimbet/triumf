@@ -301,6 +301,26 @@ echo "Proceeding with installation"
 #fi
 
 
+#if packages dir does not exist or is empty, create it & populate with .deb files
+#if [ ! -d "$LOCAL_DEB_REPO" ]; then 
+#    echo "Local deb repo not found. Creating..."
+#    mkdir -p $LOCAL_DEB_REPO
+#fi
+
+
+#mkdir -p packages
+#sudo apt-get update
+
+#sudo apt-get install --download-only -y "${dependenciesList[@]}"
+
+## Copy all downloaded .deb files
+#mv /var/cache/apt/archives/*.deb packages/
+
+## Create the zip
+#zip -r packages.zip packages/
+
+
+
 
 #unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
 unzip "$FILES_DIR/packages.zip" -d /var/cache/apt/archives/
@@ -367,6 +387,7 @@ export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
 export EPICS_CA_AUTO_ADDR_LIST=YES
 
 export EDMBASE="$EDMBASE"
+export EDM_DIR="$EDM_DIR"
 export EDM="$EDM_DIR/edmMain/O.$EPICS_HOST_ARCH/edm"
 export EDMPVOBJECTS="$EDM_DIR/setup"
 export EDMOBJECTS="$EDM_DIR/setup"
@@ -391,31 +412,37 @@ echo "Successfully installed EPICS base"
 
 EPICS_MARKER="#=======  EPICS ENVIRONMENT VARIABLES ======="
 if ! grep -qF "$EPICS_MARKER" "$ORIGINAL_USER_HOME/.bashrc"; then 
-    sudo -u "$ORIGINAL_USER" tee -a "$ORIGINAL_USER_HOME/.bashrc" > /dev/null <<'EOF'
+    sudo -u "$ORIGINAL_USER" tee -a "$ORIGINAL_USER_HOME/.bashrc" > /dev/null <<EOF
 
-$EPICS_MARKER
+#=======  EPICS ENVIRONMENT VARIABLES =======
 export EPICS_BASE="$EPICS_BASE"
 export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
 export EPICS_GUI="$EPICS_GUI"
 export EPICS_HOST_ARCH="$EPICS_HOST_ARCH"
 export HOST_ARCH="$EPICS_HOST_ARCH"
 
-export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:\$PATH"
-export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:\$PATH"
+export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH"
+export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
 
 export EPICS_CA_AUTO_ADDR_LIST=YES
 
+export EDM_DIR="$EPICS_EXTENSIONS/src/edm"
 export EDMBASE="$EDM_DIR"
 export EDM="$EDM_DIR/edmMain/O.$EPICS_HOST_ARCH/edm"
+
 export EDMOBJECTS="$EDM_DIR/setup"
 export EDMPVOBJECTS="$EDM_DIR/setup"
 export EDMFILES="$EDM_DIR/setup"
 export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
 export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
 export EDMFONTFILE="$EDM_DIR/edmMain/fonts.list"
+
 export EDM_USE_SHARED_LIBS=YES
 
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
+source "$EDM_DIR/setup/setup.sh"
+
+#--------------------------------------------
 
 EOF
 
@@ -508,3 +535,5 @@ fi
 # ---------------------------------------------------
 
 echo "Done!"
+
+echo "To finish the installation, run:  source ~/.bashrc"
