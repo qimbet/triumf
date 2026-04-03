@@ -3,14 +3,22 @@ edm issues are sourced to setup.sh -- this overwrites/relies on a misdirected sh
 
 this can be repaired with a sed command
 
------------------------------
+----------------------------------------------------------
+
+calling user:
+$ORIGINAL_USER_HOME
+
+----------------------------------------------------------
 
 It remains:
 
-- Update dendency-installer to download missing files / create packages.zip
-	- Rename packages.zip to be os-type labelled
-- Prompt: Create local copy of installer?
-- Prompt: Confirm install directory: "/opt/epics"
+- Edit setup.sh
+	- remove duplicates on:
+		EDMFILES
+		EDMHELPFILES
+		EDMLIBS 
+		...?
+
 - Prompt: Install 'reduced' client-form epics if raspberry pi
 
 - Configure for raspberry pi
@@ -21,3 +29,5 @@ It remains:
 
 
 Test on different systems 
+	- prebuilt/used systems with async dependencies
+	- different os types

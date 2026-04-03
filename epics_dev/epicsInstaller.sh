@@ -21,6 +21,14 @@ breakerStr="*******************************************"
 # Directory Management
 # ===================================================
 
+SERVER_MODE=true #set to false when building for raspberry Pi -- don't install GUI
+. /etc/os-release #source os metadata
+if [[ "$ID" == "raspbian" ]] || \
+   [[ "$NAME" == *"Raspberry Pi"* ]] || \
+   [[ "$PRETTY_NAME" == *"Raspberry Pi"* ]]; then
+    SERVER_MODE=false
+fi
+
 #region paths, constants, functions
 source /etc/os-release  #add $VERSION_ID to shell
 FILE_DIR_NAME="localFiles_$VERSION_ID"
@@ -43,8 +51,6 @@ EDMBASE="$EPICS_EXTENSIONS/src/edm" #no underscore as this is imported from EDM 
 FONTS_DIR="$EPICS_GUI/fonts"
 
 LOCAL_GIT_CACHE="$FILES_DIR/localRepos" #enables offline downloads
-LOCAL_DEB_REPO="$FILES_DIR/$FILE_DIR_NAME"
-
 
 LOGFILE="$SCRIPT_DIR/logs.log"
 exec > >(tee "$LOGFILE") 2>&1
@@ -66,15 +72,6 @@ check_internet() { #check connectivity; used to install missing files in case of
         return 1  # online
     else
         return 0  # offline
-    fi
-}
-
-breakpoint() {
-    if [ "$debugFlag" = True ]; then
-        local input=""
-        printf "logged value(s): $@"
-        printf "\npress 'enter' to continue\n"
-        read input
     fi
 }
 
@@ -113,29 +110,6 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
 
 
 #region user interaction; runtime environment / permissions
-
-
-#ensure the os is the right version
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
-        echo "The installer requires os version: *** Ubuntu 18.04 *** "
-        echo "Detected version: {$NAME}_{$VERSION_ID}"
-        echo "EPICS will install properly, but the GUI may not work. Continue? [Y/n]" 
-
-        read ans
-        ans=${ans,,}
-        if [ "$ans" == "n" || "$ans" == "no" ]; then 
-            echo "Quitting"
-            exit 1
-        else
-            :
-        fi
-
-    fi
-fi
-
-
 
 
 #Ensure the script is run with sudo:
@@ -386,6 +360,8 @@ sed -i -e '82i\ \ \ \ $EDM -add $EDM_DIR/diamondlib/O.$ODIR/libEdmDiamond.so' se
 sed -i -e '83i\ \ \ \ $EDM -add $EDM_DIR/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
 sed -i -e '84i\ \ \ \ $EDM -add $EDM_DIR/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
 
+sed -i "s|^export EDMBASE=.*|export EDMBASE=\"$EDMBASE\"|" "$EDM_DIR/setup/setup.sh"
+
 HOST_ARCH=$EPICS_HOST_ARCH sh setup.sh
 
 echo "Successfully installed & configured EDM"
@@ -409,7 +385,7 @@ echo "Prepared fonts"
 # ---------------------------------------------------
 # GUI -- Xming, for WSL instances 
 # ---------------------------------------------------
-
+if server_mode
 if [ "$sysEnv" == "WSL" ]; then #WSL -- unverified
     xming_fonts_fileName="Xming-fonts-7-7-0-10-setup.exe"
 
@@ -440,6 +416,29 @@ ls
 # End-script processes 
 # ---------------------------------------------------
 
-echo "Done!"
+echo "Installation finished!"
 
-echo "To finish the installation, please restart your terminal session"
+while true; do
+    read -p "Would you like to create a local copy of this epics installer for future use? [Y/n]: " cloneChoice
+    cloneChoice=${cloneChoice,,}
+    if [[ "$cloneChoice" == "n" || "$cloneChoice" == "no" ]]; then
+        echo "You got it, boss. Nothing done."
+    elif [[ "$cloneChoice" == "y" || "$cloneChoice" == "yes" ]]; then
+        echo "Default directory: $ORIGINAL_USER_HOME"
+    
+        read -p "Press Enter to copy into here, or enter an alternate directory: " target_dir
+        target_dir="${target_dir:-$ORIGINAL_USER_HOME}"
+    
+        mkdir -p "$target_dir"
+        cp -r "$SCRIPT_DIR" "$target_dir"
+    
+        echo "Installer cloned into: $target_dir"
+    fi
+    else
+        echo "Choice not recognized. Try again."
+    fi
+
+
+
+echo "To use epics, restart your terminal session or run: source ~/.bashrc"
+echo "For documentation on epics usage, take a look at the readme.txt, or the pdf files bundled in this installer's Documentation folder"
