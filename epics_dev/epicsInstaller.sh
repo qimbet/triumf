@@ -24,11 +24,13 @@ breakerStr="*******************************************"
 #region paths, constants, functions
 source /etc/os-release  #add $VERSION_ID to shell
 FILE_DIR_NAME="localFiles_$VERSION_ID"
+PACKAGES_ZIP="packages_$VERSION_ID.zip"
 EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FILES_DIR="$SCRIPT_DIR/installerFiles"
+DEPENDENCIES_DIR="$FILES_DIR/dependencies"
 
 EPICS_ROOT="/opt/epics"
 EPICS_BASE="$EPICS_ROOT/base"
@@ -198,132 +200,35 @@ echo "Proceeding with installation"
 # ---------------------------------------------------
 
 #region dependencies 
-#if dir does not exist or is empty, create it & populate with .deb files
-#if [ ! -d "$LOCAL_DEB_REPO" ]; then 
-#    echo "Local deb repo not found. Creating..."
-#    mkdir -p $LOCAL_DEB_REPO
-#fi
-#
-#        
-##validate local file repository
-#missing_pkgs=()
-#for pkg in "${dependenciesList[@]}"; do #identify missing files for dependencies
-#    #NOTE: this only checks the top-level packages; their own dependencies are not handled here
-#    if ! ls "$LOCAL_DEB_REPO"/"$pkg"_*.deb >/dev/null 2>&1; then
-#        missing_pkgs+=("$pkg")  # add to list 
-#        printf "Missing package: %s" "$pkg"
-#        echo ""
-#    fi
-#done
-#
-#if [ "${#missing_pkgs[@]}" -ne 0 ]; then 
-#    echo Missing package files.
-#    if check_internet; then #if internet is available, download packages
-#        echo "Internet available -- populating deb files"
-#        echo "Local package repo for os $FILE_DIR_NAME not found, installing key packages from internet..."
-#
-#        apt-get -o=dir::cache::archives="$LOCAL_DEB_REPO" install --download-only -y "${dependenciesList[@]}" #download .deb files to localDir
-#
-#        echo "Downloaded core files and dependencies"
-#
-#    else #error message, exit if no internet
-#        echo "Error: local .deb repository not found or empty at $LOCAL_DEB_REPO"
-#        echo "No internet access: installation cannot proceed."
-#        exit 1
-#    fi
-#fi
-#
-#
-#
-##install from local repository
-#if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
-#
-#    #region prerequisite installs; make, dpkg-dev
-#    # Install make first (needed to install dpkg-dev)
-#    if ! command -v make >/dev/null 2>&1; then #if make does not exist in $PATH
-#        echo "Installing make from local repo..."
-#
-#        if ls "$LOCAL_DEB_REPO"/make_*.deb >/dev/null 2>&1; then
-#            dpkg -i "$LOCAL_DEB_REPO"/make_*.deb #attempt to install make 
-#
-#            # Fix unmet dependencies using local .debs
-#            apt-get --fix-broken install -y -o Dir::Etc::sourcelist="-" \
-#                -o Dir::Etc::sourceparts="-" \
-#                -o APT::Get::Download-Only=false \
-#                -o Dir::Etc::sourcelist="-" \
-#                -o APT::Get::AllowUnauthenticated=true
-#        else
-#            echo "Error: make_*.deb not found in $LOCAL_DEB_REPO"
-#            exit 1
-#        fi
-#    fi
-#
-#    if ! command -v dpkg-scanpackages >/dev/null 2>&1; then #if dpkg does not exist in $PATH
-#        #use make to install dpkg-dev
-#        echo "Installing dpkg-dev from local repo..."
-#        if ls "$LOCAL_DEB_REPO"/dpkg-dev*.deb >/dev/null 2>&1; then
-#            dpkg -i "$LOCAL_DEB_REPO"/dpkg-dev*.deb
-#
-#            # Fix unmet dependencies using local .debs
-#            apt-get --fix-broken install -y -o Dir::Etc::sourcelist="-" \
-#                -o Dir::Etc::sourceparts="-" \
-#                -o APT::Get::Download-Only=false \
-#                -o Dir::Etc::sourcelist="-" \
-#                -o APT::Get::AllowUnauthenticated=true
-#        else
-#            echo "Error: dpkg-dev*.deb not found in $LOCAL_DEB_REPO"
-#            exit 1
-#        fi
-#    fi
-#    #endregion
-#
-#            
-#    echo "Make, dpkg-dev installed. Beginning local installation"
-#
-#    #install dependenciesList from local_deb_repo 
-#    TMP_LIST=$(mktemp)
-#    echo "deb [trusted=yes] file:$LOCAL_DEB_REPO ./" | tee "$TMP_LIST" >/dev/null
-#    mv "$TMP_LIST" /etc/apt/sources.list.d/local.list #apt fileSources directory
-#
-#    cd "$LOCAL_DEB_REPO" || exit 1
-#    dpkg-scanpackages . /dev/null > Packages #indexes files
-#    gzip -9c Packages > Packages.gz 
-#
-#
-##    if [ "$sysEnv" == "WSL" ]; then #resync clock if necessary
-##        echo "Resyncing time"
-##        WIN_TIME=$(cmd.exe /c "powershell -Command Get-Date -Format 'yyyy-MM-dd HH:mm:ss'" | sed 's/\r//')
-##        date -s "$WIN_TIME"
-##    fi
-#
-#    apt update #update cache
-#    apt install -y "${dependenciesList[@]}"
-#fi
 
 
 #if packages dir does not exist or is empty, create it & populate with .deb files
-#if [ ! -d "$LOCAL_DEB_REPO" ]; then 
-#    echo "Local deb repo not found. Creating..."
-#    mkdir -p $LOCAL_DEB_REPO
-#fi
+if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
+    echo "Local dependency file collection not found. Creating..."
 
+    if check_internet; then
+        echo "Downloading relevant dependency files"
+        mkdir "$DEPENDENCIES_DIR/packageRepo"
 
-#mkdir -p packages
-#sudo apt-get update
+        sudo apt-get update
+        sudo apt-get install --download-only -y "${dependenciesList[@]}"
+        
+        mv /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/packageRepo"
+        
+        # Create the zip
+        zip -r "$DEPENDENCIES_DIR/$ACKAGES_ZIP" "$DEPENDENCIES_DIR/packageRepo"
+        rm -r "$DEPENDENCIES_DIR/packageRepo"
+    
+        echo "Dependency files downloaded!"
+    else
+        printf "Dependency files for Ubuntu $VERSION_ID missing!\nNo internet connection found!\n\nThe installation cannot continue. Please connect to the internet and run the script again."
+    fi
 
-#sudo apt-get install --download-only -y "${dependenciesList[@]}"
-
-## Copy all downloaded .deb files
-#mv /var/cache/apt/archives/*.deb packages/
-
-## Create the zip
-#zip -r packages.zip packages/
-
-
+fi
 
 
 #unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
-unzip "$FILES_DIR/packages.zip" -d /var/cache/apt/archives/
+unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
 apt install /var/cache/apt/archives/*.deb 
 #dpkg -i "$FILES_DIR/offline-packages/*.deb"
 
@@ -332,8 +237,8 @@ command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate gi
 command -v make >/dev/null 2>&1 || { echo "make not found"; exit 1; }
 
 #surplus libxp files called for by epics-base
-dpkg -i "$FILES_DIR/libxp6_1.0.2-1ubuntu1_amd64.deb"
-dpkg -i "$FILES_DIR/libxp-dev_1.0.2-1ubuntu1_amd64.deb"
+dpkg -i "$DEPENDENCIES_DIR/libxp6_1.0.2-1ubuntu1_amd64.deb"
+dpkg -i "$DEPENDENCIES_DIR/libxp-dev_1.0.2-1ubuntu1_amd64.deb"
 
 echo "Successfully installed dependencies"
 
@@ -530,10 +435,11 @@ fi
 
 
 
+ls
 # ---------------------------------------------------
 # End-script processes 
 # ---------------------------------------------------
 
 echo "Done!"
 
-echo "To finish the installation, run:  source ~/.bashrc"
+echo "To finish the installation, please restart your terminal session"

@@ -1,22 +1,23 @@
-jacob@jacob-Standard-PC-Q35-ICH9-2009:/opt/epics/extensions/src/edm/lib$ edm
-No such font available: 
+Currently:
+edm issues are sourced to setup.sh -- this overwrites/relies on a misdirected shell variable $EDMDIR (or similar)
 
-[-misc-liberation mono-medium-r-normal--0-90-75-75-m-0-*-*]
+this can be repaired with a sed command
 
-Last line processed: 71
-Font init failed - abort
+-----------------------------
+
+It remains:
+
+- Update dendency-installer to download missing files / create packages.zip
+	- Rename packages.zip to be os-type labelled
+- Prompt: Create local copy of installer?
+- Prompt: Confirm install directory: "/opt/epics"
+- Prompt: Install 'reduced' client-form epics if raspberry pi
+
+- Configure for raspberry pi
+	- build-in ssh/networking tools by default
+- conigure for windows
+
+- set up podman for stability over different setups
 
 
-
-Fonts within:
-/opt/epics/extensions/src/edm/edmMain/fonts.list
-No such font available (after substitutions)
-This is being recognized after a source ~/.bashrc call; as it is prepended to shell path
-
---------
-
-Looking to redirect the font to another file
-ON WINDOWS: does this work? How does xming/xserver behave re: fonts? Which fonts does it use?
-
-
-
+Test on different systems 
