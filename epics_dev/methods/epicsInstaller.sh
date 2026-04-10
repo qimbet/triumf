@@ -24,11 +24,13 @@ breakerStr="*******************************************"
 #region paths, constants, functions
 source /etc/os-release  #add $VERSION_ID to shell
 FILE_DIR_NAME="localFiles_$VERSION_ID"
+PACKAGES_ZIP="packages_$VERSION_ID.zip"
 EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FILES_DIR="$SCRIPT_DIR/installerFiles"
+DEPENDENCIES_DIR="$FILES_DIR/dependencies"
 
 EPICS_ROOT="/opt/epics"
 EPICS_BASE="$EPICS_ROOT/base"
@@ -41,18 +43,11 @@ EDMBASE="$EPICS_EXTENSIONS/src/edm" #no underscore as this is imported from EDM 
 FONTS_DIR="$EPICS_GUI/fonts"
 
 LOCAL_GIT_CACHE="$FILES_DIR/localRepos" #enables offline downloads
-LOCAL_DEB_REPO="$FILES_DIR/$FILE_DIR_NAME"
-
 
 LOGFILE="$SCRIPT_DIR/logs.log"
 exec > >(tee "$LOGFILE") 2>&1
 
-dependenciesList=( #used by apt install
-    dpkg-dev make wine-stable 
-    build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
-    libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
-    libfont-ttf-perl
-    )
+
 
 #region functions
 check_internet() { #check connectivity; used to install missing files in case of local corruption
@@ -64,15 +59,6 @@ check_internet() { #check connectivity; used to install missing files in case of
         return 1  # online
     else
         return 0  # offline
-    fi
-}
-
-breakpoint() {
-    if [ "$debugFlag" = True ]; then
-        local input=""
-        printf "logged value(s): $@"
-        printf "\npress 'enter' to continue\n"
-        read input
     fi
 }
 
@@ -113,29 +99,6 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
 #region user interaction; runtime environment / permissions
 
 
-#ensure the os is the right version
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    if [ "$NAME" != "Ubuntu" ] || [ "$VERSION_ID" != "18.04" ]; then
-        echo "The installer requires os version: *** Ubuntu 18.04 *** "
-        echo "Detected version: {$NAME}_{$VERSION_ID}"
-        echo "EPICS will install properly, but the GUI may not work. Continue? [Y/n]" 
-
-        read ans
-        ans=${ans,,}
-        if [ "$ans" == "n" || "$ans" == "no" ]; then 
-            echo "Quitting"
-            exit 1
-        else
-            :
-        fi
-
-    fi
-fi
-
-
-
-
 #Ensure the script is run with sudo:
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script requires sudo privileges to work properly. Rerunning as sudo:"
@@ -168,22 +131,34 @@ mkdir -p "$EPICS_ROOT"
 
 
 #detect WSL vs. native Linux (necessary for GUI)
-if grep -qi microsoft /proc/version || [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
-    sysEnv="WSL" 
+if [[ -n "${WSL_DISTRO_NAME:-}" ]] || grep -qi microsoft /proc/version; then
+    sysEnv="WSL"
+elif [[ -f /proc/device-tree/model ]] && grep -qi "raspberry pi" /proc/device-tree/model; then
+    sysEnv="Raspberry Pi"
 else
     sysEnv="Native Ubuntu"
 fi
 
-printf "Linux framework detected: %s. Is this correct? [Y/n]:" "$sysEnv"
-read response
-
+# --- confirm detection ---
+printf "Detected environment: %s. Is this correct? [Y/n]: " "$sysEnv"
+read -r response
 response=${response,,}
+
+# --- override menu if incorrect ---
 if [[ "$response" == "n" || "$response" == "no" ]]; then
-    if [ "$sysEnv" == "WSL" ]; then
-        sysEnv="Native Ubuntu"
-    else
-        sysEnv="WSL"
-    fi
+    echo "Select environment:"
+    echo "1) WSL"
+    echo "2) Raspberry Pi"
+    echo "3) Native Ubuntu"
+    printf "Choice [1-3]: "
+    read -r choice
+
+    case "$choice" in
+        1) sysEnv="WSL" ;;
+        2) sysEnv="Raspberry Pi" ;;
+        3) sysEnv="Native Ubuntu" ;;
+        *) echo "Invalid selection, keeping detected value." ;;
+    esac
 fi
 
 echo "Proceeding with installation"
@@ -199,135 +174,63 @@ echo "Proceeding with installation"
 
 #region dependencies 
 
-#region deprecated dep install
-#if dir does not exist or is empty, create it & populate with .deb files
-#if [ ! -d "$LOCAL_DEB_REPO" ]; then 
-#    echo "Local deb repo not found. Creating..."
-#    mkdir -p $LOCAL_DEB_REPO
-#fi
-#
-#        
-##validate local file repository
-#missing_pkgs=()
-#for pkg in "${dependenciesList[@]}"; do #identify missing files for dependencies
-#    #NOTE: this only checks the top-level packages; their own dependencies are not handled here
-#    if ! ls "$LOCAL_DEB_REPO"/"$pkg"_*.deb >/dev/null 2>&1; then
-#        missing_pkgs+=("$pkg")  # add to list 
-#        printf "Missing package: %s" "$pkg"
-#        echo ""
-#    fi
-#done
-#
-#if [ "${#missing_pkgs[@]}" -ne 0 ]; then 
-#    echo Missing package files.
-#    if check_internet; then #if internet is available, download packages
-#        echo "Internet available -- populating deb files"
-#        echo "Local package repo for os $FILE_DIR_NAME not found, installing key packages from internet..."
-#
-#        apt-get -o=dir::cache::archives="$LOCAL_DEB_REPO" install --download-only -y "${dependenciesList[@]}" #download .deb files to localDir
-#
-#        echo "Downloaded core files and dependencies"
-#
-#    else #error message, exit if no internet
-#        echo "Error: local .deb repository not found or empty at $LOCAL_DEB_REPO"
-#        echo "No internet access: installation cannot proceed."
-#        exit 1
-#    fi
-#fi
-#
-#
-#
-##install from local repository
-#if [ "$(ls -A "$LOCAL_DEB_REPO")" ]; then
-#
-#    #region prerequisite installs; make, dpkg-dev
-#    # Install make first (needed to install dpkg-dev)
-#    if ! command -v make >/dev/null 2>&1; then #if make does not exist in $PATH
-#        echo "Installing make from local repo..."
-#
-#        if ls "$LOCAL_DEB_REPO"/make_*.deb >/dev/null 2>&1; then
-#            dpkg -i "$LOCAL_DEB_REPO"/make_*.deb #attempt to install make 
-#
-#            # Fix unmet dependencies using local .debs
-#            apt-get --fix-broken install -y -o Dir::Etc::sourcelist="-" \
-#                -o Dir::Etc::sourceparts="-" \
-#                -o APT::Get::Download-Only=false \
-#                -o Dir::Etc::sourcelist="-" \
-#                -o APT::Get::AllowUnauthenticated=true
-#        else
-#            echo "Error: make_*.deb not found in $LOCAL_DEB_REPO"
-#            exit 1
-#        fi
-#    fi
-#
-#    if ! command -v dpkg-scanpackages >/dev/null 2>&1; then #if dpkg does not exist in $PATH
-#        #use make to install dpkg-dev
-#        echo "Installing dpkg-dev from local repo..."
-#        if ls "$LOCAL_DEB_REPO"/dpkg-dev*.deb >/dev/null 2>&1; then
-#            dpkg -i "$LOCAL_DEB_REPO"/dpkg-dev*.deb
-#
-#            # Fix unmet dependencies using local .debs
-#            apt-get --fix-broken install -y -o Dir::Etc::sourcelist="-" \
-#                -o Dir::Etc::sourceparts="-" \
-#                -o APT::Get::Download-Only=false \
-#                -o Dir::Etc::sourcelist="-" \
-#                -o APT::Get::AllowUnauthenticated=true
-#        else
-#            echo "Error: dpkg-dev*.deb not found in $LOCAL_DEB_REPO"
-#            exit 1
-#        fi
-#    fi
-#    #endregion
-#
-#            
-#    echo "Make, dpkg-dev installed. Beginning local installation"
-#
-#    #install dependenciesList from local_deb_repo 
-#    TMP_LIST=$(mktemp)
-#    echo "deb [trusted=yes] file:$LOCAL_DEB_REPO ./" | tee "$TMP_LIST" >/dev/null
-#    mv "$TMP_LIST" /etc/apt/sources.list.d/local.list #apt fileSources directory
-#
-#    cd "$LOCAL_DEB_REPO" || exit 1
-#    dpkg-scanpackages . /dev/null > Packages #indexes files
-#    gzip -9c Packages > Packages.gz 
-#
-#
-##    if [ "$sysEnv" == "WSL" ]; then #resync clock if necessary
-##        echo "Resyncing time"
-##        WIN_TIME=$(cmd.exe /c "powershell -Command Get-Date -Format 'yyyy-MM-dd HH:mm:ss'" | sed 's/\r//')
-##        date -s "$WIN_TIME"
-##    fi
-#
-#    apt update #update cache
-#    apt install -y "${dependenciesList[@]}"
-#fi
+case "$sysEnv" in
+    "WSL")
+        dependenciesList=( #used by apt install
+            dpkg-dev make wine-stable 
+            build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
+            libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
+            libfont-ttf-perl
+        )
+        ;;
+        
+    "Raspberry Pi")
+        dependenciesList=( #used by apt install
+            dpkg-dev make 
+            build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
+            libxmu-headers libxt-dev libxtst-dev x11proto-print-dev autoconf libtool sshpass
+            libfont-ttf-perl screen 
+        )
+        ;;
+        
+    "Native Ubuntu")
+        dependenciesList=( #used by apt install
+            dpkg-dev make 
+            build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
+            libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
+            libfont-ttf-perl
+        )
+        ;;
 
-#endregion
-
+esac
 
 #if packages dir does not exist or is empty, create it & populate with .deb files
-#if [ ! -d "$LOCAL_DEB_REPO" ]; then 
-#    echo "Local deb repo not found. Creating..."
-#    mkdir -p $LOCAL_DEB_REPO
-#fi
+if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
+    echo "Local dependency file collection not found. Creating..."
 
+    if check_internet; then
+        echo "Downloading relevant dependency files"
+        mkdir "$DEPENDENCIES_DIR/packageRepo"
 
-#mkdir -p packages
-#sudo apt-get update
+        sudo apt-get update
+        sudo apt-get install --download-only -y "${dependenciesList[@]}"
+        
+        mv /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/packageRepo"
+        
+        # Create the zip
+        zip -r "$DEPENDENCIES_DIR/$ACKAGES_ZIP" "$DEPENDENCIES_DIR/packageRepo"
+        rm -r "$DEPENDENCIES_DIR/packageRepo"
+    
+        echo "Dependency files downloaded!"
+    else
+        printf "Dependency files for Ubuntu $VERSION_ID missing!\nNo internet connection found!\n\nThe installation cannot continue. Please connect to the internet and run the script again."
+    fi
 
-#sudo apt-get install --download-only -y "${dependenciesList[@]}"
-
-## Copy all downloaded .deb files
-#mv /var/cache/apt/archives/*.deb packages/
-
-## Create the zip
-#zip -r packages.zip packages/
-
-
+fi
 
 
 #unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
-unzip "$FILES_DIR/packages.zip" -d /var/cache/apt/archives/
+unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
 apt install /var/cache/apt/archives/*.deb 
 #dpkg -i "$FILES_DIR/offline-packages/*.deb"
 
@@ -336,8 +239,8 @@ command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate gi
 command -v make >/dev/null 2>&1 || { echo "make not found"; exit 1; }
 
 #surplus libxp files called for by epics-base
-dpkg -i "$FILES_DIR/libxp6_1.0.2-1ubuntu1_amd64.deb"
-dpkg -i "$FILES_DIR/libxp-dev_1.0.2-1ubuntu1_amd64.deb"
+dpkg -i "$DEPENDENCIES_DIR/libxp6_1.0.2-1ubuntu1_amd64.deb"
+dpkg -i "$DEPENDENCIES_DIR/libxp-dev_1.0.2-1ubuntu1_amd64.deb"
 
 echo "Successfully installed dependencies"
 
@@ -485,6 +388,8 @@ sed -i -e '82i\ \ \ \ $EDM -add $EDM_DIR/diamondlib/O.$ODIR/libEdmDiamond.so' se
 sed -i -e '83i\ \ \ \ $EDM -add $EDM_DIR/giflib/O.$ODIR/libcf322683-513e-4570-a44b-7cdd7cae0de5.so' setup.sh
 sed -i -e '84i\ \ \ \ $EDM -add $EDM_DIR/videowidget/O.$ODIR/libTwoDProfileMonitor.so' setup.sh
 
+sed -i "s|^export EDMBASE=.*|export EDMBASE=\"$EDMBASE\"|" "$EDM_DIR/setup/setup.sh"
+
 HOST_ARCH=$EPICS_HOST_ARCH sh setup.sh
 
 echo "Successfully installed & configured EDM"
@@ -508,7 +413,7 @@ echo "Prepared fonts"
 # ---------------------------------------------------
 # GUI -- Xming, for WSL instances 
 # ---------------------------------------------------
-
+if server_mode
 if [ "$sysEnv" == "WSL" ]; then #WSL -- unverified
     xming_fonts_fileName="Xming-fonts-7-7-0-10-setup.exe"
 
@@ -539,6 +444,29 @@ ls
 # End-script processes 
 # ---------------------------------------------------
 
-echo "Done!"
+echo "Installation finished!"
 
-echo "To finish the installation, please restart your terminal session"
+while true; do
+    read -p "Would you like to create a local copy of this epics installer for future use? [Y/n]: " cloneChoice
+    cloneChoice=${cloneChoice,,}
+    if [[ "$cloneChoice" == "n" || "$cloneChoice" == "no" ]]; then
+        echo "You got it, boss. Nothing done."
+    elif [[ "$cloneChoice" == "y" || "$cloneChoice" == "yes" ]]; then
+        echo "Default directory: $ORIGINAL_USER_HOME"
+    
+        read -p "Press Enter to copy into here, or enter an alternate directory: " target_dir
+        target_dir="${target_dir:-$ORIGINAL_USER_HOME}"
+    
+        mkdir -p "$target_dir"
+        cp -r "$SCRIPT_DIR" "$target_dir"
+    
+        echo "Installer cloned into: $target_dir"
+    fi
+    else
+        echo "Choice not recognized. Try again."
+    fi
+
+
+
+echo "To use epics, restart your terminal session or run: source ~/.bashrc"
+echo "For documentation on epics usage, take a look at the readme.txt, or the pdf files bundled in this installer's Documentation folder"

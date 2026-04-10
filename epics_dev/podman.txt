@@ -1,0 +1,76 @@
+--------------------------
+Podman setup notes
+
+GUI should work, but will requre display-forwarding 
+	This is handled by:
+		xhost +local:
+	Run container with display forwarding:
+		podman run -it -e DISLAY=$DISLAY -v /tmp/.X11-unix:/tmp/.X11-unix epicsServer_image
+			
+		This may require additional forwarding configs on Wayland:
+			export DISPLAY=:0
+		
+		This may require additional libraries:
+			libx11-6 libxext6 libxrender1 libxtst6 libxi6
+
+	Note that Windows, iOS, are not as direct:
+		Here, it would be necessary to install an X server		
+		- Windows: 	VcXsrv or X410
+					VcXsrv: open-source
+					X410: commercial
+		- iOS: 		XQuartz	
+
+		Then:
+			podman run -e DISPLAY=host.containers.internal.internal:0 epicsServer_image
+
+
+--------------------------
+
+Podman setup:
+
+	Works same as docker; build a containerfile
+	
+	Use ubuntu 18.04 base image
+	copy epicsInstaller.sh into the container
+	run during build/runtime
+	
+	FROM ubuntu:18.04
+	ENV DEBIAN_FRONTENT=noninteractive
+	COPY epicsInstaller.sh /opt/epics_installer_dir
+	RUN chmod +x /opt/epics_installer_dir/epicsInstaller.sh
+	RUN chmod /opt/epics_installer_dir/epicsInstaller.sh
+	
+	CMD ["/bin/bash"] 							#this should be customized
+
+	
+	((	from the directory with containerfile	))
+	podman build -t epicsServer_app .
+	
+	((	run container	)) 
+	podman run -v mydata:/data my-image epicsServer_app epicsInstaller	#persist the volume
+	podman run -it my-image /bin/bash					#attach to running container
+	podman exec -it <container_id> /bin/bash
+	podman run -it -v $(pwd):/workspace my-image
+	
+	((	saving & loading on other machines	))
+	#share Containerfile and let others rebuild it as needed
+	podman save epicsServer_image > epicsServer_image.tar
+	
+	podman load < epicsServer_image.tar
+
+--------------------------
+EXAMPLE SESSION
+
+podman run -it epicsServer_image
+
+root@container: epicsInstaller.sh
+
+--------------------------
+How to use:
+
+runc -- runs containers
+buildah -- builds images
+
+
+
+

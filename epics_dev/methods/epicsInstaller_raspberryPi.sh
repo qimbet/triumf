@@ -21,14 +21,6 @@ breakerStr="*******************************************"
 # Directory Management
 # ===================================================
 
-SERVER_MODE=true #set to false when building for raspberry Pi -- don't install GUI
-. /etc/os-release #source os metadata
-if [[ "$ID" == "raspbian" ]] || \
-   [[ "$NAME" == *"Raspberry Pi"* ]] || \
-   [[ "$PRETTY_NAME" == *"Raspberry Pi"* ]]; then
-    SERVER_MODE=false
-fi
-
 #region paths, constants, functions
 source /etc/os-release  #add $VERSION_ID to shell
 FILE_DIR_NAME="localFiles_$VERSION_ID"
@@ -55,12 +47,7 @@ LOCAL_GIT_CACHE="$FILES_DIR/localRepos" #enables offline downloads
 LOGFILE="$SCRIPT_DIR/logs.log"
 exec > >(tee "$LOGFILE") 2>&1
 
-dependenciesList=( #used by apt install
-    dpkg-dev make wine-stable 
-    build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
-    libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
-    libfont-ttf-perl
-    )
+
 
 #region functions
 check_internet() { #check connectivity; used to install missing files in case of local corruption
@@ -144,22 +131,34 @@ mkdir -p "$EPICS_ROOT"
 
 
 #detect WSL vs. native Linux (necessary for GUI)
-if grep -qi microsoft /proc/version || [[ -n "${WSL_DISTRO_NAME:-}" ]]; then
-    sysEnv="WSL" 
+if [[ -n "${WSL_DISTRO_NAME:-}" ]] || grep -qi microsoft /proc/version; then
+    sysEnv="WSL"
+elif [[ -f /proc/device-tree/model ]] && grep -qi "raspberry pi" /proc/device-tree/model; then
+    sysEnv="Raspberry Pi"
 else
     sysEnv="Native Ubuntu"
 fi
 
-printf "Linux framework detected: %s. Is this correct? [Y/n]:" "$sysEnv"
-read response
-
+# --- confirm detection ---
+printf "Detected environment: %s. Is this correct? [Y/n]: " "$sysEnv"
+read -r response
 response=${response,,}
+
+# --- override menu if incorrect ---
 if [[ "$response" == "n" || "$response" == "no" ]]; then
-    if [ "$sysEnv" == "WSL" ]; then
-        sysEnv="Native Ubuntu"
-    else
-        sysEnv="WSL"
-    fi
+    echo "Select environment:"
+    echo "1) WSL"
+    echo "2) Raspberry Pi"
+    echo "3) Native Ubuntu"
+    printf "Choice [1-3]: "
+    read -r choice
+
+    case "$choice" in
+        1) sysEnv="WSL" ;;
+        2) sysEnv="Raspberry Pi" ;;
+        3) sysEnv="Native Ubuntu" ;;
+        *) echo "Invalid selection, keeping detected value." ;;
+    esac
 fi
 
 echo "Proceeding with installation"
@@ -175,6 +174,35 @@ echo "Proceeding with installation"
 
 #region dependencies 
 
+case "$sysEnv" in
+    "WSL")
+        dependenciesList=( #used by apt install
+            dpkg-dev make wine-stable 
+            build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
+            libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
+            libfont-ttf-perl
+        )
+        ;;
+        
+    "Raspberry Pi")
+        dependenciesList=( #used by apt install
+            dpkg-dev make 
+            build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
+            libxmu-headers libxt-dev libxtst-dev x11proto-print-dev autoconf libtool sshpass
+            libfont-ttf-perl screen 
+        )
+        ;;
+        
+    "Native Ubuntu")
+        dependenciesList=( #used by apt install
+            dpkg-dev make 
+            build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
+            libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
+            libfont-ttf-perl
+        )
+        ;;
+
+esac
 
 #if packages dir does not exist or is empty, create it & populate with .deb files
 if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
