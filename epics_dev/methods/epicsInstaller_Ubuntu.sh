@@ -7,8 +7,9 @@
 
 #this is charted to work only on Ubuntu 18.04, due to GUI dependencies on deprecated packages
 
-debugFlag=$1 #Boolean for verbose outputs & breakpoints, passed as arg
-debugFlag="True"
+ORIGINAL_USER=$1 #Boolean for verbose outputs & breakpoints, passed as arg
+SCRIPT_DIR=$2
+
 
 set -euo pipefail
 
@@ -23,12 +24,13 @@ breakerStr="*******************************************"
 
 #region paths, constants, functions
 source /etc/os-release  #add $VERSION_ID to shell
-FILE_DIR_NAME="localFiles_$VERSION_ID"
+
+ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
+
 PACKAGES_ZIP="packages_$VERSION_ID.zip"
 EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FILES_DIR="$SCRIPT_DIR/installerFiles"
 DEPENDENCIES_DIR="$FILES_DIR/dependencies"
 
