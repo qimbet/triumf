@@ -38,6 +38,7 @@ if [ -d $EPICS_ROOT ] && [ -n "$EPICS_ROOT" ]; then
         exit 1
     fi
 fi
+mkdir -p "$EPICS_ROOT"
 
 
 #detect system type 

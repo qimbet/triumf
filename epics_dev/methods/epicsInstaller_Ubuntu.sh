@@ -93,19 +93,8 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
 #endregion
 
 
-#region user interaction; runtime environment / permissions
-
-mkdir -p "$EPICS_ROOT"
-
-
-
-
-echo "Proceeding with installation"
 
 #endregion
-
-#endregion
-
 
 # ---------------------------------------------------
 # Install dependencies via apt/dpkg 
@@ -126,15 +115,17 @@ if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then
 
     if check_internet; then
         echo "Downloading relevant dependency files"
-        mkdir "$DEPENDENCIES_DIR/packageRepo"
+        mkdir "$DEPENDENCIES_DIR/packageRepo" #install dependency files here temporarily
 
-        sudo apt-get update
-        sudo apt-get install --download-only -y "${dependenciesList[@]}"
+        apt-get clean
+        apt-get update
+        apt-get install --download-only --reinstall -y "${dependenciesList[@]}"
         
-        mv /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/packageRepo"
+        cp /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/packageRepo"
+        cp /var/cache/apt/archives/partial/*.deb "$DEPENDENCIES_DIR/packageRepo"
         
         # Create the zip
-        zip -r "$DEPENDENCIES_DIR/$ACKAGES_ZIP" "$DEPENDENCIES_DIR/packageRepo"
+        zip -r "$DEPENDENCIES_DIR/$PACKAGES_ZIP" "$DEPENDENCIES_DIR/packageRepo"
         rm -r "$DEPENDENCIES_DIR/packageRepo"
     
         echo "Dependency files downloaded!"
