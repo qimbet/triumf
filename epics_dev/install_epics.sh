@@ -84,3 +84,49 @@ case "$sysEnv" in
         exit 1
         ;;
 esac
+
+echo "Done!"
+
+
+#option to create a local copy of the installer
+while true; do
+    read -p "Would you like to create a local copy of this epics installer for future use? [Y/n]: " cloneChoice
+    cloneChoice=${cloneChoice,,}
+
+    case "$cloneChoice" in 
+        ""|y|yes)
+            echo "Default directory: $ORIGINAL_USER_HOME"
+
+            read -rp "Press Enter to copy into here, or enter an alternate directory: " target_dir
+            target_dir="${target_dir:-$ORIGINAL_USER_HOME}"
+    
+            mkdir -p "$target_dir"
+            cp -r "$SCRIPT_DIR" "$target_dir"
+
+            echo "Installer cloned into: $target_dir"
+
+            break
+            ;;
+        
+        n|no)
+            echo "You got it, boss. Nothing done."
+            break
+            ;;
+        
+        *)
+            echo "Choice not recognized. Try again."
+            ;;
+    esac
+done
+    
+echo "To use epics, restart your terminal session or run: source ~/.bashrc"
+cat <<EOF
+Installer completed!
+For a quick-start overview about using epics, take a look at the readme.txt
+
+For more in-depth instructions on using epics, read through the pdf files in this installer's Documentation folder.
+
+Epics has been added to your system path. To begin using epics, you can either restart your shell session (open a new terminal/command prompt window) or run:
+    source ~/.bashrc
+
+EOF

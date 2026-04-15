@@ -12,7 +12,6 @@ SCRIPT_DIR=$2
 
 
 set -euo pipefail
-
 trap 'echo "ERROR in function ${FUNCNAME[0]:-main}, file ${BASH_SOURCE[1]:${BASH_SOURCE[0]}}, line $LINENO"; exit 1' ERR
 caller="${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}"
 
@@ -53,14 +52,10 @@ exec > >(tee "$LOGFILE") 2>&1
 
 #region functions
 check_internet() { #check connectivity; used to install missing files in case of local corruption
-    if [ "$debugFlag" = True ]; then
-        printf "Local files missing!\nPress enter to continue"
-        read input
-    fi
     if ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
-        return 1  # online
+        return 0  # online
     else
-        return 0  # offline
+        return 1  # offline
     fi
 }
 
@@ -331,63 +326,4 @@ echo "Prepared fonts"
 
 #endregion
 
-# ---------------------------------------------------
-# GUI -- Xming, for WSL instances 
-# ---------------------------------------------------
-if server_mode
-if [ "$sysEnv" == "WSL" ]; then #WSL -- unverified
-    xming_fonts_fileName="Xming-fonts-7-7-0-10-setup.exe"
 
-    cp "{$FILES_DIR}/${xming_fonts_fileName}" "$EPICS_GUI/"
-
-    WIN_PATH=$(wslpath -w "$EPICS_GUI/$xming_fonts_fileName")
-    #powershell.exe -NoProfile -NonInteractive -Command \
-    #"Start-Process -FilePath '$WIN_PATH' -ArgumentList '/VERYSILENT','/NORESTART' -Wait -PassThru | ForEach-Object { exit \$_.ExitCode }"
-
-    echo "$breakerStr" 
-    echo "$breakerStr" 
-    printf "\n\nManual interaction needed for Xming installation. \n\nSELECT ALL FONTS IN CHECKBOX LIST.\nEnter any value to continue.\n"
-    read dummyVar
-
-    powershell.exe -NoProfile -Command "& '$WIN_PATH'" #runs xming_FileName
-
-    exit $?
-
-else    #Native Ubuntu; not necessary
-    echo "Xming not needed for Native Linux systems"
-    echo "Skipping Xming install"
-fi
-
-
-
-ls
-# ---------------------------------------------------
-# End-script processes 
-# ---------------------------------------------------
-
-echo "Installation finished!"
-
-while true; do
-    read -p "Would you like to create a local copy of this epics installer for future use? [Y/n]: " cloneChoice
-    cloneChoice=${cloneChoice,,}
-    if [[ "$cloneChoice" == "n" || "$cloneChoice" == "no" ]]; then
-        echo "You got it, boss. Nothing done."
-    elif [[ "$cloneChoice" == "y" || "$cloneChoice" == "yes" ]]; then
-        echo "Default directory: $ORIGINAL_USER_HOME"
-    
-        read -p "Press Enter to copy into here, or enter an alternate directory: " target_dir
-        target_dir="${target_dir:-$ORIGINAL_USER_HOME}"
-    
-        mkdir -p "$target_dir"
-        cp -r "$SCRIPT_DIR" "$target_dir"
-    
-        echo "Installer cloned into: $target_dir"
-    fi
-    else
-        echo "Choice not recognized. Try again."
-    fi
-
-
-
-echo "To use epics, restart your terminal session or run: source ~/.bashrc"
-echo "For documentation on epics usage, take a look at the readme.txt, or the pdf files bundled in this installer's Documentation folder"
