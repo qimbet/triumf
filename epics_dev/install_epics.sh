@@ -22,6 +22,7 @@ ORIGINAL_USER="${SUDO_USER:-${USER:-root}}"
 ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+EPICS_ROOT="/opt/epics" #installation target directory
 
 #prompt to remove preexisting installation
 if [ -d $EPICS_ROOT ] && [ -n "$EPICS_ROOT" ]; then
@@ -71,13 +72,13 @@ fi
 
 case "$sysEnv" in
     "WSL")
-        ./methods/epicsInstaller_WSL "$ORIGINAL_USER" "$SCRIPT_DIR"
+        "$SCRIPT_DIR/methods/epicsInstaller_WSL.sh" "$ORIGINAL_USER" "$SCRIPT_DIR" "$EPICS_ROOT"
         ;;
     "Native Ubuntu")
-        ./methods/epicsInstaller_Ubuntu "$ORIGINAL_USER" "$SCRIPT_DIR"
+        "$SCRIPT_DIR/methods/epicsInstaller_Ubuntu.sh" "$ORIGINAL_USER" "$SCRIPT_DIR" "$EPICS_ROOT"
         ;;
     "Raspberry Pi")
-        ./methods/epicsInstaller_raspberryPi "$ORIGINAL_USER" "$SCRIPT_DIR"
+        "$SCRIPT_DIR/methods/epicsInstaller_raspberryPi.sh" "$ORIGINAL_USER" "$SCRIPT_DIR" "$EPICS_ROOT"
         ;;
     *)
         echo "Unknown environment: $sysEnv" >&2

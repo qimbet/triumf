@@ -9,6 +9,7 @@
 
 ORIGINAL_USER=$1 #Boolean for verbose outputs & breakpoints, passed as arg
 SCRIPT_DIR=$2
+EPICS_ROOT=$3
 
 
 set -euo pipefail
@@ -33,7 +34,6 @@ EPICS_HOST_ARCH="linux-x86_64"
 FILES_DIR="$SCRIPT_DIR/installerFiles"
 DEPENDENCIES_DIR="$FILES_DIR/dependencies"
 
-EPICS_ROOT="/opt/epics"
 EPICS_BASE="$EPICS_ROOT/base"
 EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
 EDM_DIR="$EPICS_EXTENSIONS/src/edm"
