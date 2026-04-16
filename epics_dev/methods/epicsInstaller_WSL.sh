@@ -28,7 +28,7 @@ source /etc/os-release  #add $VERSION_ID to shell
 ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
 
 FILE_DIR_NAME="localFiles_$VERSION_ID"
-PACKAGES_ZIP="packages_$VERSION_ID.zip"
+PACKAGES_ZIP="packages_$VERSION_ID.gz"
 EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
@@ -110,34 +110,31 @@ dependenciesList=( #used by apt install
     libfont-ttf-perl
 )
 
-#if packages dir does not exist or is empty, create it & populate with .deb files
+#if packages dir does not exist or is empty, create it & populate with .deb files 
 if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
     echo "Local dependency file collection not found. Creating..."
+    mkdir -p "$DEPENDENCIES_DIR/pool"
 
-    if true; then
-        echo "Downloading relevant dependency files"
-        mkdir -p "$DEPENDENCIES_DIR/packageRepo"
+    apt-get update
+    apt-get clean
 
-        apt-get update
-        apt-get install --download-only --reinstall -y "${dependenciesList[@]}"
-        
-        cp /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/packageRepo"
-        cp /var/cache/apt/archives/partial/*.deb "$DEPENDENCIES_DIR/packageRepo"
-        
-        # Create the zip
-        zip -r "$DEPENDENCIES_DIR/$PACKAGES_ZIP" "$DEPENDENCIES_DIR/packageRepo"
-        rm -r "$DEPENDENCIES_DIR/packageRepo"
-    
-        echo "Dependency files downloaded!"
-    else
-        printf "Dependency files for Ubuntu $VERSION_ID missing!\nNo internet connection found!\n\nThe installation cannot continue. Please connect to the internet and run the script again."
-    fi
+    apt-get install --no-install-recommends --download-only --reinstall "${dependenciesList[@]}"
 
+    cp /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/pool/"
+
+    apt-get install -y dpkg-dev
+
+    cd "$DEPENDENCIES_DIR"
+    dpkg-scanpackages "$DEPENDENCIES_DIR/pool" /dev/null | gzip -9c > "$DEPENDENCIES_DIR/$PACKAGES_ZIP"
 fi
 
+echo "deb [trusted=yes] file:$DEPENDENCIES_DIR/ ./" | tee /etc/apt/sources.list.d/offline.list
+apt-get update
+
+apt-get install -y "${dependenciesList[@]}"
 
 #unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
-unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
+#unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
 
 #dpkg --remove-architecture i386
 #rm -rf /var/lib/apt/lists/*
@@ -145,8 +142,8 @@ unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
 #apt update
 #apt install /var/cache/apt/archives/*.deb 
 
-apt-get update
-apt-get install -y "${dependenciesList[@]}"
+#apt-get update
+#apt-get install -y "${dependenciesList[@]}"
 #dpkg -i /var/cache/apt/archives/*.deb || true
 #apt-get install -f -y
 #dpkg --configure -a
