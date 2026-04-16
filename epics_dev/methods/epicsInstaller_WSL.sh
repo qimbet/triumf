@@ -27,7 +27,6 @@ source /etc/os-release  #add $VERSION_ID to shell
 
 ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
 
-FILE_DIR_NAME="localFiles_$VERSION_ID"
 PACKAGES_ZIP="packages_$VERSION_ID.gz"
 EPICS_HOST_ARCH="linux-x86_64"
 
@@ -113,19 +112,23 @@ dependenciesList=( #used by apt install
 #if packages dir does not exist or is empty, create it & populate with .deb files 
 if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
     echo "Local dependency file collection not found. Creating..."
+
     mkdir -p "$DEPENDENCIES_DIR/pool"
+
+    add-apt-repository -y universe
+    add-apt-repository -y multiverse
 
     apt-get update
     apt-get clean
 
-    apt-get install --no-install-recommends --download-only --reinstall "${dependenciesList[@]}"
+    apt-get install -y --no-install-recommends --download-only --reinstall "${dependenciesList[@]}"
 
     cp /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/pool/"
 
     apt-get install -y dpkg-dev
 
     cd "$DEPENDENCIES_DIR"
-    dpkg-scanpackages "$DEPENDENCIES_DIR/pool" /dev/null | gzip -9c > "$DEPENDENCIES_DIR/$PACKAGES_ZIP"
+    dpkg-scanpackages pool /dev/null | gzip -9c > "$PACKAGES_ZIP"
 fi
 
 echo "deb [trusted=yes] file:$DEPENDENCIES_DIR/ ./" | tee /etc/apt/sources.list.d/offline.list
