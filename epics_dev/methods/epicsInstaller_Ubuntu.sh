@@ -23,11 +23,13 @@ breakerStr="*******************************************"
 # ===================================================
 
 #region paths, constants, functions
-source /etc/os-release  #add $VERSION_ID to shell
+#source /etc/os-release  #add $VERSION_ID to shell
 
+OS_NAME=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
+VERSION_ID=$(lsb_release -rs)
 ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
 
-PACKAGES_ZIP="packages_$VERSION_ID.zip"
+PACKAGES_ZIP="packages_${OS_NAME}_${VERSION_ID}.gz"
 EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
@@ -108,38 +110,66 @@ dependenciesList=( #used by apt install
     libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
     libfont-ttf-perl
 )
-
+#region deprecated package manager
 #if packages dir does not exist or is empty, create it & populate with .deb files
+#if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
+#    echo "Local dependency file collection not found. Creating..."
+#
+#    if check_internet; then
+#        echo "Downloading relevant dependency files"
+#        mkdir "$DEPENDENCIES_DIR/packageRepo" #install dependency files here temporarily
+#
+#        apt-get clean
+#        apt-get update
+#        apt-get install --download-only --reinstall -y "${dependenciesList[@]}"
+#        
+#        cp /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/packageRepo"
+#        cp /var/cache/apt/archives/partial/*.deb "$DEPENDENCIES_DIR/packageRepo"
+#        
+#        # Create the zip
+#        zip -r "$DEPENDENCIES_DIR/$PACKAGES_ZIP" "$DEPENDENCIES_DIR/packageRepo"
+#        rm -r "$DEPENDENCIES_DIR/packageRepo"
+#    
+#        echo "Dependency files downloaded!"
+#    else
+#        printf "Dependency files for Ubuntu $VERSION_ID missing!\nNo internet connection found!\n\nThe installation cannot continue. Please connect to the internet and run the script again."
+#    fi
+#
+#fi
+#endregion
+
 if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
     echo "Local dependency file collection not found. Creating..."
+    echo 'Acquire::Languages "none";' | sudo tee /etc/apt/apt.conf.d/99nolangs
+    apt-get -o Acquire::AllowInsecureRepositories=true update
 
-    if check_internet; then
-        echo "Downloading relevant dependency files"
-        mkdir "$DEPENDENCIES_DIR/packageRepo" #install dependency files here temporarily
+    mkdir -p "$DEPENDENCIES_DIR/pool"
 
-        apt-get clean
-        apt-get update
-        apt-get install --download-only --reinstall -y "${dependenciesList[@]}"
-        
-        cp /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/packageRepo"
-        cp /var/cache/apt/archives/partial/*.deb "$DEPENDENCIES_DIR/packageRepo"
-        
-        # Create the zip
-        zip -r "$DEPENDENCIES_DIR/$PACKAGES_ZIP" "$DEPENDENCIES_DIR/packageRepo"
-        rm -r "$DEPENDENCIES_DIR/packageRepo"
-    
-        echo "Dependency files downloaded!"
-    else
-        printf "Dependency files for Ubuntu $VERSION_ID missing!\nNo internet connection found!\n\nThe installation cannot continue. Please connect to the internet and run the script again."
-    fi
+    add-apt-repository -y universe
+    add-apt-repository -y multiverse
 
+    apt-get update
+    apt-get clean
+
+    apt-get install -y --no-install-recommends --download-only --reinstall "${dependenciesList[@]}"
+
+    cp /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/pool/"
+
+    apt-get install -y dpkg-dev
+
+    cd "$DEPENDENCIES_DIR"
+    dpkg-scanpackages pool /dev/null | gzip -9c > "$PACKAGES_ZIP"
 fi
 
+echo "deb [trusted=yes] file:$DEPENDENCIES_DIR/ ./" | tee /etc/apt/sources.list.d/offline.list
+apt-get update
 
-#unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
-unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
-apt install /var/cache/apt/archives/*.deb 
-#dpkg -i "$FILES_DIR/offline-packages/*.deb"
+apt-get install -y "${dependenciesList[@]}"
+
+##unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
+#unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
+#apt install /var/cache/apt/archives/*.deb 
+##dpkg -i "$FILES_DIR/offline-packages/*.deb"
 
 
 command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate git, make

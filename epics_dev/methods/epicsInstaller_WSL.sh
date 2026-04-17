@@ -23,11 +23,13 @@ breakerStr="*******************************************"
 # ===================================================
 
 #region paths, constants, functions
-source /etc/os-release  #add $VERSION_ID to shell
+#source /etc/os-release  #add $VERSION_ID to shell
 
+OS_NAME=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
+VERSION_ID=$(lsb_release -rs)
 ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
 
-PACKAGES_ZIP="packages_$VERSION_ID.gz"
+PACKAGES_ZIP="packages_${OS_NAME}_${VERSION_ID}.gz"
 EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
@@ -76,16 +78,14 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
             printf "Successfullly cloned repository: %s" "$gitDirName"
             return $? #most recent exit code; returns 0 on a success
         else
-            if check_internet; then
-                echo "Local cache not found. Cloning $irName from GitHub..."
-                mkdir -p "$LOCAL_GIT_CACHE"
-                git clone --recursive "$githubLink" "$LOCAL_GIT_CACHE/${gitDirName}.git" #ensures .git suffix
-                git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
-                return $?
-            fi
+            echo "Local cache not found. Cloning $irName from GitHub..."
+            mkdir -p "$LOCAL_GIT_CACHE"
+            git clone --recursive "$githubLink" "$LOCAL_GIT_CACHE/${gitDirName}.git" #ensures .git suffix
+            git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
+            return $?
         fi
 
-        echo "Error: Local cache empty and no internet connection. Cannot clone $dirName."
+        echo "Error: Local cache empty and repo download failed. Validate internet connection. Cannot clone $dirName."
         exit 1
     else
         echo "Could not clone dir %s as directory not empty!" "$dirName"
@@ -112,6 +112,8 @@ dependenciesList=( #used by apt install
 #if packages dir does not exist or is empty, create it & populate with .deb files 
 if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
     echo "Local dependency file collection not found. Creating..."
+    echo 'Acquire::Languages "none";' | sudo tee /etc/apt/apt.conf.d/99nolangs
+    apt-get -o Acquire::AllowInsecureRepositories=true update
 
     mkdir -p "$DEPENDENCIES_DIR/pool"
 
@@ -136,20 +138,6 @@ apt-get update
 
 apt-get install -y "${dependenciesList[@]}"
 
-#unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
-#unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
-
-#dpkg --remove-architecture i386
-#rm -rf /var/lib/apt/lists/*
-#apt clean
-#apt update
-#apt install /var/cache/apt/archives/*.deb 
-
-#apt-get update
-#apt-get install -y "${dependenciesList[@]}"
-#dpkg -i /var/cache/apt/archives/*.deb || true
-#apt-get install -f -y
-#dpkg --configure -a
 
 command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate git, make
 command -v make >/dev/null 2>&1 || { echo "make not found"; exit 1; }

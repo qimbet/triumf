@@ -3,12 +3,19 @@
 #Jacob Mattie
 #j_mattie@live.ca
 
-#November, 2025
+#April 2026
 
 set -euo pipefail
 
 trap 'echo "ERROR in function ${FUNCNAME[0]:-main}, file ${BASH_SOURCE[1]:${BASH_SOURCE[0]}}, line $LINENO"; exit 1' ERR
 caller="${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+EPICS_ROOT="/opt/epics" #installation target directory
+
+ORIGINAL_USER="${SUDO_USER:-${USER:-root}}"
+ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
+
 
 #Ensure the script is run with sudo:
 if [ "$(id -u)" -ne 0 ]; then
@@ -18,11 +25,6 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 0 #exit original script after rerunning with sudo
 fi
 
-ORIGINAL_USER="${SUDO_USER:-${USER:-root}}"
-ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-EPICS_ROOT="/opt/epics" #installation target directory
 
 #prompt to remove preexisting installation
 if [ -d $EPICS_ROOT ] && [ -n "$EPICS_ROOT" ]; then
@@ -30,7 +32,7 @@ if [ -d $EPICS_ROOT ] && [ -n "$EPICS_ROOT" ]; then
     read response
 
     response=${response,,}
-    if [[ "$response" == "y" || "$response" == "yes" ]]; then #default yes unless explicit No
+    if [[ "$response" == "y" || "$response" == "yes" ]]; then #default no unless explicit Yes
         echo "Removing previous installation." 
         rm -rf "$EPICS_ROOT"
     else 
@@ -111,7 +113,7 @@ while true; do
             ;;
         
         n|no)
-            echo "You got it, boss. Nothing done."
+            printf "You got it, boss. Nothing done.\n\n"
             break
             ;;
         
@@ -123,6 +125,8 @@ done
     
 echo "To use epics, restart your terminal session or run: source ~/.bashrc"
 cat <<EOF
+
+
 Installer completed!
 For a quick-start overview about using epics, take a look at the readme.txt
 
@@ -130,5 +134,6 @@ For more in-depth instructions on using epics, read through the pdf files in thi
 
 Epics has been added to your system path. To begin using epics, you can either restart your shell session (open a new terminal/command prompt window) or run:
     source ~/.bashrc
+
 
 EOF
