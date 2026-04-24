@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 #Jacob Mattie
-#j_mattie@live.ca
+#jacob@qimbet.com
 
-#November, 2025
+#April 2025
 
 #this is charted to work only on Ubuntu 18.04, due to GUI dependencies on deprecated packages
 
@@ -29,12 +29,15 @@ OS_NAME=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
 VERSION_ID=$(lsb_release -rs)
 ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
 
-PACKAGES_ZIP="packages_${OS_NAME}_${VERSION_ID}.gz"
 EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
 FILES_DIR="$SCRIPT_DIR/installerFiles"
 DEPENDENCIES_DIR="$FILES_DIR/dependencies"
+
+PACKAGES_DIR="${OS_NAME}_${VERSION_ID}"
+LOCAL_VERSION_FILES="$DEPENDENCIES_DIR/$PACKAGES_DIR"
+PACKAGES_ZIP="$LOCAL_VERSION_FILES/Packages.gz"
 
 EPICS_BASE="$EPICS_ROOT/base"
 EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
@@ -50,6 +53,7 @@ LOCAL_GIT_CACHE="$FILES_DIR/localRepos" #enables offline downloads
 LOGFILE="$SCRIPT_DIR/logs.log"
 exec > >(tee "$LOGFILE") 2>&1
 
+mkdir -p "$LOCAL_VERSION_FILES/pool"
 
 
 #region functions
@@ -110,40 +114,12 @@ dependenciesList=( #used by apt install
     libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
     libfont-ttf-perl
 )
-#region deprecated package manager
-#if packages dir does not exist or is empty, create it & populate with .deb files
-#if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
-#    echo "Local dependency file collection not found. Creating..."
-#
-#    if check_internet; then
-#        echo "Downloading relevant dependency files"
-#        mkdir "$DEPENDENCIES_DIR/packageRepo" #install dependency files here temporarily
-#
-#        apt-get clean
-#        apt-get update
-#        apt-get install --download-only --reinstall -y "${dependenciesList[@]}"
-#        
-#        cp /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/packageRepo"
-#        cp /var/cache/apt/archives/partial/*.deb "$DEPENDENCIES_DIR/packageRepo"
-#        
-#        # Create the zip
-#        zip -r "$DEPENDENCIES_DIR/$PACKAGES_ZIP" "$DEPENDENCIES_DIR/packageRepo"
-#        rm -r "$DEPENDENCIES_DIR/packageRepo"
-#    
-#        echo "Dependency files downloaded!"
-#    else
-#        printf "Dependency files for Ubuntu $VERSION_ID missing!\nNo internet connection found!\n\nThe installation cannot continue. Please connect to the internet and run the script again."
-#    fi
-#
-#fi
-#endregion
 
-if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
+
+if [ ! -f "$PACKAGES_ZIP" ]; then 
     echo "Local dependency file collection not found. Creating..."
     echo 'Acquire::Languages "none";' | sudo tee /etc/apt/apt.conf.d/99nolangs
     apt-get -o Acquire::AllowInsecureRepositories=true update
-
-    mkdir -p "$DEPENDENCIES_DIR/pool"
 
     add-apt-repository -y universe
     add-apt-repository -y multiverse
@@ -153,15 +129,16 @@ if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then
 
     apt-get install -y --no-install-recommends --download-only --reinstall "${dependenciesList[@]}"
 
-    cp /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/pool/"
+    cp /var/cache/apt/archives/*.deb "$LOCAL_VERSION_FILES/pool/"
 
     apt-get install -y dpkg-dev
 
-    cd "$DEPENDENCIES_DIR"
-    dpkg-scanpackages pool /dev/null | gzip -9c > "$PACKAGES_ZIP"
+    cd "$LOCAL_VERSION_FILES"
+    dpkg-scanpackages pool /dev/null | gzip -9c > "Packages.gz"
 fi
 
-echo "deb [trusted=yes] file:$DEPENDENCIES_DIR/ ./" | tee /etc/apt/sources.list.d/offline.list
+gzip -dk "$PACKAGES_ZIP"
+echo "deb [trusted=yes] file:$LOCAL_VERSION_FILES/ ./" | tee /etc/apt/sources.list.d/offline.list
 apt-get update
 
 apt-get install -y "${dependenciesList[@]}"
