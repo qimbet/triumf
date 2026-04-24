@@ -134,6 +134,8 @@ if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then
 fi
 
 echo "deb [trusted=yes] file:$DEPENDENCIES_DIR/ ./" | tee /etc/apt/sources.list.d/offline.list
+gzip -dk Packages.gz
+
 apt-get update
 
 apt-get install -y "${dependenciesList[@]}"

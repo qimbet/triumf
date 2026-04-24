@@ -14,7 +14,6 @@
 *.un~
 *.AppImage
 *.log
-logs.log
 
 #precompiled package directories (myriad extensions)
 localFiles/

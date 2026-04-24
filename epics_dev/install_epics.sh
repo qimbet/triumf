@@ -25,6 +25,8 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 0 #exit original script after rerunning with sudo
 fi
 
+chmod +x $SCRIPT_DIR/methods/*.sh #enable exec permissions on os-specific installers
+
 
 #prompt to remove preexisting installation
 if [ -d $EPICS_ROOT ] && [ -n "$EPICS_ROOT" ]; then
