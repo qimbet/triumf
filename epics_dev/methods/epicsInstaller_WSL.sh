@@ -134,7 +134,9 @@ if [ ! -f "$PACKAGES_ZIP" ]; then
     dpkg-scanpackages pool /dev/null | gzip -9c > "Packages.gz"
 fi
 
-gzip -dk "$PACKAGES_ZIP"
+if [ ! -f "${PACKAGES_ZIP%.gz}" ]; then
+    gzip -dk "$PACKAGES_ZIP"
+fi
 echo "deb [trusted=yes] file:$LOCAL_VERSION_FILES/ ./" | tee /etc/apt/sources.list.d/offline.list
 
 apt-get update
@@ -233,8 +235,8 @@ export EPICS_GUI="$EPICS_GUI"
 export EPICS_HOST_ARCH="$EPICS_HOST_ARCH"
 export HOST_ARCH="$EPICS_HOST_ARCH"
 
-export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH"
-export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
+export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:\$PATH"
+export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:\$PATH"
 
 export EPICS_CA_AUTO_ADDR_LIST=YES
 
@@ -308,7 +310,8 @@ echo "Successfully installed & configured EDM"
 # ---------------------------------------------------
 
 #region fonts
-sed -i 's/\texact$//' $EDM_DIR/edmMain/fonts.list #allow some flexibility with fonts (necessary for compatibility with newer machines)
+#sed -i 's/\texact$//' $EDM_DIR/edmMain/fonts.list #allow some flexibility with fonts (necessary for compatibility with newer machines)
+sed -i '/^courier=-misc-liberation mono-/d; /^helvetica=-misc-liberation sans-/d' $EDM_DIR/edmMain/fonts.list 
 
 echo "Prepared fonts"
 

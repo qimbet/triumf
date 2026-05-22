@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 
 #Jacob Mattie
-#j_mattie@live.ca
+#jacob@qimbet.com
 
-#November, 2025
+#April 2025
 
 #this is charted to work only on Ubuntu 18.04, due to GUI dependencies on deprecated packages
 
-debugFlag=$1 #Boolean for verbose outputs & breakpoints, passed as arg
-debugFlag="True"
+ORIGINAL_USER=$1 #Boolean for verbose outputs & breakpoints, passed as arg
+SCRIPT_DIR=$2
+EPICS_ROOT=$3
+
 
 set -euo pipefail
-
 trap 'echo "ERROR in function ${FUNCNAME[0]:-main}, file ${BASH_SOURCE[1]:${BASH_SOURCE[0]}}, line $LINENO"; exit 1' ERR
 caller="${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}"
 
@@ -22,17 +23,22 @@ breakerStr="*******************************************"
 # ===================================================
 
 #region paths, constants, functions
-source /etc/os-release  #add $VERSION_ID to shell
-FILE_DIR_NAME="localFiles_$VERSION_ID"
-PACKAGES_ZIP="packages_$VERSION_ID.zip"
+#source /etc/os-release  #add $VERSION_ID to shell
+
+OS_NAME=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
+VERSION_ID=$(lsb_release -rs)
+ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
+
 EPICS_HOST_ARCH="linux-x86_64"
 
 # Root directory for EPICS installation
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FILES_DIR="$SCRIPT_DIR/installerFiles"
 DEPENDENCIES_DIR="$FILES_DIR/dependencies"
 
-EPICS_ROOT="/opt/epics"
+PACKAGES_DIR="${OS_NAME}_${VERSION_ID}"
+LOCAL_VERSION_FILES="$DEPENDENCIES_DIR/$PACKAGES_DIR"
+PACKAGES_ZIP="$LOCAL_VERSION_FILES/Packages.gz"
+
 EPICS_BASE="$EPICS_ROOT/base"
 EPICS_EXTENSIONS="$EPICS_ROOT/extensions"
 EDM_DIR="$EPICS_EXTENSIONS/src/edm"
@@ -47,18 +53,15 @@ LOCAL_GIT_CACHE="$FILES_DIR/localRepos" #enables offline downloads
 LOGFILE="$SCRIPT_DIR/logs.log"
 exec > >(tee "$LOGFILE") 2>&1
 
+mkdir -p "$LOCAL_VERSION_FILES/pool"
 
 
 #region functions
 check_internet() { #check connectivity; used to install missing files in case of local corruption
-    if [ "$debugFlag" = True ]; then
-        printf "Local files missing!\nPress enter to continue"
-        read input
-    fi
     if ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
-        return 1  # online
+        return 0  # online
     else
-        return 0  # offline
+        return 1  # offline
     fi
 }
 
@@ -96,77 +99,8 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
 #endregion
 
 
-#region user interaction; runtime environment / permissions
-
-
-#Ensure the script is run with sudo:
-if [ "$(id -u)" -ne 0 ]; then
-    echo "This script requires sudo privileges to work properly. Rerunning as sudo:"
-    sudo bash "$0" "$@" --source-path "$SCRIPT_DIR" 
-
-    exit 0 #exit original script after rerunning with sudo
-fi
-ORIGINAL_USER="${SUDO_USER:-${USER:-root}}"
-ORIGINAL_USER_HOME=$(eval echo "~$ORIGINAL_USER")
-
-
-#-------------------------Better to run all prompts first, _then_ proceed with deletions
-
-#Detect/remove previous installations in $EPICS_ROOT
-if [ -d $EPICS_ROOT ] && [ -n "$EPICS_ROOT" ]; then
-    printf "Existing EPICS installation detected at %s. Installation cannot proceed with existing files.\nRemove previous EPICS installation and reinstall? [y/N]:" "$EPICS_ROOT"
-    read response
-
-    response=${response,,}
-    if [[ "$response" == "y" || "$response" == "yes" ]]; then #default yes unless explicit No
-        echo "Removing previous installation." 
-        rm -rf "$EPICS_ROOT"
-    else 
-        echo "Installation aborted"
-        exit 1
-    fi
-fi
-
-mkdir -p "$EPICS_ROOT"
-
-
-#detect WSL vs. native Linux (necessary for GUI)
-if [[ -n "${WSL_DISTRO_NAME:-}" ]] || grep -qi microsoft /proc/version; then
-    sysEnv="WSL"
-elif [[ -f /proc/device-tree/model ]] && grep -qi "raspberry pi" /proc/device-tree/model; then
-    sysEnv="Raspberry Pi"
-else
-    sysEnv="Native Ubuntu"
-fi
-
-# --- confirm detection ---
-printf "Detected environment: %s. Is this correct? [Y/n]: " "$sysEnv"
-read -r response
-response=${response,,}
-
-# --- override menu if incorrect ---
-if [[ "$response" == "n" || "$response" == "no" ]]; then
-    echo "Select environment:"
-    echo "1) WSL"
-    echo "2) Raspberry Pi"
-    echo "3) Native Ubuntu"
-    printf "Choice [1-3]: "
-    read -r choice
-
-    case "$choice" in
-        1) sysEnv="WSL" ;;
-        2) sysEnv="Raspberry Pi" ;;
-        3) sysEnv="Native Ubuntu" ;;
-        *) echo "Invalid selection, keeping detected value." ;;
-    esac
-fi
-
-echo "Proceeding with installation"
 
 #endregion
-
-#endregion
-
 
 # ---------------------------------------------------
 # Install dependencies via apt/dpkg 
@@ -174,65 +108,47 @@ echo "Proceeding with installation"
 
 #region dependencies 
 
-case "$sysEnv" in
-    "WSL")
-        dependenciesList=( #used by apt install
-            dpkg-dev make wine-stable 
-            build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
-            libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
-            libfont-ttf-perl
-        )
-        ;;
-        
-    "Raspberry Pi")
-        dependenciesList=( #used by apt install
-            dpkg-dev make 
-            build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
-            libxmu-headers libxt-dev libxtst-dev x11proto-print-dev autoconf libtool sshpass
-            libfont-ttf-perl screen 
-        )
-        ;;
-        
-    "Native Ubuntu")
-        dependenciesList=( #used by apt install
-            dpkg-dev make 
-            build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
-            libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
-            libfont-ttf-perl
-        )
-        ;;
+dependenciesList=( #used by apt install
+    dpkg-dev make 
+    build-essential git iperf3 nmap openssh-server vim libreadline-gplv2-dev libgif-dev libmotif-dev libxmu-dev
+    libxmu-headers libxt-dev libxtst-dev xfonts-100dpi xfonts-75dpi gsfonts-x11 x11proto-print-dev autoconf libtool sshpass
+    libfont-ttf-perl
+)
 
-esac
 
-#if packages dir does not exist or is empty, create it & populate with .deb files
-if [ ! -f "$DEPENDENCIES_DIR/$PACKAGES_ZIP" ]; then 
+if [ ! -f "$PACKAGES_ZIP" ]; then 
     echo "Local dependency file collection not found. Creating..."
+    echo 'Acquire::Languages "none";' | sudo tee /etc/apt/apt.conf.d/99nolangs
+    apt-get -o Acquire::AllowInsecureRepositories=true update
 
-    if check_internet; then
-        echo "Downloading relevant dependency files"
-        mkdir "$DEPENDENCIES_DIR/packageRepo"
+    add-apt-repository -y universe
+    add-apt-repository -y multiverse
 
-        sudo apt-get update
-        sudo apt-get install --download-only -y "${dependenciesList[@]}"
-        
-        mv /var/cache/apt/archives/*.deb "$DEPENDENCIES_DIR/packageRepo"
-        
-        # Create the zip
-        zip -r "$DEPENDENCIES_DIR/$ACKAGES_ZIP" "$DEPENDENCIES_DIR/packageRepo"
-        rm -r "$DEPENDENCIES_DIR/packageRepo"
-    
-        echo "Dependency files downloaded!"
-    else
-        printf "Dependency files for Ubuntu $VERSION_ID missing!\nNo internet connection found!\n\nThe installation cannot continue. Please connect to the internet and run the script again."
-    fi
+    apt-get update
+    apt-get clean
 
+    apt-get install -y --no-install-recommends --download-only --reinstall "${dependenciesList[@]}"
+
+    cp /var/cache/apt/archives/*.deb "$LOCAL_VERSION_FILES/pool/"
+
+    apt-get install -y dpkg-dev
+
+    cd "$LOCAL_VERSION_FILES"
+    dpkg-scanpackages pool /dev/null | gzip -9c > "Packages.gz"
 fi
 
+if [ ! -f "$PACKAGES_FILE" ]; then
+    gzip -dk "$PACKAGES_ZIP"
+fi
+echo "deb [trusted=yes] file:$LOCAL_VERSION_FILES/ ./" | tee /etc/apt/sources.list.d/offline.list
+apt-get update
 
-#unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
-unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
-apt install /var/cache/apt/archives/*.deb 
-#dpkg -i "$FILES_DIR/offline-packages/*.deb"
+apt-get install -y "${dependenciesList[@]}"
+
+##unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
+#unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
+#apt install /var/cache/apt/archives/*.deb 
+##dpkg -i "$FILES_DIR/offline-packages/*.deb"
 
 
 command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate git, make
@@ -410,63 +326,4 @@ echo "Prepared fonts"
 
 #endregion
 
-# ---------------------------------------------------
-# GUI -- Xming, for WSL instances 
-# ---------------------------------------------------
-if server_mode
-if [ "$sysEnv" == "WSL" ]; then #WSL -- unverified
-    xming_fonts_fileName="Xming-fonts-7-7-0-10-setup.exe"
 
-    cp "{$FILES_DIR}/${xming_fonts_fileName}" "$EPICS_GUI/"
-
-    WIN_PATH=$(wslpath -w "$EPICS_GUI/$xming_fonts_fileName")
-    #powershell.exe -NoProfile -NonInteractive -Command \
-    #"Start-Process -FilePath '$WIN_PATH' -ArgumentList '/VERYSILENT','/NORESTART' -Wait -PassThru | ForEach-Object { exit \$_.ExitCode }"
-
-    echo "$breakerStr" 
-    echo "$breakerStr" 
-    printf "\n\nManual interaction needed for Xming installation. \n\nSELECT ALL FONTS IN CHECKBOX LIST.\nEnter any value to continue.\n"
-    read dummyVar
-
-    powershell.exe -NoProfile -Command "& '$WIN_PATH'" #runs xming_FileName
-
-    exit $?
-
-else    #Native Ubuntu; not necessary
-    echo "Xming not needed for Native Linux systems"
-    echo "Skipping Xming install"
-fi
-
-
-
-ls
-# ---------------------------------------------------
-# End-script processes 
-# ---------------------------------------------------
-
-echo "Installation finished!"
-
-while true; do
-    read -p "Would you like to create a local copy of this epics installer for future use? [Y/n]: " cloneChoice
-    cloneChoice=${cloneChoice,,}
-    if [[ "$cloneChoice" == "n" || "$cloneChoice" == "no" ]]; then
-        echo "You got it, boss. Nothing done."
-    elif [[ "$cloneChoice" == "y" || "$cloneChoice" == "yes" ]]; then
-        echo "Default directory: $ORIGINAL_USER_HOME"
-    
-        read -p "Press Enter to copy into here, or enter an alternate directory: " target_dir
-        target_dir="${target_dir:-$ORIGINAL_USER_HOME}"
-    
-        mkdir -p "$target_dir"
-        cp -r "$SCRIPT_DIR" "$target_dir"
-    
-        echo "Installer cloned into: $target_dir"
-    fi
-    else
-        echo "Choice not recognized. Try again."
-    fi
-
-
-
-echo "To use epics, restart your terminal session or run: source ~/.bashrc"
-echo "For documentation on epics usage, take a look at the readme.txt, or the pdf files bundled in this installer's Documentation folder"

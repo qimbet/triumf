@@ -137,7 +137,9 @@ if [ ! -f "$PACKAGES_ZIP" ]; then
     dpkg-scanpackages pool /dev/null | gzip -9c > "Packages.gz"
 fi
 
-gzip -dk "$PACKAGES_ZIP"
+if [ ! -f "${PACKAGES_ZIP%.gz}" ]; then
+    gzip -dk "$PACKAGES_ZIP"
+fi
 echo "deb [trusted=yes] file:$LOCAL_VERSION_FILES/ ./" | tee /etc/apt/sources.list.d/offline.list
 apt-get update
 
