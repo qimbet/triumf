@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 
 #Jacob Mattie
-#jacob@qimbet.com
+#j_mattie@live.ca
 
-#April 2025
-
-#this is charted to work only on Ubuntu 18.04, due to GUI dependencies on deprecated packages
+#November, 2025
 
 ORIGINAL_USER=$1 #Boolean for verbose outputs & breakpoints, passed as arg
 SCRIPT_DIR=$2
@@ -57,6 +55,7 @@ mkdir -p "$LOCAL_VERSION_FILES/pool"
 
 
 #region functions
+
 cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "EPICS Base" "base"
     local githubLink="$1"
     local targetPath="$2"   # where it is to be cloned
@@ -73,16 +72,14 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
             printf "Successfullly cloned repository: %s" "$gitDirName"
             return $? #most recent exit code; returns 0 on a success
         else
-            if check_internet; then
-                echo "Local cache not found. Cloning $irName from GitHub..."
-                mkdir -p "$LOCAL_GIT_CACHE"
-                git clone --recursive "$githubLink" "$LOCAL_GIT_CACHE/${gitDirName}.git" #ensures .git suffix
-                git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
-                return $?
-            fi
+            echo "Local cache not found. Cloning $irName from GitHub..."
+            mkdir -p "$LOCAL_GIT_CACHE"
+            git clone --recursive "$githubLink" "$LOCAL_GIT_CACHE/${gitDirName}.git" #ensures .git suffix
+            git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
+            return $?
         fi
 
-        echo "Error: Local cache empty and no internet connection. Cannot clone $dirName."
+        echo "Error: Local cache empty and repo download failed. Validate internet connection. Cannot clone $dirName."
         exit 1
     else
         echo "Could not clone dir %s as directory not empty!" "$dirName"
@@ -90,9 +87,8 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
 }
 #endregion
 
-
-
 #endregion
+
 
 # ---------------------------------------------------
 # Install dependencies via apt/dpkg 
@@ -107,7 +103,7 @@ dependenciesList=( #used by apt install
     libfont-ttf-perl
 )
 
-
+#if packages dir does not exist or is empty, create it & populate with .deb files 
 if [ ! -f "$PACKAGES_ZIP" ]; then 
     echo "Local dependency file collection not found. Creating..."
     echo 'Acquire::Languages "none";' | sudo tee /etc/apt/apt.conf.d/99nolangs
@@ -129,18 +125,14 @@ if [ ! -f "$PACKAGES_ZIP" ]; then
     dpkg-scanpackages pool /dev/null | gzip -9c > "Packages.gz"
 fi
 
-if [ ! -f "$PACKAGES_FILE" ]; then
+if [ ! -f "${PACKAGES_ZIP%.gz}" ]; then
     gzip -dk "$PACKAGES_ZIP"
 fi
 echo "deb [trusted=yes] file:$LOCAL_VERSION_FILES/ ./" | tee /etc/apt/sources.list.d/offline.list
+
 apt-get update
 
 apt-get install -y "${dependenciesList[@]}"
-
-##unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
-#unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
-#apt install /var/cache/apt/archives/*.deb 
-##dpkg -i "$FILES_DIR/offline-packages/*.deb"
 
 
 command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate git, make
@@ -151,7 +143,6 @@ dpkg -i "$DEPENDENCIES_DIR/libxp6_1.0.2-1ubuntu1_amd64.deb"
 dpkg -i "$DEPENDENCIES_DIR/libxp-dev_1.0.2-1ubuntu1_amd64.deb"
 
 echo "Successfully installed dependencies"
-
 
 #endregion
 
@@ -173,7 +164,6 @@ cloneGitRepo $extensionsLink $EPICS_EXTENSIONS "EPICS Extensions" "extensions"
 cloneGitRepo $edmLink $EDM_DIR "EDM" "edm"
 cloneGitRepo $guiLink $EPICS_GUI "EPICS GUI" "epics-gui-triumf"
 cloneGitRepo $fontsLink $FONTS_DIR "FONTS" "font-ttf"
-
 
 #endregion
 
@@ -219,51 +209,6 @@ make -j"$(nproc)" -C "$EPICS_BASE"
 
 echo "Successfully installed EPICS base"
 
-
-#add paths to calling user's shell (user invoking sudo)
-
-#check for presence of $EPICS_MARKER in bashrc before appending
-#if marker is present, then skip. This avoids duplicates in the event of repeated installer use
-
-EPICS_MARKER="#=======  EPICS ENVIRONMENT VARIABLES ======="
-if ! grep -qF "$EPICS_MARKER" "$ORIGINAL_USER_HOME/.bashrc"; then 
-    sudo -u "$ORIGINAL_USER" tee -a "$ORIGINAL_USER_HOME/.bashrc" > /dev/null <<EOF
-
-#=======  EPICS ENVIRONMENT VARIABLES =======
-export EPICS_BASE="$EPICS_BASE"
-export EPICS_EXTENSIONS="$EPICS_EXTENSIONS"
-export EPICS_GUI="$EPICS_GUI"
-export EPICS_HOST_ARCH="$EPICS_HOST_ARCH"
-export HOST_ARCH="$EPICS_HOST_ARCH"
-
-export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH"
-export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
-
-export EPICS_CA_AUTO_ADDR_LIST=YES
-
-export EDM_DIR="$EPICS_EXTENSIONS/src/edm"
-export EDMBASE="$EDM_DIR"
-export EDM="$EDM_DIR/edmMain/O.$EPICS_HOST_ARCH/edm"
-
-export EDMOBJECTS="$EDM_DIR/setup"
-export EDMPVOBJECTS="$EDM_DIR/setup"
-export EDMFILES="$EDM_DIR/setup"
-export EDMHELPFILES="$EPICS_EXTENSIONS/src/edm/helpFiles"
-export EDMLIBS="$EPICS_EXTENSIONS/lib/$EPICS_HOST_ARCH"
-export EDMFONTFILE="$EDM_DIR/edmMain/fonts.list"
-
-export EDM_USE_SHARED_LIBS=YES
-
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH"
-source "$EDM_DIR/setup/setup.sh"
-
-#--------------------------------------------
-
-EOF
-
-fi
-
-echo "Succesfully configured EPICS Base"
 
 #endregion
 
@@ -311,11 +256,10 @@ echo "Successfully installed & configured EDM"
 # ---------------------------------------------------
 
 #region fonts
-sed -i 's/\texact$//' $EDM_DIR/edmMain/fonts.list #allow some flexibility with fonts (necessary for compatibility with newer machines)
+#sed -i 's/\texact$//' $EDM_DIR/edmMain/fonts.list #allow some flexibility with fonts (necessary for compatibility with newer machines)
+sed -i '/^courier=-misc-liberation mono-/d; /^helvetica=-misc-liberation sans-/d' $EDM_DIR/edmMain/fonts.list 
 
 echo "Prepared fonts"
 
 
 #endregion
-
-

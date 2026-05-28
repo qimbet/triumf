@@ -57,14 +57,6 @@ mkdir -p "$LOCAL_VERSION_FILES/pool"
 
 
 #region functions
-check_internet() { #check connectivity; used to install missing files in case of local corruption
-    if ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
-        return 0  # online
-    else
-        return 1  # offline
-    fi
-}
-
 cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "EPICS Base" "base"
     local githubLink="$1"
     local targetPath="$2"   # where it is to be cloned
@@ -82,7 +74,7 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
             return $? #most recent exit code; returns 0 on a success
         else
             if check_internet; then
-                echo "Local cache not found. Cloning $irName from GitHub..."
+                echo "Local cache not found. Cloning $dirName from GitHub..."
                 mkdir -p "$LOCAL_GIT_CACHE"
                 git clone --recursive "$githubLink" "$LOCAL_GIT_CACHE/${gitDirName}.git" #ensures .git suffix
                 git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
@@ -144,11 +136,6 @@ echo "deb [trusted=yes] file:$LOCAL_VERSION_FILES/ ./" | tee /etc/apt/sources.li
 apt-get update
 
 apt-get install -y "${dependenciesList[@]}"
-
-##unzip "$FILES_DIR/packages.zip" -d "$FILES_DIR/offline-packages"
-#unzip "$DEPENDENCIES_DIR/$PACKAGES_ZIP" -d /var/cache/apt/archives/
-#apt install /var/cache/apt/archives/*.deb 
-##dpkg -i "$FILES_DIR/offline-packages/*.deb"
 
 
 command -v git >/dev/null 2>&1 || { echo "git not found"; exit 1; } #validate git, make
@@ -244,8 +231,8 @@ export EPICS_GUI="$EPICS_GUI"
 export EPICS_HOST_ARCH="$EPICS_HOST_ARCH"
 export HOST_ARCH="$EPICS_HOST_ARCH"
 
-export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:$PATH"
-export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:$PATH"
+export PATH="$EPICS_BASE/bin/$EPICS_HOST_ARCH:\$PATH"
+export PATH="$EPICS_EXTENSIONS/bin/$EPICS_HOST_ARCH:\$PATH"
 
 export EPICS_CA_AUTO_ADDR_LIST=YES
 
@@ -319,7 +306,7 @@ echo "Successfully installed & configured EDM"
 # ---------------------------------------------------
 
 #region fonts
-sed -i 's/\texact$//' $EDM_DIR/edmMain/fonts.list #allow some flexibility with fonts (necessary for compatibility with newer machines)
+sed -i '/^courier=-misc-liberation mono-/d; /^helvetica=-misc-liberation sans-/d' $EDM_DIR/edmMain/fonts.list 
 
 echo "Prepared fonts"
 

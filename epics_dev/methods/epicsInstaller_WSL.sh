@@ -56,15 +56,6 @@ exec > >(tee "$LOGFILE") 2>&1
 mkdir -p "$LOCAL_VERSION_FILES/pool"
 
 
-#region functions
-check_internet() { #check connectivity; used to install missing files in case of local corruption
-    if ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
-        return 1  # online
-    else
-        return 0  # offline
-    fi
-}
-
 cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "EPICS Base" "base"
     local githubLink="$1"
     local targetPath="$2"   # where it is to be cloned
@@ -81,7 +72,7 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
             printf "Successfullly cloned repository: %s" "$gitDirName"
             return $? #most recent exit code; returns 0 on a success
         else
-            echo "Local cache not found. Cloning $irName from GitHub..."
+            echo "Local cache not found. Cloning $dirName from GitHub..."
             mkdir -p "$LOCAL_GIT_CACHE"
             git clone --recursive "$githubLink" "$LOCAL_GIT_CACHE/${gitDirName}.git" #ensures .git suffix
             git clone --recursive "$LOCAL_GIT_CACHE/${gitDirName}.git" "$targetPath"
@@ -94,7 +85,6 @@ cloneGitRepo() { #e.g. cloneGitRepo https://github[...]epics-base $EPICS_BASE "E
         echo "Could not clone dir %s as directory not empty!" "$dirName"
     fi
 }
-#endregion
 
 #endregion
 
@@ -318,25 +308,5 @@ echo "Prepared fonts"
 
 #endregion
 
-# ---------------------------------------------------
-# GUI -- Xming, for WSL instances 
-# ---------------------------------------------------
-#xmingSetup_fileName="Xming-6-9-0-31-setup.exe"  #use all defaults
-#xming_fonts_fileName="Xming-fonts-7-7-0-10-setup.exe" #click all font checkboxes listed
-#
-#cp "${FILES_DIR}/${xmingSetup_fileName}" "$EPICS_GUI/"
-#cp "${FILES_DIR}/${xming_fonts_fileName}" "$EPICS_GUI/"
-#
-#wine "$EPICS_GUI/$xmingSetup_fileName" /SILENT /NORESTART
-#wine "$EPICS_GUI/$xming_fonts_fileName" /SILENT /NORESTART
 
-#WIN_PATH=$(wslpath -w "$EPICS_GUI/$xming_fonts_fileName")
-#powershell.exe -NoProfile -NonInteractive -Command \
-#"Start-Process -FilePath '$WIN_PATH' -ArgumentList '/VERYSILENT','/NORESTART' -Wait -PassThru | ForEach-Object { exit \$_.ExitCode }"
-
-#echo "$breakerStr" 
-#printf "\n\nManual interaction needed for Xming installation. \n\nSELECT ALL FONTS IN CHECKBOX LIST.\nEnter any value to continue.\n"
-#read dummyVar
-#
-#powershell.exe -NoProfile -Command "& '$WIN_PATH'" #runs xming_FileName
 
