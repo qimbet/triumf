@@ -1,0 +1,32 @@
+FROM ubuntu:18.04
+
+COPY dependencies /opt/repo
+
+RUN echo "deb [trusted=yes] file:/opt/repo ./" > /etc/apt/sources.list.d/local.list && \
+    apt-get update && \
+    apt-get install -y \
+        dpkg-dev \
+        make \
+        build-essential \
+        git \
+        iperf3 \
+        nmap \
+        openssh-server \
+        vim \
+        libreadline-gplv2-dev \
+        libgif-dev \
+        libmotif-dev \
+        libxmu-dev \
+        libxmu-headers \
+        libxt-dev \
+        libxtst-dev \
+        xfonts-100dpi \
+        xfonts-75dpi \
+        gsfonts-x11 \
+        x11proto-print-dev \
+        autoconf \
+        libtool \
+        sshpass \
+        libfont-ttf-perl
+
+CMD ["/bin/bash"]

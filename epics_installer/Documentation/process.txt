@@ -1,0 +1,33 @@
+Currently:
+edm issues are sourced to setup.sh -- this overwrites/relies on a misdirected shell variable $EDMDIR (or similar)
+
+this can be repaired with a sed command
+
+----------------------------------------------------------
+
+calling user:
+$ORIGINAL_USER_HOME
+
+----------------------------------------------------------
+
+It remains:
+
+- Edit setup.sh
+	- remove duplicates on:
+		EDMFILES
+		EDMHELPFILES
+		EDMLIBS 
+		...?
+
+- Prompt: Install 'reduced' client-form epics if raspberry pi
+
+- Configure for raspberry pi
+	- build-in ssh/networking tools by default
+- conigure for windows
+
+- set up podman for stability over different setups
+
+
+Test on different systems 
+	- prebuilt/used systems with async dependencies
+	- different os types
